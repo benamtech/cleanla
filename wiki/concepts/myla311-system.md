@@ -21,6 +21,8 @@ Los Angeles's official non-emergency service request system. Any LA-focused civi
 
 Roughly 2.5 million requests per year (per Ted Ross, LA City IT Agency General Manager, at the 2025 MyLA311 relaunch).
 
+> **Verify:** A subsequent xtown.la analysis of LA's open service-request data reports **~1.4 million total service requests in 2024**, a 5.2% YoY increase ([source](https://xtown.la/2025/01/21/myla311-reports-in-los-angeles-rise-5-2-in-2024-graffiti-removal-bulky-item-pickup/)). The two figures may reflect a scope difference (city total across all channels vs. MyLA311 channel specifically) or a projected-vs-actual gap. Worth pinning down before quoting either number publicly. Tracked as an open question.
+
 ## Service catalog
 
 Covers 1,500+ city services. The post-2025 relaunch normalized the public submission form to 96 service request types — 15 net new, 25 consolidated from prior versions.

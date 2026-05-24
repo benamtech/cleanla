@@ -12,6 +12,9 @@ related:
   - ../concepts/cleanlawithme-movement.md
   - ../concepts/snapcrap-case-study.md
   - ../concepts/civic-app-patterns-and-failure-modes.md
+  - ../concepts/civic-app-retention-benchmarks.md
+  - ../concepts/la-civic-tech-funding-landscape.md
+  - ../concepts/international-civic-app-patterns.md
   - ../decisions/2026-05-mapbox-over-google-maps.md
   - ../decisions/2026-05-deep-link-not-direct-submit.md
   - ../decisions/2026-05-no-candidate-branding.md
@@ -110,8 +113,13 @@ Marketing surface is carved out from any political content the developer publish
 - Does [[../concepts/cleanlawithme-movement|Naula / Clean LA With Me]] want to formally own or co-brand the app?
 - Which MyLA311 web form query params (if any) are actually honored?
 - What's the App Store policy on apps that publicly display photos of encampments? (Some moderator interpretations might consider this targeting vulnerable people.)
-- Is there a fiscal sponsor available if the 501(c)(3) ownership path doesn't pan out immediately?
 - Trademark check: does "CleanLA Snap" survive a search against the USPTO and the App Store? (Particularly with "Snap" in the name — see the [[../concepts/snapcrap-case-study|Snapcrap]] precedent on Snap Inc.'s aggressive enforcement posture.)
+- Should v1 ship a multi-stakeholder routing layer (LADWP, Metro, etc.) or LA-city-only? See [[../concepts/snap-send-solve-australia]] for the multi-stakeholder pattern at scale.
+
+## Recently de-risked (was an open question, now substantially resolved)
+
+- **Institutional form / 501(c)(3) sustainability path.** [[../concepts/la-civic-tech-funding-landscape]] confirms grant runway is realistic ($30K-$150K Year-1 via LA2050 + Annenberg) and [[../concepts/la-civic-tech-funding-landscape|Community Partners LA]] provides 4-8 week fiscal sponsorship that unlocks grants without immediate incorporation. The institutional-form gap is no longer load-bearing in the same way; the question shifts from "is this viable?" to "Naula partnership vs. independent fiscal sponsorship — which by when?"
+- **Realistic engagement benchmarks.** [[../concepts/civic-app-retention-benchmarks]] sets targets: 2-5% of serviceable population as MAU, 1-3% D30 retention, 60-80% one-time-reporter distribution. The "status loop = retention" claim is plausible but unvalidated — plan for a 2-5% lift, not a multiplier.
 
 ## Related concepts
 
@@ -122,7 +130,10 @@ Marketing surface is carved out from any political content the developer publish
 - [[../concepts/rn-maps-landscape-2026]] — why Mapbox
 - [[../concepts/cleanlawithme-movement]] — the natural distribution partner
 - [[../concepts/snapcrap-case-study]] — the direct precedent
-- [[../concepts/civic-app-patterns-and-failure-modes]] — what worked and what killed similar apps
+- [[../concepts/civic-app-patterns-and-failure-modes]] — what worked and what killed similar US apps
+- [[../concepts/international-civic-app-patterns]] — patterns from non-US precedents worth borrowing
+- [[../concepts/civic-app-retention-benchmarks]] — what realistic engagement targets look like
+- [[../concepts/la-civic-tech-funding-landscape]] — which foundations can credibly fund Year 1
 - [[../concepts/open311-standard]] — why we can't just hit an API
 - [[../concepts/seeclickfix-civicplus]] — possible long-term acquirer/partner outside LA
 - [[../concepts/fixmystreet-uk]] — the durable nonprofit-owned reference model

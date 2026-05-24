@@ -28,6 +28,8 @@ Even when a third-party app can't submit directly to official systems, just maki
 ### Status loop = retention
 [[seeclickfix-civicplus]]'s most-cited resident benefit is the "your report status changed" notification. Without this loop, users file once and never return. Build Open → InProgress → Cleaned status updates as a first-class feature, not an afterthought.
 
+> **Revised (2026-05-24):** The claim that status notifications drive retention is *plausible but empirically unvalidated for civic apps specifically*. General mobile-app research shows push notifications produce 3.5-3.9× engagement lifts in the next 24 hours; no published A/B test or peer-reviewed study has isolated the effect for civic reporting. Vendor marketing (CivicPlus) asserts it but does not publish data. **Plan conservatively: 2-5% retention lift, not a 2-3× multiplier.** Full evidence in [[civic-app-retention-benchmarks]].
+
 ### Before/after photos are the unit of virality
 Every successful cleanup movement (Naula, Pratt's power-washing content, every shareable cleanup video on TikTok) uses this format. Building before/after into the data model — not just the UI — is high-leverage: enables retroactive content generation, share cards, and impact dashboards.
 
@@ -60,4 +62,8 @@ This rarely works on the city side — procurement and security review timelines
 - [[open311-standard]]
 - [[on-device-photo-privacy]]
 - [[civic-app-legal-considerations]]
+- [[civic-app-retention-benchmarks]]
+- [[international-civic-app-patterns]]
+- [[la-civic-tech-funding-landscape]]
+- [[swachhata-india]]
 - [[../projects/cleanla-snap]]

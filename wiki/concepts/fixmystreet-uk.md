@@ -43,8 +43,14 @@ Open question: is forking the FixMyStreet codebase a cheaper path to MVP than bu
 - Open311 reference: https://www.open311.org/learn/
 - Open Civic Data Standards: https://azavea.gitbooks.io/open-data-standards/content/standards/domain_specific_standards/open311.html
 
+## Updated scale (2026-05-24 research pass)
+
+Per mySociety's [2024/25 impact report](https://research.mysociety.org/html/impact-report-2025/): **1.02M neighborhood issues reported globally** to date across all FixMyStreet deployments. Brussels alone filed **150,000+ reports in 2023** (+55% YoY), with ~130,000 resolved (+57%). SocietyWorks (the commercial arm) now has 31 council customers on the Pro tier. The Brussels number in particular is a useful data point — a city of ~1.2M people processed 150K reports/year, implying ~0.125 reports per capita per year. Higher than the UK national average (~0.018) and worth understanding *why* before assuming LA can hit similar density.
+
 ## Backlinks
 
 - [[open311-standard]]
 - [[civic-app-patterns-and-failure-modes]]
+- [[international-civic-app-patterns]]
+- [[civic-app-retention-benchmarks]]
 - [[../projects/cleanla-snap]]

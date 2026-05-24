@@ -48,8 +48,15 @@ Consolidate duplicates, fix broken `[[wikilinks]]` and backlinks, split any page
 - Every wiki page ends with a `## Backlinks` section.
 - `[[wikilink]]` resolves to `wiki/**/<name>.md`. A wikilink with no matching file is a TODO marker, not an error.
 
+## Design system
+
+This project uses the **369 design system** for all UI, design, and data-visualisation work — relevant when the CleanLA Snap mobile app is built and for any visual artifacts the wiki itself produces. Before any UI, design, or data work, invoke `369-design-system`. Output that violates the rules in that skill is a bug, not a preference.
+
+The skill lives at [`.claude/skills/369-design-system/SKILL.md`](.claude/skills/369-design-system/SKILL.md). Summary: spacing in multiples of 3 (Bauhaus + sacred geometry), 1px solid grey borders, zero border-radius (with one exception), Helvetica Neue at a fixed 9/12/15/18/24/30/33/36 scale, ten colour tokens only, no shadows/gradients/blur, no emoji codepoints, and a deterministic data → visualisation decision tree backed by Cleveland & McGill (1984) and Wilkinson (1999).
+
 ## Where to look first
 
 - `AGENT.md` — full operating manual
 - `wiki/index.md` — the map of compiled knowledge
 - `raw/` — source material, numbered in order of arrival
+- `.claude/skills/369-design-system/SKILL.md` — design rules for any UI/data work

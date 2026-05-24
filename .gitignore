@@ -1,0 +1,16 @@
+.DS_Store
+*.log
+node_modules/
+.env
+.env.local
+.env.*.local
+
+# Editor scratch
+.vscode/
+.idea/
+*.swp
+*~
+
+# Claude session ephemera (keep settings.json checked in)
+.claude/*.local.json
+.claude/cache/

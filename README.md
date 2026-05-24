@@ -1,78 +1,112 @@
-# LLM Wiki
+# CleanLA
 
-A personal knowledge base in the style of Andrej Karpathy's April 2026 `llm-wiki.md` gist. Plain markdown, compiled from raw source material by an LLM agent, queried by loading pages back into an LLM's context.
+A nonpartisan civic transparency app for reporting and tracking street issues in Los Angeles — encampments, illegal dumping, graffiti, biohazards, overgrown lots.
 
-It is **not** a RAG system. There is no vector database, no embedding pipeline, no retrieval layer. The structure is the index. Compilation is the indexing.
+Two taps from launch to submission. Faces and license plates redacted on-device before upload. Deep-links into MyLA311 so the city sees every report.
 
-## The compile loop
+> **Status:** research and planning phase. The MVP build prompt (`raw/0001-cleanla-snap-build-prompt.md`) is ready to scaffold the app. Architecture, key decisions, and supporting research live in `wiki/`. App code lands in a follow-on directory once building begins.
 
-```
-raw/  ──ingest──►  wiki/  ──query──►  context window
-```
+## What this project is
 
-1. **Drop** raw material into `raw/` — articles, transcripts, papers, code, screenshots, notes. Anything.
-2. **Open** this repo in Claude Code and say "ingest". The agent will read every new raw file, survey existing wiki pages, and synthesize the new material into concept pages, project pages, decisions, or playbooks — updating existing pages where appropriate.
-3. **Query** by asking Claude Code a question. The agent reads `wiki/index.md`, identifies relevant pages, loads them into context, and answers.
+**CleanLA Snap** is the mobile app — the first artifact of a broader CleanLA project intended to be owned by a 501(c)(3) (most plausibly [Clean LA With Me](https://www.instagram.com/cleanlawithme/)) rather than any individual or campaign. The codebase, copy, UI, and shared content are strictly brand-neutral; no political candidate, party, or campaign is referenced anywhere.
 
-Over time the wiki compounds. You don't re-explain context every conversation. The wiki *is* the context.
+The core thesis: LA already has a 311 system, an engaged grassroots cleanup movement, and a citizenry holding phones. What's missing is a privacy-respecting, public-by-default transparency layer that closes the loop between *I see a problem* → *the city knows* → *the neighborhood can see whether anything happened*.
 
-## Repository layout
+Full project page: [`wiki/projects/cleanla-snap.md`](wiki/projects/cleanla-snap.md).
+
+## The repo today
+
+This repository is currently a **Karpathy-style LLM wiki** — a plain-markdown knowledge base, compiled by an LLM agent from raw source material, used to drive design decisions for the app.
 
 ```
 .
 ├── AGENT.md              # Operating manual for the LLM agent — read this if you're Claude
-├── raw/                  # Drop zone for source material
+├── CLAUDE.md             # Auto-loaded session pointer for Claude Code
+├── raw/                  # Source material (articles, transcripts, build prompts, research)
 └── wiki/
     ├── index.md          # The map. Start here.
-    ├── concepts/         # Atomic ideas, one per file
-    ├── projects/         # Project-scoped aggregates
+    ├── concepts/         # Atomic ideas (civic-tech precedents, tech-stack analysis, legal terrain)
+    ├── projects/         # Project-scoped aggregates — currently just CleanLA Snap
     ├── decisions/        # Dated, immutable decision logs
     └── playbooks/        # Reusable how-tos and prompt patterns
 ```
 
-## How to use it
+App scaffolding (`app/`, `firebase/`, etc.) will live alongside the wiki once we run the MVP prompt.
 
-### Add new material
+## Locked architecture
+
+- **Mobile:** Expo SDK 52+, TypeScript, Expo Router, NativeWind
+- **Backend:** Firebase v10+ (Firestore, Storage, Anonymous + Email Auth)
+- **Maps:** `@rnmapbox/maps` with the official Expo config plugin — [decision](wiki/decisions/2026-05-mapbox-over-google-maps.md)
+- **Camera + on-device privacy:** `react-native-vision-camera` + ML Kit (Android) / Apple Vision (iOS) for face + license-plate detection and blurring
+- **MyLA311:** deep-link only in v1; server-side Playwright submission agent is Phase 2 — [decision](wiki/decisions/2026-05-deep-link-not-direct-submit.md)
+
+## Non-negotiable: on-device privacy
+
+The app aggregates citizen photos of public spaces. Without rigorous on-device redaction it creates real harm and legal exposure. The mandatory pipeline — [decision](wiki/decisions/2026-05-on-device-face-blur-required.md):
+
+1. Capture frame via vision-camera frame processor
+2. Detect every face and license plate on-device
+3. Gaussian-blur all detected regions before any preview or upload
+4. Discard the raw frame; only the blurred photo touches Firebase
+5. Block submission if >40% of the frame is human body
+
+The raw, unblurred photo never leaves the device.
+
+## Key decisions
+
+- [`2026-05-no-candidate-branding`](wiki/decisions/2026-05-no-candidate-branding.md) — the app is and remains nonpartisan and brand-neutral
+- [`2026-05-on-device-face-blur-required`](wiki/decisions/2026-05-on-device-face-blur-required.md) — on-device face + plate blur is mandatory
+- [`2026-05-deep-link-not-direct-submit`](wiki/decisions/2026-05-deep-link-not-direct-submit.md) — v1 deep-links to MyLA311, does not direct-submit
+- [`2026-05-mapbox-over-google-maps`](wiki/decisions/2026-05-mapbox-over-google-maps.md) — use `@rnmapbox/maps` for the map surface
+
+Decisions are immutable. New circumstances mean a new dated decision that supersedes the old one.
+
+## Roadmap
+
+**v1 (build now)**
+- 2-tap report flow, public clustered map, feed, "I cleaned this" before/after loop
+- On-device privacy pipeline (faces + plates)
+- Deep-link to MyLA311 with prefilled fields
+- Anonymous auth, 5-minute soft hold, flag/moderation system
+
+**Phase 2**
+- Server-side Playwright submission agent for MyLA311 (closes the loop, requires legal review)
+- Volunteer-event coordination (replaces ad-hoc Instagram DM scheduling)
+- Heatmaps for partner orgs, with explicit suppression of encampment data from public layers per the [legal considerations](wiki/concepts/civic-app-legal-considerations.md)
+- City partnership / formal API access conversation with LA's ITA
+
+## Open questions
+
+- Does Clean LA With Me want to formally own or co-brand the app?
+- Which MyLA311 web-form query params are actually honored?
+- App Store policy on apps that publicly display photos of encampments?
+- Trademark check on "CleanLA Snap" given Snap Inc.'s enforcement posture (see the [Snapcrap precedent](wiki/concepts/snapcrap-case-study.md))
+- Fiscal-sponsor fallback if direct 501(c)(3) ownership is delayed
+
+Live list tracked in [`wiki/index.md`](wiki/index.md).
+
+## Working in this repo
+
+**If you are a human contributor:** read this README, then `wiki/index.md`. Most working knowledge lives in `wiki/concepts/`.
+
+**If you are an LLM agent (Claude Code or similar):** read [`AGENT.md`](AGENT.md) before doing anything. It defines the ingestion, synthesis, and refinement rules for the wiki itself.
+
+Common operations:
 
 ```bash
-# Save your source into raw/ with a sequential number prefix
-cp ~/Downloads/some-article.md raw/0007-some-article.md
+# Add a new source document
+cp ~/path/to/source.md raw/0005-short-slug.md
+# Then open Claude Code in this directory and say: "ingest"
 
-# Open Claude Code in this directory and say "ingest"
+# Ask a question
+# Open Claude Code in this directory and just ask. The agent will load
+# the relevant wiki pages and answer from them.
+
+# Tidy the wiki (consolidate dupes, fix backlinks, split overgrown pages)
+# Open Claude Code in this directory and say: "tidy"
 ```
 
-### Ask a question
+## License
 
-```bash
-# Open Claude Code in this directory and just ask:
-# "What did we decide about Mapbox vs Google Maps for CleanLA?"
-# "Summarize what we know about MyLA311's API surface."
-# "Find all decisions related to civic-app privacy."
-```
-
-The agent will navigate `wiki/index.md`, load the relevant pages, and answer from them.
-
-### Tidy up
-
-```bash
-# Periodically, ask Claude Code: "tidy the wiki"
-# This triggers: consolidating duplicates, fixing broken backlinks, splitting overgrown pages.
-```
-
-## Why not RAG?
-
-RAG retrieves *chunks similar to a query*. Compilation produces *concept pages that a human-supervised LLM curated through synthesis*. For a personal wiki — a few hundred to a few thousand pages — compilation produces dramatically more coherent answers because every page is a deliberate, edited artifact rather than a noisy fragment.
-
-The ceiling is real: somewhere around 10,000+ pages or when raw deposits start arriving faster than the agent can synthesize, retrieval becomes necessary. Below that ceiling, compilation wins on coherence, speed, and trust.
-
-Karpathy's original framing: *"The wiki is the source of truth; the LLM is the compiler."*
-
-## Conventions
-
-See `AGENT.md` for the full operating manual (page format, ingestion rules, backlinks, decision-log immutability, etc). If you're a human reading this, the short version:
-
-- Concept pages are atomic — 150–600 words, one idea per file.
-- Decisions are dated and immutable. New circumstances mean a new dated decision that supersedes the old one.
-- Every page is linked from `wiki/index.md` under exactly one cluster.
-- Filenames are kebab-case.
-- `[[wikilinks]]` are Obsidian-style and resolve to `wiki/**/<name>.md`.
+TBD — pending the institutional ownership decision. Treat this repository as source-available pre-1.0; contributions welcome by invitation.

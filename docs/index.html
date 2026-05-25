@@ -207,7 +207,7 @@
   <h2>WHAT THIS PROJECT IS</h2>
   <p><span class="tag">[CLEANLA SNAP]</span> is the mobile app — the first artifact of a broader <span class="tag">[CLEANLA]</span> project intended to be owned by a 501(c)(3), most plausibly <a href="https://www.instagram.com/cleanlawithme/"><span class="tag">[CLEAN LA WITH ME]</span></a>, rather than any individual or campaign. The codebase, copy, UI, and shared content are strictly brand-neutral; no political candidate, party, or campaign is referenced anywhere.</p>
   <p>The core thesis: LA already has a 311 system, an engaged grassroots cleanup movement, and a citizenry holding phones. What's missing is a privacy-respecting, public-by-default transparency layer that closes the loop between <em>I see a problem</em> → <em>the city knows</em> → <em>the neighborhood can see whether anything happened</em>.</p>
-  <p>Full project page: <a href="wiki/projects/cleanla-snap.md"><code>wiki/projects/cleanla-snap.md</code></a>.</p>
+  <p>Full project page: <a href="https://github.com/benamtech/cleanla/blob/main/wiki/projects/cleanla-snap.md"><code>wiki/projects/cleanla-snap.md</code></a>.</p>
 </section>
 
 <section>
@@ -238,7 +238,7 @@
   </div>
   <div class="arch-row">
     <span class="label">MAPS</span>
-    <span><code>@rnmapbox/maps</code> with the official Expo config plugin • <a href="wiki/decisions/2026-05-mapbox-over-google-maps.md">decision</a></span>
+    <span><code>@rnmapbox/maps</code> with the official Expo config plugin • <a href="https://github.com/benamtech/cleanla/blob/main/wiki/decisions/2026-05-mapbox-over-google-maps.md">decision</a></span>
   </div>
   <div class="arch-row">
     <span class="label">CAMERA + PRIVACY</span>
@@ -246,13 +246,13 @@
   </div>
   <div class="arch-row">
     <span class="label">[MYLA311]</span>
-    <span>deep-link only in v1; server-side Playwright submission agent is Phase 2 • <a href="wiki/decisions/2026-05-deep-link-not-direct-submit.md">decision</a></span>
+    <span>deep-link only in v1; server-side Playwright submission agent is Phase 2 • <a href="https://github.com/benamtech/cleanla/blob/main/wiki/decisions/2026-05-deep-link-not-direct-submit.md">decision</a></span>
   </div>
 </section>
 
 <section>
   <h2>NON-NEGOTIABLE: ON-DEVICE PRIVACY</h2>
-  <p>The app aggregates citizen photos of public spaces. Without rigorous on-device redaction it creates real harm and legal exposure. The mandatory pipeline • <a href="wiki/decisions/2026-05-on-device-face-blur-required.md">decision</a>:</p>
+  <p>The app aggregates citizen photos of public spaces. Without rigorous on-device redaction it creates real harm and legal exposure. The mandatory pipeline • <a href="https://github.com/benamtech/cleanla/blob/main/wiki/decisions/2026-05-on-device-face-blur-required.md">decision</a>:</p>
   <ol>
     <li>Capture frame via vision-camera frame processor</li>
     <li>Detect every face and license plate on-device</li>
@@ -266,16 +266,16 @@
 <section>
   <h2>KEY DECISIONS</h2>
   <div class="decision">
-    <a href="wiki/decisions/2026-05-no-candidate-branding.md"><span class="slug">2026-05-no-candidate-branding</span></a> — the app is and remains nonpartisan and brand-neutral
+    <a href="https://github.com/benamtech/cleanla/blob/main/wiki/decisions/2026-05-no-candidate-branding.md"><span class="slug">2026-05-no-candidate-branding</span></a> — the app is and remains nonpartisan and brand-neutral
   </div>
   <div class="decision">
-    <a href="wiki/decisions/2026-05-on-device-face-blur-required.md"><span class="slug">2026-05-on-device-face-blur-required</span></a> — on-device face + plate blur is mandatory
+    <a href="https://github.com/benamtech/cleanla/blob/main/wiki/decisions/2026-05-on-device-face-blur-required.md"><span class="slug">2026-05-on-device-face-blur-required</span></a> — on-device face + plate blur is mandatory
   </div>
   <div class="decision">
-    <a href="wiki/decisions/2026-05-deep-link-not-direct-submit.md"><span class="slug">2026-05-deep-link-not-direct-submit</span></a> — v1 deep-links to <span class="tag">[MYLA311]</span>, does not direct-submit
+    <a href="https://github.com/benamtech/cleanla/blob/main/wiki/decisions/2026-05-deep-link-not-direct-submit.md"><span class="slug">2026-05-deep-link-not-direct-submit</span></a> — v1 deep-links to <span class="tag">[MYLA311]</span>, does not direct-submit
   </div>
   <div class="decision">
-    <a href="wiki/decisions/2026-05-mapbox-over-google-maps.md"><span class="slug">2026-05-mapbox-over-google-maps</span></a> — use <code>@rnmapbox/maps</code> for the map surface
+    <a href="https://github.com/benamtech/cleanla/blob/main/wiki/decisions/2026-05-mapbox-over-google-maps.md"><span class="slug">2026-05-mapbox-over-google-maps</span></a> — use <code>@rnmapbox/maps</code> for the map surface
   </div>
   <p>Decisions are immutable. New circumstances mean a new dated decision that supersedes the old one.</p>
 </section>
@@ -293,7 +293,7 @@
   <ul>
     <li>Server-side Playwright submission agent for <span class="tag">[MYLA311]</span> (closes the loop, requires legal review)</li>
     <li>Volunteer-event coordination (replaces ad-hoc Instagram DM scheduling)</li>
-    <li>Heatmaps for partner orgs, with explicit suppression of encampment data from public layers per the <a href="wiki/concepts/civic-app-legal-considerations.md">legal considerations</a></li>
+    <li>Heatmaps for partner orgs, with explicit suppression of encampment data from public layers per the <a href="https://github.com/benamtech/cleanla/blob/main/wiki/concepts/civic-app-legal-considerations.md">legal considerations</a></li>
     <li>City partnership / formal API access conversation with LA's ITA</li>
   </ul>
 </section>
@@ -304,16 +304,16 @@
     <li>Does <span class="tag">[CLEAN LA WITH ME]</span> want to formally own or co-brand the app?</li>
     <li>Which <span class="tag">[MYLA311]</span> web-form query params are actually honored?</li>
     <li>App Store policy on apps that publicly display photos of encampments?</li>
-    <li>Trademark check on "CleanLA Snap" given Snap Inc.'s enforcement posture (see the <a href="wiki/concepts/snapcrap-case-study.md">Snapcrap precedent</a>)</li>
+    <li>Trademark check on "CleanLA Snap" given Snap Inc.'s enforcement posture (see the <a href="https://github.com/benamtech/cleanla/blob/main/wiki/concepts/snapcrap-case-study.md">Snapcrap precedent</a>)</li>
     <li>Fiscal-sponsor fallback if direct 501(c)(3) ownership is delayed</li>
   </ul>
-  <p>Live list tracked in <a href="wiki/index.md"><code>wiki/index.md</code></a>.</p>
+  <p>Live list tracked in <a href="https://github.com/benamtech/cleanla/blob/main/wiki/index.md"><code>wiki/index.md</code></a>.</p>
 </section>
 
 <section>
   <h2>WORKING IN THIS REPO</h2>
   <p><span class="tag">[HUMAN]</span> — read this README, then <code>wiki/index.md</code>. Most working knowledge lives in <code>wiki/concepts/</code>.</p>
-  <p><span class="tag">[AGENT]</span> — read <a href="AGENT.md"><code>AGENT.md</code></a> before doing anything. It defines the ingestion, synthesis, and refinement rules for the wiki itself.</p>
+  <p><span class="tag">[AGENT]</span> — read <a href="https://github.com/benamtech/cleanla/blob/main/AGENT.md"><code>AGENT.md</code></a> before doing anything. It defines the ingestion, synthesis, and refinement rules for the wiki itself.</p>
   <p>Common operations:</p>
   <pre><code># Add a new source document
 cp ~/path/to/source.md raw/0005-short-slug.md

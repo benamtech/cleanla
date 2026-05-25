@@ -22,6 +22,7 @@ const STATUS_LABELS: Record<SpotStatus, string> = {
   reported: "REPORTED",
   in_progress: "IN PROGRESS",
   cleaned: "CLEANED",
+  reopened: "REOPENED",
   hidden: "HIDDEN",
 };
 

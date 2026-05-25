@@ -12,6 +12,7 @@ import Map, {
   type ViewStateChangeEvent,
 } from "react-map-gl/mapbox";
 import type { LngLatBounds } from "mapbox-gl";
+import { CleanupSheet } from "@/features/spots/CleanupSheet";
 import { ReportSheet } from "@/features/reports/ReportSheet";
 import {
   CATEGORY_COLORS,
@@ -87,8 +88,20 @@ const spotLayer: LayerProps = {
       "#001089",
     ],
     "circle-radius": 6,
-    "circle-stroke-color": "#FFFFFF",
-    "circle-stroke-width": 1,
+    "circle-stroke-color": [
+      "match",
+      ["get", "status"],
+      "cleaned",
+      "#228B22",
+      "#FFFFFF",
+    ],
+    "circle-stroke-width": [
+      "match",
+      ["get", "status"],
+      "cleaned",
+      2,
+      1,
+    ],
   },
 };
 
@@ -230,10 +243,14 @@ function SignInPrompt({
 
 function SpotDetailSheet({
   spot,
+  user,
   onClose,
+  onMarkCleaned,
 }: {
   spot: SpotSummary;
+  user: User | null;
   onClose: () => void;
+  onMarkCleaned: () => void;
 }) {
   return (
     <aside className="absolute right-[9px] bottom-[9px] left-[9px] z-10 border border-[#999999] bg-white md:left-auto md:w-[360px]">
@@ -280,27 +297,66 @@ function SpotDetailSheet({
             <span>{spot.severity ?? "N/A"}</span>
           </div>
           <div className="flex justify-between gap-[12px]">
-            <span className="font-bold">MEDIA</span>
-            <span>
-              {spot.media_url ? "PUBLIC PENDING PHOTO" : "PLACEHOLDER"}
-            </span>
+            <span className="font-bold">BEFORE</span>
+            <span>{spot.report_media_url ? "PHOTO" : "NONE"}</span>
+          </div>
+          <div className="flex justify-between gap-[12px]">
+            <span className="font-bold">AFTER</span>
+            <span>{spot.after_media_url ? "PHOTO" : "NONE"}</span>
           </div>
         </div>
 
-        {spot.media_url ? (
-          <div className="border border-[#999999] bg-[#f8eac7] p-[6px]">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={spot.media_url}
-              alt={spot.description}
-              className="block max-h-[210px] w-full object-cover"
-            />
+        {spot.report_media_url ? (
+          <div className="grid gap-[6px]">
+            <p className="text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase">
+              BEFORE
+            </p>
+            <div className="border border-[#999999] bg-[#f8eac7] p-[6px]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={spot.report_media_url}
+                alt={spot.description}
+                className="block max-h-[180px] w-full object-cover"
+              />
+            </div>
           </div>
         ) : (
           <div className="border border-[#999999] bg-[#f8eac7] p-[18px] text-center text-[9px] font-bold tracking-[0.03em] text-[#999999] uppercase">
-            MEDIA PLACEHOLDER
+            NO BEFORE PHOTO
           </div>
         )}
+
+        {spot.after_media_url ? (
+          <div className="grid gap-[6px]">
+            <p className="text-[9px] font-bold tracking-[0.03em] text-[#228B22] uppercase">
+              AFTER
+            </p>
+            <div className="border border-[#228B22] bg-[#f8eac7] p-[6px]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={spot.after_media_url}
+                alt="After cleanup"
+                className="block max-h-[180px] w-full object-cover"
+              />
+            </div>
+          </div>
+        ) : spot.status === "cleaned" ? (
+          <div className="border border-[#228B22] bg-white p-[9px] text-[9px] font-bold tracking-[0.03em] text-[#228B22] uppercase">
+            CLEANED — AFTER PHOTO PENDING
+          </div>
+        ) : null}
+
+        {user &&
+        spot.status !== "cleaned" &&
+        spot.status !== "hidden" ? (
+          <button
+            type="button"
+            onClick={onMarkCleaned}
+            className="border border-[#228B22] bg-white px-[9px] py-[9px] text-[12px] font-bold tracking-[0.03em] text-[#228B22] uppercase hover:bg-[#f8eac7]"
+          >
+            [MARK CLEANED]
+          </button>
+        ) : null}
       </div>
     </aside>
   );
@@ -318,6 +374,7 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
   const [email, setEmail] = useState("");
   const [showSignIn, setShowSignIn] = useState(false);
   const [showReport, setShowReport] = useState(false);
+  const [showCleanup, setShowCleanup] = useState(false);
   const spotData = useMemo(() => spotsToGeoJson(spots), [spots]);
 
   useEffect(() => {
@@ -436,10 +493,12 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
     await supabase.auth.signOut();
     setUser(null);
     setShowReport(false);
+    setShowCleanup(false);
   }
 
   function openReport() {
     setSelectedSpot(null);
+    setShowCleanup(false);
     if (user) {
       setShowSignIn(false);
       setShowReport(true);
@@ -480,6 +539,8 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
 
     const spot = spots.find((item) => item.id === id);
     if (spot) {
+      setShowCleanup(false);
+      setShowReport(false);
       setSelectedSpot(spot);
     }
   }
@@ -554,6 +615,14 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
               [REPORT]
             </button>
             {user ? (
+              <a
+                href="/profile"
+                className="border border-[#999999] bg-white px-[9px] py-[6px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
+              >
+                [PROFILE]
+              </a>
+            ) : null}
+            {user ? (
               <button
                 type="button"
                 onClick={signOut}
@@ -591,10 +660,12 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
         </div>
       ) : null}
 
-      {selectedSpot ? (
+      {selectedSpot && !showCleanup ? (
         <SpotDetailSheet
           spot={selectedSpot}
+          user={user}
           onClose={() => setSelectedSpot(null)}
+          onMarkCleaned={() => setShowCleanup(true)}
         />
       ) : null}
 
@@ -612,6 +683,19 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
         <ReportSheet
           onClose={() => setShowReport(false)}
           onSubmitted={refetchCurrentBounds}
+        />
+      ) : null}
+
+      {showCleanup && selectedSpot && user ? (
+        <CleanupSheet
+          spotId={selectedSpot.id}
+          spotDescription={selectedSpot.description}
+          onClose={() => setShowCleanup(false)}
+          onSubmitted={() => {
+            setShowCleanup(false);
+            setSelectedSpot(null);
+            refetchCurrentBounds();
+          }}
         />
       ) : null}
     </main>

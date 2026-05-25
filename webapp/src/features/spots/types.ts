@@ -7,7 +7,7 @@ export const SPOT_CATEGORIES = [
   "overgrowth",
 ] as const;
 
-export const SPOT_STATUSES = ["reported", "in_progress", "cleaned", "hidden"] as const;
+export const SPOT_STATUSES = ["reported", "in_progress", "cleaned", "reopened", "hidden"] as const;
 
 export const VERIFICATION_STATUSES = [
   "pending",
@@ -44,7 +44,8 @@ export type SpotSummary = {
   lng: number;
   created_at: string;
   verification_status: VerificationStatus;
-  media_url?: string | null;
+  report_media_url?: string | null;
+  after_media_url?: string | null;
 };
 
 export type SpotsBounds = {

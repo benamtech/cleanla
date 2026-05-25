@@ -14,7 +14,8 @@ For the operating rules, see [[../AGENT]]. For the human-facing overview, see [[
 ## Civic Tech / 311 Apps (US precedents)
 
 - [[concepts/snapcrap-case-study]] — the closest direct precedent for CleanLA Snap; SF, 2018; viral then stagnated
-- [[concepts/cleanlawithme-movement]] — Juan Eduardo Naula's 501(c)(3) cleanup movement in LA, ~69K Instagram followers, the natural distribution partner
+- [[concepts/cleanlawithme-movement]] — Juan Eduardo Naula's cleanup movement in LA; org snapshot
+- [[concepts/clwm-partnership-prep]] — **Phase 1.5 tactical prep** for the partnership conversation with Naula; latest CLWM state, ask/offer/avoid, the critical "ownership vs use" question
 - [[concepts/myla311-system]] — LA's official 311 system: channels, scale, the 2025 relaunch, open-data availability
 - [[concepts/myla311-integration]] — strategic options for a third-party app integrating with MyLA311 (deep-link / agent / partnership) and their tradeoffs
 - [[concepts/open311-standard]] — the API standard, the cities that adopted it, why it functionally died in the US
@@ -23,6 +24,9 @@ For the operating rules, see [[../AGENT]]. For the human-facing overview, see [[
 - [[concepts/civic-app-patterns-and-failure-modes]] — cross-cutting synthesis of what works and what kills civic apps (US-focused)
 - [[concepts/civic-app-legal-considerations]] — doxxing, defamation, campaign-finance, UGC liability — the categories that need a real lawyer review
 - [[concepts/civic-app-retention-benchmarks]] — what "good" looks like for MAU, DAU/MAU, 30-day retention in this app category
+- [[concepts/la-civic-tech-competitive-landscape]] — who else is in the LA street-issue civic-tech space in 2026; MyLA311 + SeeClickFix dominate; less crowded than feared
+- [[concepts/la-city-partnership-mechanics]] — the path to formal LA city partnerships for civic tech; post-Innovation-Commission landscape; three channels (ITA / Mayor's office / RAMPLA)
+- [[concepts/civic-tech-founder-org-handoff-patterns]] — cross-case patterns from civic-tech founders handing off / co-building with community orgs; the "listening first" rule and the failure modes (Snapcrap, Tauberer)
 
 ## Civic Tech / 311 Apps (international precedents)
 
@@ -41,6 +45,7 @@ For the operating rules, see [[../AGENT]]. For the human-facing overview, see [[
 ## Institutional / Funding
 
 - [[concepts/la-civic-tech-funding-landscape]] — which foundations actually write checks for LA civic tech; fiscal-sponsorship paths; realistic Year-1 pipeline
+- [[concepts/california-nonprofit-legal-mechanics]] — CA 501(c)(3) incorporation vs fiscal sponsorship; the 27-month rule; founder IP transfer; Year-1 admin budget; pre-attorney-conversation prep
 
 ## LLM Workflow Patterns
 
@@ -63,7 +68,9 @@ For the operating rules, see [[../AGENT]]. For the human-facing overview, see [[
 
 ## Open questions (tracked across pages)
 
-- Does LA's ITA accept formal proposals for third-party Open311-style write access? (Action: email 311@lacity.org) — tracked in [[concepts/myla311-integration]]
+- **[Phase 1.5 gating]** Does Clean LA With Me want to formally adopt or co-brand the app? (Target: 30-60 min call by 2026-06-07) — tracked in [[projects/cleanla-snap]] and [[concepts/clwm-partnership-prep]]
+- **[Phase 1.5 gating]** Legal options for nonprofit ownership / fiscal sponsorship in CA civic tech in 2026? (Needs attorney review) — tracked in [[concepts/california-nonprofit-legal-mechanics]]
+- **[Phase 1.5]** Is Clean LA With Me actually incorporated as a 501(c)(3)? Confirm via IRS EIN lookup before the call — tracked in [[concepts/clwm-partnership-prep]]
 - What's the actual ToS posture of MyLA311 on browser-automation submissions? (Need a lawyer read.) — tracked in [[concepts/myla311-integration]]
 - Is there a CivicPlus partnership lane for a feeder app that drives volume into their 311 CRM? — tracked in [[concepts/seeclickfix-civicplus]]
 - Could mySociety's FixMyStreet codebase be adapted as a backend rather than building greenfield? — tracked in [[concepts/fixmystreet-uk]]
@@ -77,3 +84,4 @@ For the operating rules, see [[../AGENT]]. For the human-facing overview, see [[
 
 - ~~Is grant runway realistic as the institutional sustainability path?~~ → Yes, $30K-$150K Year-1 pipeline via LA2050 + Annenberg is realistic; fiscal-sponsorship path via Community Partners LA unlocks grant eligibility in 4-8 weeks. See [[concepts/la-civic-tech-funding-landscape]]
 - ~~What does "good" retention look like for a civic app?~~ → See [[concepts/civic-app-retention-benchmarks]]: 2-5% MAU/serviceable-pop, 1-3% D30, plan around 60-80% one-time-reporter distribution
+- ~~Does LA's ITA accept formal proposals for third-party Open311-style write access?~~ → No public API exists. Empirical test 2026-05-24 found all endpoints return 401; LA absent from Open311 server registry; no developer portal. Partnership path requires negotiated Salesforce data agreement, not endpoint discovery. See `raw/0008-myla311-api-empirical-test.md` and [[concepts/la-city-partnership-mechanics]]

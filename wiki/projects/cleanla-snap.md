@@ -15,6 +15,11 @@ related:
   - ../concepts/civic-app-retention-benchmarks.md
   - ../concepts/la-civic-tech-funding-landscape.md
   - ../concepts/international-civic-app-patterns.md
+  - ../concepts/la-civic-tech-competitive-landscape.md
+  - ../concepts/la-city-partnership-mechanics.md
+  - ../concepts/clwm-partnership-prep.md
+  - ../concepts/california-nonprofit-legal-mechanics.md
+  - ../concepts/civic-tech-founder-org-handoff-patterns.md
   - ../decisions/2026-05-web-stack-over-mobile.md
   - ../decisions/2026-05-mapbox-over-google-maps.md
   - ../decisions/2026-05-deep-link-not-direct-submit.md
@@ -152,8 +157,9 @@ Shape may change materially based on what the partnership conversation reveals.
 
 **Phase 1.5 gating questions (primary):**
 
-- Does [[../concepts/cleanlawithme-movement|Naula / Clean LA With Me]] want to formally adopt or co-brand the app?
-- What are the actual legal options for nonprofit ownership / fiscal sponsorship in LA civic tech in 2026? (Needs attorney review; [[../concepts/la-civic-tech-funding-landscape|Community Partners LA]] is a likely shortcut.)
+- Does [[../concepts/cleanlawithme-movement|Naula / Clean LA With Me]] want to formally adopt or co-brand the app? — **Conversation prep: [[../concepts/clwm-partnership-prep]]** (ask, offer, avoid; the critical "own vs use" question)
+- What are the actual legal options for nonprofit ownership / fiscal sponsorship in LA civic tech in 2026? — **Pre-attorney prep: [[../concepts/california-nonprofit-legal-mechanics]]** (27-month rule, fiscal sponsorship vs direct 501c3, Year-1 budget). Still needs licensed attorney sign-off.
+- Is Clean LA With Me actually incorporated as a 501(c)(3)? Verify via IRS EIN lookup before the call — see [[../concepts/clwm-partnership-prep]]
 - Should v1 ship a multi-stakeholder routing layer (LADWP, Metro, etc.) or LA-city-only? See [[../concepts/snap-send-solve-australia]] for the multi-stakeholder pattern at scale.
 
 **Implementation questions (deferred until Phase 2 starts):**
@@ -165,9 +171,10 @@ Shape may change materially based on what the partnership conversation reveals.
 
 **Strategic / external:**
 
-- Which MyLA311 web-form query params are actually honored?
+- ~~Which MyLA311 web-form query params are actually honored?~~ **CLOSED 2026-05-24** — empirical test (`raw/0008-myla311-api-empirical-test.md`) found the form endpoint requires auth even to inspect; no query-param deep-linking works. CleanLA can deep-link to MyLA311 home only; users must hand-fill.
 - Web hosting policy on platforms that publicly display photos of encampments? (For web: Supabase Storage content policy plus the user's own moderation — cleaner risk surface than App Store review.)
 - Trademark check on the "CleanLA" name (and the legacy "CleanLA Snap" name) given Snap Inc.'s enforcement posture (see the [[../concepts/snapcrap-case-study|Snapcrap precedent]]).
+- Competitive positioning verified: no direct competitor in LA street-issue civic-tech space in 2026 per [[../concepts/la-civic-tech-competitive-landscape]]; partnership pitch with Naula has room.
 
 ## Recently de-risked (was an open question, now substantially resolved)
 
@@ -181,6 +188,11 @@ Shape may change materially based on what the partnership conversation reveals.
 - [[../concepts/on-device-photo-privacy]] — privacy pipeline principles (RN-specific implementation details now historical; principles survive)
 - [[../concepts/civic-app-legal-considerations]] — doxxing, defamation, campaign-finance, UGC liability
 - [[../concepts/rn-maps-landscape-2026]] — RN map landscape (historical context for the pre-pivot framing)
+- [[../concepts/la-civic-tech-competitive-landscape]] — who else is in the LA street-issue space in 2026 (less crowded than expected)
+- [[../concepts/la-city-partnership-mechanics]] — the path to formal LA city partnerships; post-Innovation-Commission landscape
+- [[../concepts/clwm-partnership-prep]] — **Phase 1.5 tactical prep** for the partnership conversation with Naula
+- [[../concepts/california-nonprofit-legal-mechanics]] — pre-attorney-conversation prep for the nonprofit ownership question
+- [[../concepts/civic-tech-founder-org-handoff-patterns]] — patterns from founder→community-org handoffs (SeeClickFix, mRelief, Litterati success; Snapcrap, Tauberer failure)
 - [[../concepts/cleanlawithme-movement]] — the natural distribution partner
 - [[../concepts/snapcrap-case-study]] — the direct precedent
 - [[../concepts/civic-app-patterns-and-failure-modes]] — what worked and what killed similar US apps

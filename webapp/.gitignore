@@ -25,3 +25,7 @@ pnpm-debug.log*
 
 # vercel
 .vercel/
+
+# supabase local-dev state
+supabase/.branches/
+supabase/.temp/

@@ -179,7 +179,10 @@ returns table (
 language sql
 stable
 security invoker
-set search_path = public
+-- PostGIS lives in the `extensions` schema (per 20260524234500_enable_postgis.sql).
+-- Including it on search_path lets this function resolve ST_MakeEnvelope,
+-- ST_Intersects, ST_Y/ST_X — otherwise the function fails with SQLSTATE 42883.
+set search_path = public, extensions
 as $$
   with bounds as (
     select ST_MakeEnvelope(west, south, east, north, 4326) as geom

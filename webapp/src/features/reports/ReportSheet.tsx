@@ -20,6 +20,9 @@ type GpsCapture = {
 type SubmitState =
   | { kind: "idle" }
   | { kind: "submitting" }
+  | { kind: "verified"; spotId: string }
+  | { kind: "unverified"; spotId: string; reason: string }
+  | { kind: "location_mismatch"; spotId: string }
   | { kind: "pending"; spotId: string }
   | { kind: "failed"; message: string };
 
@@ -96,7 +99,11 @@ export function ReportSheet({
     Boolean(category) &&
     severity !== null &&
     descriptionValid &&
-    submitState.kind !== "submitting";
+    submitState.kind !== "submitting" &&
+    submitState.kind !== "verified" &&
+    submitState.kind !== "unverified" &&
+    submitState.kind !== "location_mismatch" &&
+    submitState.kind !== "pending";
 
   const gpsLabel = useMemo(() => {
     if (!gpsCapture) return "NO GPS";
@@ -238,11 +245,29 @@ export function ReportSheet({
       return;
     }
 
-    const spotId =
-      typeof payload === "object" && payload !== null && "spot_id" in payload
-        ? String((payload as { spot_id: unknown }).spot_id)
+    const body =
+      typeof payload === "object" && payload !== null
+        ? (payload as Record<string, unknown>)
+        : {};
+    const spotId = typeof body.spot_id === "string" ? body.spot_id : "";
+    const vs =
+      typeof body.verification_status === "string"
+        ? body.verification_status
+        : "pending";
+    const vr =
+      typeof body.verification_reason === "string"
+        ? body.verification_reason
         : "";
-    setSubmitState({ kind: "pending", spotId });
+
+    if (vs === "verified") {
+      setSubmitState({ kind: "verified", spotId });
+    } else if (vs === "unverified") {
+      setSubmitState({ kind: "unverified", spotId, reason: vr });
+    } else if (vs === "location_mismatch") {
+      setSubmitState({ kind: "location_mismatch", spotId });
+    } else {
+      setSubmitState({ kind: "pending", spotId });
+    }
     onSubmitted();
   }
 
@@ -390,9 +415,29 @@ export function ReportSheet({
           </span>
         </section>
 
-        {submitState.kind === "pending" ? (
+        {submitState.kind === "verified" ? (
           <div className="border border-[#228B22] bg-white p-[9px] text-[9px] font-bold tracking-[0.03em] text-[#228B22] uppercase">
-            REPORT PENDING VERIFICATION. SPOT {submitState.spotId} CREATED.
+            LOCATION VERIFIED ON SITE — SPOT {submitState.spotId} SUBMITTED.
+          </div>
+        ) : null}
+
+        {submitState.kind === "unverified" ? (
+          <div className="border border-[#999999] bg-white p-[9px] text-[9px] font-bold tracking-[0.03em] text-[#999999] uppercase">
+            SUBMITTED — LOCATION COULD NOT BE CONFIRMED. SPOT{" "}
+            {submitState.spotId} MARKED UNVERIFIED.
+          </div>
+        ) : null}
+
+        {submitState.kind === "location_mismatch" ? (
+          <div className="border border-[#999999] bg-white p-[9px] text-[9px] font-bold tracking-[0.03em] text-[#c7a87d] uppercase">
+            SUBMITTED — GPS DID NOT MATCH THE REPORTED SPOT LOCATION. SPOT{" "}
+            {submitState.spotId} FLAGGED FOR REVIEW.
+          </div>
+        ) : null}
+
+        {submitState.kind === "pending" ? (
+          <div className="border border-[#999999] bg-white p-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase">
+            SPOT {submitState.spotId} SUBMITTED — PENDING REVIEW.
           </div>
         ) : null}
 

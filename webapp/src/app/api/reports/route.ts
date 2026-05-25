@@ -8,6 +8,7 @@ import {
 import { SPOT_CATEGORIES, type SpotCategory } from "@/features/spots/types";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
+import { verifyMedia } from "@/lib/verification/verify-media";
 
 export const dynamic = "force-dynamic";
 
@@ -209,6 +210,8 @@ export async function POST(request: Request) {
     data: { publicUrl },
   } = admin.storage.from("report-photos").getPublicUrl(mediaPath);
 
+  const serverReceivedAt = new Date().toISOString();
+
   const { error: mediaError } = await admin.from("spot_media").insert({
     id: mediaId,
     spot_id: spotId,
@@ -220,7 +223,7 @@ export async function POST(request: Request) {
     captured_lng: report.lng,
     gps_accuracy_m: report.gpsAccuracyM,
     client_captured_at: report.clientCapturedAt,
-    server_received_at: new Date().toISOString(),
+    server_received_at: serverReceivedAt,
     distance_from_spot_m: null,
     device_context: report.deviceContext,
     verification_status: "pending",
@@ -233,10 +236,23 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "DATABASE_FAILURE" }, { status: 500 });
   }
 
+  // Phase 3.5: synchronous server-side verification
+  const verification = await verifyMedia(admin, {
+    spotMediaId: mediaId,
+    spotId,
+    captureSource: "live_camera",
+    capturedLat: report.lat,
+    capturedLng: report.lng,
+    gpsAccuracyM: report.gpsAccuracyM,
+    clientCapturedAt: report.clientCapturedAt,
+    serverReceivedAt,
+  });
+
   return NextResponse.json({
     ok: true,
     spot_id: spotId,
     spot_media_id: mediaId,
-    verification_status: "pending",
+    verification_status: verification.status,
+    verification_reason: verification.reason,
   });
 }

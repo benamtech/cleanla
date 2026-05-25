@@ -48,11 +48,31 @@ Consolidate duplicates, fix broken `[[wikilinks]]` and backlinks, split any page
 - Every wiki page ends with a `## Backlinks` section.
 - `[[wikilink]]` resolves to `wiki/**/<name>.md`. A wikilink with no matching file is a TODO marker, not an error.
 
-## Design system
+## Design system — NON-NEGOTIABLE
 
-This project uses the **369 design system** for all UI, design, and data-visualisation work — relevant when the CleanLA Snap mobile app is built and for any visual artifacts the wiki itself produces. Before any UI, design, or data work, invoke `369-design-system`. Output that violates the rules in that skill is a bug, not a preference.
+This project uses the **369 design system** for all UI, design, and data-visualisation work — including the `webapp/` Next.js surface, any HTML the wiki renders, and any visual artifact this project produces.
 
-The skill lives at [`.claude/skills/369-design-system/SKILL.md`](.claude/skills/369-design-system/SKILL.md). Summary: spacing in multiples of 3 (Bauhaus + sacred geometry), 1px solid grey borders, zero border-radius (with one exception), Helvetica Neue at a fixed 9/12/15/18/24/30/33/36 scale, ten colour tokens only, no shadows/gradients/blur, no emoji codepoints, and a deterministic data → visualisation decision tree backed by Cleveland & McGill (1984) and Wilkinson (1999).
+**Hard rule:** Before writing any component, any CSS class, any inline style, any Tailwind utility, or any visual decision, invoke `369-design-system` via the Skill tool. Skipping the skill is a bug. Output that violates the 8 non-negotiable rules in the skill is a bug, not a preference, and must not ship.
+
+This applies to: new components, existing component edits, charts, dashboards, tables, landing pages, marketing surfaces, the Map MVP, the validation landing page (Phase 1.5), and any HTML rendered from wiki content. The validation prototype is not exempt because "it's just a prototype" — the 369 rules are cheap to follow correctly the first time and expensive to retrofit.
+
+**Skill location:** [`.claude/skills/369-design-system/SKILL.md`](.claude/skills/369-design-system/SKILL.md) — thin router with 8 non-negotiable rules + a reference table that points to `.claude/skills/369-design-system/references/` (loaded on demand: `visual-rules.md`, `architecture.md`, `engines.md`, `cards.md`, `tufte.md`, `tufte-principles.md`, `analytical-design.md`).
+
+**The 8 non-negotiable rules at a glance** (full text in the skill):
+1. Spacing — multiples of 3 ONLY (3, 6, 9, 12, 15, 18, …); never 4, 5, 7, 8, 10, 14, 16, 20
+2. Border radius — `0` everywhere; one exception is `50%` for circular pins
+3. Borders — `1px solid #999999` on every container; no 2px, no thick, no colored except success/warning
+4. Typography — Helvetica Neue eText Pro, 12px body, scale `{9, 12, 15, 18, 24, 30, 33, 36}`, UPPERCASE labels
+5. Colors — 8 core tokens + 8 SSM pin colors; **never** Tailwind defaults (`gray-100`, `blue-500`, etc. are bugs)
+6. Decoration — NONE (no shadows, no gradients, no blur, no icon libraries; text glyphs only `★ ✓ ✕ → ← • [+] [−] [×] i`)
+7. Run engines, don't guess — for data use `presentation()`; for entities use `resolveAny()`; hand-picking a chart defeats the system
+8. Same input → same output — the system is deterministic; if the HTML differs across runs, something is wrong
+
+**Enforcement workflow:**
+- Before any UI/data-visualization task: invoke the skill, even if you "remember" the rules
+- During: keep the rules-table reference open
+- Before shipping: run the self-check at the bottom of `SKILL.md` (Red flags / Stop and Fix table)
+- After: if a rule was violated, it's a defect — file an issue or fix in-place
 
 ## Where to look first
 

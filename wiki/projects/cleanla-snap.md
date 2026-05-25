@@ -20,6 +20,7 @@ related:
   - ../concepts/clwm-partnership-prep.md
   - ../concepts/california-nonprofit-legal-mechanics.md
   - ../concepts/civic-tech-founder-org-handoff-patterns.md
+  - ../concepts/cleanla-clean-streets-mayor-scenario.md
   - ../decisions/2026-05-web-stack-over-mobile.md
   - ../decisions/2026-05-mapbox-over-google-maps.md
   - ../decisions/2026-05-deep-link-not-direct-submit.md
@@ -193,6 +194,7 @@ Shape may change materially based on what the partnership conversation reveals.
 - [[../concepts/clwm-partnership-prep]] — **Phase 1.5 tactical prep** for the partnership conversation with Naula
 - [[../concepts/california-nonprofit-legal-mechanics]] — pre-attorney-conversation prep for the nonprofit ownership question
 - [[../concepts/civic-tech-founder-org-handoff-patterns]] — patterns from founder→community-org handoffs (SeeClickFix, mRelief, Litterati success; Snapcrap, Tauberer failure)
+- [[../concepts/cleanla-clean-streets-mayor-scenario]] — scenario planning for a pro-tech / Clean-Streets-platform mayor; 4-of-5 plank alignment; navigation strategy for the enforcement-friction point
 - [[../concepts/cleanlawithme-movement]] — the natural distribution partner
 - [[../concepts/snapcrap-case-study]] — the direct precedent
 - [[../concepts/civic-app-patterns-and-failure-modes]] — what worked and what killed similar US apps

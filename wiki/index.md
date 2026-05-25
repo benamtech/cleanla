@@ -27,6 +27,7 @@ For the operating rules, see [[../AGENT]]. For the human-facing overview, see [[
 - [[concepts/la-civic-tech-competitive-landscape]] — who else is in the LA street-issue civic-tech space in 2026; MyLA311 + SeeClickFix dominate; less crowded than feared
 - [[concepts/la-city-partnership-mechanics]] — the path to formal LA city partnerships for civic tech; post-Innovation-Commission landscape; three channels (ITA / Mayor's office / RAMPLA)
 - [[concepts/civic-tech-founder-org-handoff-patterns]] — cross-case patterns from civic-tech founders handing off / co-building with community orgs; the "listening first" rule and the failure modes (Snapcrap, Tauberer)
+- [[concepts/cleanla-clean-streets-mayor-scenario]] — **scenario** for a future Pratt-style "Clean The Streets" mayor; CTS-plank → CleanLA-feature map; 100-day activation sequence; cross-admin durability
 
 ## Civic Tech / 311 Apps (international precedents)
 

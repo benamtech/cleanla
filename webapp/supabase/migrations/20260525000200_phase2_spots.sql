@@ -127,7 +127,7 @@ select
   'reported'::public.spot_status,
   reports.description,
   reports.neighborhood,
-  ST_SetSRID(ST_MakePoint(reports.lng, reports.lat), 4326)::geography,
+  extensions.ST_SetSRID(extensions.ST_MakePoint(reports.lng, reports.lat), 4326)::geography,
   'unverified'::public.verification_status,
   'legacy_validation_report',
   reports.id,
@@ -185,7 +185,7 @@ security invoker
 set search_path = public, extensions
 as $$
   with bounds as (
-    select ST_MakeEnvelope(west, south, east, north, 4326) as geom
+    select extensions.ST_MakeEnvelope(west, south, east, north, 4326) as geom
   )
   select
     s.id,
@@ -193,8 +193,8 @@ as $$
     s.status,
     s.description,
     s.neighborhood,
-    ST_Y(s.location::geometry) as lat,
-    ST_X(s.location::geometry) as lng,
+    extensions.ST_Y(s.location::extensions.geometry) as lat,
+    extensions.ST_X(s.location::extensions.geometry) as lng,
     s.created_at,
     s.verification_status,
     (
@@ -207,8 +207,7 @@ as $$
   from public.spots s
   cross join bounds
   where s.status <> 'hidden'
-    and s.location::geometry && bounds.geom
-    and ST_Intersects(s.location::geometry, bounds.geom)
+    and extensions.ST_Intersects(s.location::extensions.geometry, bounds.geom)
   order by s.created_at desc
   limit least(greatest(coalesce(result_limit, 500), 1), 500);
 $$;

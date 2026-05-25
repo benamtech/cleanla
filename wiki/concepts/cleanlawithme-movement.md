@@ -2,7 +2,7 @@
 title: CleanLAwithMe — The Movement and Its Founder
 tags: [civic-tech, los-angeles, partnerships, social-media]
 created: 2026-05-24
-updated: 2026-05-24
+updated: 2026-05-25
 related:
   - ../projects/cleanla-snap.md
   - civic-app-patterns-and-failure-modes.md
@@ -69,3 +69,6 @@ Naula, an Ecuadorian native, moved to LA from Virginia in October 2024 to develo
 - [[../projects/cleanla-snap]]
 - [[snapcrap-case-study]]
 - [[civic-app-patterns-and-failure-modes]]
+- [[./la-civic-tech-competitive-landscape]]
+- [[./clwm-partnership-prep]]
+- [[./cleanla-clean-streets-mayor-scenario]]

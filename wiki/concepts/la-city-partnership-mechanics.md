@@ -2,7 +2,7 @@
 title: LA city partnership mechanics for civic tech (2026)
 tags: [civic-tech, los-angeles, government, partnerships, procurement]
 created: 2026-05-24
-updated: 2026-05-24
+updated: 2026-05-25
 related:
   - ../projects/cleanla-snap.md
   - ./myla311-system.md
@@ -71,3 +71,4 @@ Per `raw/0008-myla311-api-empirical-test.md`:
 
 - [[../projects/cleanla-snap]]
 - [[./la-civic-tech-competitive-landscape]]
+- [[./cleanla-clean-streets-mayor-scenario]]

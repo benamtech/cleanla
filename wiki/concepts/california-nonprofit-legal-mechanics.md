@@ -2,7 +2,7 @@
 title: California nonprofit legal mechanics for civic tech (2026)
 tags: [civic-tech, california, nonprofit, legal, 501c3, fiscal-sponsorship]
 created: 2026-05-24
-updated: 2026-05-24
+updated: 2026-05-25
 related:
   - ../projects/cleanla-snap.md
   - ./la-civic-tech-funding-landscape.md
@@ -102,3 +102,4 @@ Minimum: 3 directors, disinterested majority.
 - [[../projects/cleanla-snap]]
 - [[./clwm-partnership-prep]]
 - [[./la-civic-tech-funding-landscape]]
+- [[./cleanla-clean-streets-mayor-scenario]]

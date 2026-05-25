@@ -2,7 +2,7 @@
 title: No candidate, party, or campaign branding in CleanLA Snap
 tags: [decision, legal, branding]
 created: 2026-05-24
-updated: 2026-05-24
+updated: 2026-05-25
 status: active
 related:
   - ../concepts/civic-app-legal-considerations.md
@@ -46,3 +46,4 @@ A civic transparency app that explicitly aligns with a candidate or party is a d
 
 - [[../projects/cleanla-snap]]
 - [[../concepts/civic-app-legal-considerations]]
+- [[../concepts/cleanla-clean-streets-mayor-scenario]]

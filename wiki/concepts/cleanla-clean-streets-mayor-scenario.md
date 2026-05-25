@@ -2,7 +2,7 @@
 title: CleanLA positioning under a "Clean The Streets" mayor scenario
 tags: [scenario, b2g, los-angeles, civic-tech, partnerships, hypothetical]
 created: 2026-05-24
-updated: 2026-05-24
+updated: 2026-05-25
 related:
   - ../projects/cleanla-snap.md
   - ./la-city-partnership-mechanics.md

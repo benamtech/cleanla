@@ -2,7 +2,7 @@
 title: LA Civic-Tech Funding Landscape
 tags: [civic-tech, funding, foundations, los-angeles, nonprofit]
 created: 2026-05-24
-updated: 2026-05-24
+updated: 2026-05-25
 related:
   - ../projects/cleanla-snap.md
   - civic-app-patterns-and-failure-modes.md
@@ -84,3 +84,4 @@ If Community Partners LA isn't the right fit (mission mismatch, capacity, fees):
 - [[../projects/cleanla-snap]]
 - [[civic-app-patterns-and-failure-modes]]
 - [[cleanlawithme-movement]]
+- [[./california-nonprofit-legal-mechanics]]

@@ -2,7 +2,7 @@
 title: CleanLA
 tags: [project, civic-tech, los-angeles, web]
 created: 2026-05-24
-updated: 2026-05-24
+updated: 2026-05-25
 related:
   - ../concepts/myla311-system.md
   - ../concepts/myla311-integration.md
@@ -230,3 +230,9 @@ Shape may change materially based on what the partnership conversation reveals.
 - [[../decisions/2026-05-no-candidate-branding]]
 - [[../decisions/2026-05-on-device-face-blur-required]]
 - [[../playbooks/one-shot-app-prompt]]
+- [[../concepts/civic-tech-founder-org-handoff-patterns]]
+- [[../concepts/la-civic-tech-competitive-landscape]]
+- [[../concepts/clwm-partnership-prep]]
+- [[../concepts/california-nonprofit-legal-mechanics]]
+- [[../concepts/cleanla-clean-streets-mayor-scenario]]
+- [[../concepts/la-city-partnership-mechanics]]

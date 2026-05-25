@@ -2,7 +2,7 @@
 title: Snapcrap (San Francisco, 2018) — Case Study
 tags: [civic-tech, case-study, mobile, 311]
 created: 2026-05-24
-updated: 2026-05-24
+updated: 2026-05-25
 related:
   - civic-app-patterns-and-failure-modes.md
   - cleanlawithme-movement.md
@@ -61,3 +61,5 @@ Coverage cooled within a year. No institutional sponsor took it over. Solo-devel
 - [[civic-app-patterns-and-failure-modes]]
 - [[../projects/cleanla-snap]]
 - [[myla311-integration]]
+- [[./civic-tech-founder-org-handoff-patterns]]
+- [[./cleanla-clean-streets-mayor-scenario]]

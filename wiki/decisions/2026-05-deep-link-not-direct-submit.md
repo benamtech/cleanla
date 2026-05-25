@@ -2,7 +2,7 @@
 title: Deep-link to MyLA311, do not direct-submit in v1
 tags: [decision, integration, los-angeles]
 created: 2026-05-24
-updated: 2026-05-24
+updated: 2026-05-25
 status: active
 related:
   - ../concepts/myla311-integration.md
@@ -61,3 +61,4 @@ Revisit this decision if any of:
 
 - [[../projects/cleanla-snap]]
 - [[../concepts/myla311-integration]]
+- [[../concepts/la-city-partnership-mechanics]]

@@ -2,7 +2,7 @@
 title: SeeClickFix → CivicPlus 311 CRM
 tags: [civic-tech, vendor, b2g, 311]
 created: 2026-05-24
-updated: 2026-05-24
+updated: 2026-05-25
 related:
   - open311-standard.md
   - fixmystreet-uk.md
@@ -65,3 +65,6 @@ Does CivicPlus offer a partnership lane for third-party feeder apps that drive v
 - [[open311-standard]]
 - [[fixmystreet-uk]]
 - [[civic-app-patterns-and-failure-modes]]
+- [[./civic-tech-founder-org-handoff-patterns]]
+- [[./la-civic-tech-competitive-landscape]]
+- [[./la-city-partnership-mechanics]]

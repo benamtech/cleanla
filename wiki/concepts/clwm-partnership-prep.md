@@ -2,7 +2,7 @@
 title: Clean LA With Me — partnership conversation prep (Phase 1.5)
 tags: [civic-tech, los-angeles, partnerships, cleanlawithme, phase-1-5]
 created: 2026-05-24
-updated: 2026-05-24
+updated: 2026-05-25
 related:
   - ../projects/cleanla-snap.md
   - ./cleanlawithme-movement.md
@@ -71,3 +71,5 @@ His answer determines the entire partnership structure (outright donation vs lic
 - [[../projects/cleanla-snap]]
 - [[./civic-tech-founder-org-handoff-patterns]]
 - [[./cleanlawithme-movement]]
+- [[./california-nonprofit-legal-mechanics]]
+- [[./cleanla-clean-streets-mayor-scenario]]

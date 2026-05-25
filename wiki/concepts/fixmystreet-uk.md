@@ -2,7 +2,7 @@
 title: FixMyStreet (UK) — The Durable Nonprofit Alternative
 tags: [civic-tech, nonprofit, uk, open-source]
 created: 2026-05-24
-updated: 2026-05-24
+updated: 2026-05-25
 related:
   - open311-standard.md
   - seeclickfix-civicplus.md
@@ -54,3 +54,4 @@ Per mySociety's [2024/25 impact report](https://research.mysociety.org/html/impa
 - [[international-civic-app-patterns]]
 - [[civic-app-retention-benchmarks]]
 - [[../projects/cleanla-snap]]
+- [[./civic-tech-founder-org-handoff-patterns]]

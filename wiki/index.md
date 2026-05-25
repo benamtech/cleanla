@@ -2,7 +2,7 @@
 title: Wiki Index
 tags: [index, meta]
 created: 2026-05-24
-updated: 2026-05-24
+updated: 2026-05-25
 ---
 
 The canonical map of this wiki. Every page must be linked from here under exactly one cluster. Start here when answering any question; load the candidate pages before responding.

@@ -2,7 +2,7 @@
 title: Civic-tech founder → community-org handoff patterns
 tags: [civic-tech, partnerships, founder-patterns, governance]
 created: 2026-05-24
-updated: 2026-05-24
+updated: 2026-05-25
 related:
   - ../projects/cleanla-snap.md
   - ./clwm-partnership-prep.md
@@ -77,3 +77,4 @@ The conversation should be: "I can't organize volunteers or do cleanups. But I c
 - [[../projects/cleanla-snap]]
 - [[./clwm-partnership-prep]]
 - [[./snapcrap-case-study]]
+- [[./cleanla-clean-streets-mayor-scenario]]

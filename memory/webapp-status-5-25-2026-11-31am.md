@@ -208,33 +208,34 @@ Phase 6 is Sharing: public spot pages at `/s/[id]`, Open Graph image generation 
    - `noindex` meta tag when `spot.status = 'hidden'` or media is not approved
    - This is the foundation everything else in Phase 6 depends on — build and test it first
 
-2. **OG metadata on the public page** — in the same `page.tsx` via Next.js `generateMetadata`
-   - `title`: "Illegal Dumping on [neighborhood] · CleanLA" (or equivalent for other categories)
-   - `description`: the spot's description field, truncated to 160 chars
-   - `og:image`: point to the OG image route (step 3), not the raw storage URL
-   - `twitter:card: summary_large_image`
+2. **X Card metadata on the public page** — in the same `page.tsx` via Next.js `generateMetadata`
+   - **Current X link preview behavior (settled as of late 2023/early 2024):** X shows the `og:title` / `twitter:title` as a small text **overlay on the card image** — not as separate text below it. Description is not shown at all on X. The image is the dominant element; the title renders over it (typically bottom-left).
+   - `twitter:card: summary_large_image` — required; controls the large-image layout
+   - `twitter:title` (or `og:title` as fallback) — set this carefully; it is the only text X shows and it will appear overlaid on the card image. Keep it short: "Illegal Dumping · Silver Lake · CleanLA" works better than a long sentence.
+   - `og:description` — set it for SEO and non-X platforms (LinkedIn, iMessage, Slack etc. still show it), but X ignores it
+   - `twitter:image` — point to the OG image route (step 3), not the raw storage URL
    - `canonical` URL pointing to `NEXT_PUBLIC_SITE_URL/s/[id]`
 
 3. **OG image endpoint** — `src/app/api/og/spot/[id]/route.tsx`
    - Uses `@vercel/og` (`ImageResponse`) — install as a dependency
-   - Two variants driven by whether an after-photo exists: cleanup card shows before/after thumbnails, problem-spot card shows the report photo
-   - Include: category label (UPPERCASE), neighborhood, verified badge if applicable, CleanLA wordmark, timestamp
-   - Dimensions: 1200×630 (standard OG); keep JSX simple, `@vercel/og` has a limited subset of CSS
+   - **Design for the overlay:** since X renders the title overlaid at the bottom of the card image, keep the bottom ~80px of the image visually dark or uncluttered so X's white title text is legible. Do not put your own title text at the bottom where X's overlay will land.
+   - Bake into the image: category label (UPPERCASE), neighborhood label, verified badge if applicable, CleanLA wordmark (top or top-right), spot status indicator (CLEANED / REPORTED). The photo itself should fill most of the frame.
+   - Two variants: cleanup card (before + after thumbnails side by side) and problem-spot card (single report photo dominant)
+   - Dimensions: 1200×630. Keep JSX simple — `@vercel/og` supports a limited CSS subset (flexbox only, no grid, no arbitrary transforms)
    - Filter to approved media only — never render unmoderated photos in OG cards
 
-4. **Share actions** — `src/features/sharing/ShareActions.tsx` (client component)
-   - Web Share API (`navigator.share`) for URL sharing — works on iOS Safari and Android Chrome
-   - Web Share API file sharing (`navigator.share({ files })`) where `navigator.canShare({ files })` is true — for image sharing direct to apps
-   - Copy link fallback (clipboard API) for desktop
-   - X intent link: `https://twitter.com/intent/tweet?url=...&text=...`
-   - Facebook share link: `https://www.facebook.com/sharer/sharer.php?u=...`
-   - Download image button as last resort (fetch the OG image URL, trigger download)
-   - Feature-detect everything — do not assume Web Share is available
+4. **X share button** — `src/features/sharing/ShareActions.tsx` (client component)
+   - **Intent URL (updated):** `https://x.com/intent/post?text=...&url=...` — use `x.com/intent/post`, not the old `twitter.com/intent/tweet`
+   - Pre-filled text suggestion: `"[Category] in [neighborhood] — [cleaned: 'Cleaned! ✓' / reported: 'Help clean this up'] [url]"` — keep it short since X truncates; the URL is added separately via the `url` param
+   - Web Share API (`navigator.share({ url })`) as the primary native share path on iOS/Android — feature-detect before calling
+   - Copy link button (clipboard API) for desktop fallback
+   - No Facebook, no LinkedIn, no file-based Web Share — X only for social, copy link for everything else
 
-5. **Validate previews** before declaring Phase 6 complete:
-   - LinkedIn Post Inspector, Twitter Card Validator, Facebook Sharing Debugger
-   - Test Web Share on a real iOS and Android device
-   - Confirm rejected/hidden spots do not expose OG image or spot data
+5. **Validate before declaring Phase 6 complete:**
+   - **X Card Validator is defunct** (`cards-dev.twitter.com` is dead). The only reliable way to preview a card is to paste the URL into the X compose window and inspect the card preview that appears before posting — do this on both desktop and mobile
+   - Confirm the card image renders correctly (no title/description expected in the feed — that is correct behavior, not a bug)
+   - Confirm rejected/hidden spots return 404 or a redirect — do not expose OG image or spot data
+   - Test the `x.com/intent/post` link opens the compose window on desktop and mobile browser (note: opening inside the X app itself may redirect to login instead of compose — this is a known X bug; opening in an external browser works correctly)
 
 ---
 

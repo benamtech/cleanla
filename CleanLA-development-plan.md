@@ -610,7 +610,7 @@ completely unrelated to outdoor civic conditions, or intentionally offensive con
 
 ### Objective
 
-Create trustworthy public spot pages and share assets for cleanups and problem spots across link previews, mobile share sheets, downloads, X, Facebook, and an Instagram fallback path.
+Create trustworthy public spot pages and X share cards for cleanups and problem spots. Every approved spot gets a permanent public URL, a branded card image for link previews, and a one-tap path to share on X or copy a link.
 
 ### Dependencies
 
@@ -619,71 +619,94 @@ Phases 3 and 5 complete. Phase 4 complete for cleanup-specific sharing.
 ### Locked Decisions
 
 - Public pages live at `/s/[id]`.
-- Only approved public content appears on public pages and cards.
-- Use one card-generation system for OG previews and downloadable/shareable images where practical.
-- Treat Instagram Stories deep-linking as experimental. The reliable fallback is downloadable media plus Web Share API.
+- Only approved media (`moderation_status = 'approved'`) appears on public pages and cards. Hidden spots and spots with no approved media return 404.
+- `@vercel/og` (`ImageResponse`) is the card generation system — one endpoint serves both the X card image and any future download variant.
+- Social sharing scope is X only. No Facebook, no Instagram, no LinkedIn. Web Share API (`navigator.share`) handles native mobile share sheets; copy link handles desktop.
+- The X intent URL is `https://x.com/intent/post` — not the legacy `twitter.com/intent/tweet`.
+
+### X Card Behavior (current as of 2024)
+
+X renders link preview cards with the `og:title` / `twitter:title` as a **text overlay on the bottom of the card image**. Description text is not shown. The image is the dominant element.
+
+Design implications:
+- Set `twitter:title` to a short, meaningful label — it will render over the image. Example: "Illegal Dumping · Silver Lake · CleanLA".
+- Set `og:description` for SEO and non-X platforms (Slack, iMessage, LinkedIn read it); X ignores it.
+- Keep the **bottom ~80px of the 1200×630 card image** visually dark and uncluttered — that is where X overlays its title text. Do not place your own title text there.
+- The old `cards-dev.twitter.com` validator is dead. Preview cards by pasting the URL into the X compose window before posting.
 
 ### Work Items
 
-1. Build public spot page:
-   - status
-   - category
-   - approximate location
-   - verified badge when applicable
-   - before/after display for cleanups
-   - report-focused layout for unresolved spots
-2. Add metadata generation:
-   - Open Graph title/description/image
-   - Twitter Card tags
-   - canonical URL
-3. Build `@vercel/og` image endpoint:
-   - cleanup variant
-   - problem-spot variant
-   - verified badge
-   - timestamp
-   - approximate coordinates or neighborhood label
-   - CleanLA branding
-4. Add share actions:
-   - native Web Share API URL sharing
-   - native Web Share API file sharing when supported
-   - image download fallback
-   - copy link
-   - X intent link
-   - Facebook share link
-5. Add Instagram fallback:
-   - download image
-   - use native share sheet where available
-   - optionally experiment with deep link on supported devices only
-6. Validate public pages against moderation state.
-7. Add noindex behavior for hidden/rejected content.
-8. Validate previews with external debuggers before launch.
+1. **Build public spot page** — `src/app/s/[id]/page.tsx`:
+   - Server component, no auth required.
+   - Query `spots` and `spot_media` directly — do not reuse `spots_in_bounds`, which is optimized for the map viewport. Filter `spot_media` to `moderation_status = 'approved'`.
+   - Return 404 if `spot.status = 'hidden'` or no approved media exists.
+   - Two layouts driven by whether an approved after-photo exists: cleanup variant (before + after side by side) and problem-spot variant (single report photo, current status).
+   - Show: category, neighborhood label (not exact coordinates), verified badge when `verification_status = 'verified'`, severity, description, submission date.
+   - `noindex` robots meta when spot is hidden or has no approved media (defense in depth alongside the 404).
+
+2. **Add X Card metadata** — via Next.js `generateMetadata` in the same `page.tsx`:
+   - `twitter:card: summary_large_image`
+   - `twitter:title` (and `og:title` as fallback): short label — `"[Category] · [Neighborhood] · CleanLA"`, e.g. `"Illegal Dumping · Silver Lake · CleanLA"`.
+   - `og:description`: spot description truncated to 160 chars — for SEO and non-X platforms.
+   - `twitter:image` (and `og:image`): point to the OG image endpoint (item 3), not the raw storage URL.
+   - `canonical` URL: `NEXT_PUBLIC_SITE_URL/s/[id]`.
+
+3. **Build card image endpoint** — `src/app/api/og/spot/[id]/route.tsx`:
+   - Uses `@vercel/og` (`ImageResponse`) — install as a dependency (`npm install @vercel/og`).
+   - Dimensions: 1200×630 (standard OG / X large card).
+   - Two variants: cleanup card (before + after thumbnails side by side, CLEANED label prominent) and problem-spot card (report photo dominant, REPORTED label).
+   - Bake into the image: category label (UPPERCASE), neighborhood, verified badge if applicable, CleanLA wordmark (top area). Keep the bottom ~80px clear — X's title overlay lands there.
+   - Filter to approved media only — never render unmoderated photos.
+   - Return 404 if the spot is hidden or has no approved media.
+   - Keep JSX simple: `@vercel/og` supports flexbox only, no CSS grid, no arbitrary transforms.
+
+4. **Build share actions** — `src/features/sharing/ShareActions.tsx` (client component):
+   - **X share button**: opens `https://x.com/intent/post?text=...&url=...`. Pre-fill `text` with a short call to action — `"[Category] in [neighborhood] — help clean this up"` for problem spots or `"This spot in [neighborhood] was cleaned!"` for cleanups. The `url` param carries the `/s/[id]` link. URL-encode both params.
+   - **Web Share API** (`navigator.share({ url })`): feature-detect before calling — works on iOS Safari and Android Chrome. Use as the primary native share path on mobile.
+   - **Copy link** (clipboard API): desktop fallback. Show a brief "Copied!" confirmation.
+   - Feature-detect everything. Do not assume any capability is available.
+
+5. **Validate public pages against moderation state**:
+   - Hidden spots return 404 — confirm no OG image or metadata leaks.
+   - Spots with only pending/rejected media return 404.
+   - Approved spots render correctly in both cleanup and problem-spot layouts.
+
+6. **Add noindex behavior** for hidden/rejected content (confirmed in item 1, verify it is present in the rendered HTML).
+
+7. **Validate X card previews before declaring done**:
+   - Paste the `/s/[id]` URL into the X compose window (desktop and mobile) and confirm the card image renders.
+   - Confirm the title overlay appears correctly over the image.
+   - Test the `x.com/intent/post` link in an external browser (not inside the X app — opening inside X's in-app browser may redirect to login instead of compose, which is a known X bug).
+   - Test Web Share on a real iOS and Android device.
+   - Test copy link on desktop.
 
 ### Expected Files
 
 - `src/app/s/[id]/page.tsx`
 - `src/app/api/og/spot/[id]/route.tsx`
-- `src/features/sharing/*`
-- `src/lib/public-url/*`
+- `src/features/sharing/ShareActions.tsx`
 
 ### Acceptance Criteria
 
-- Every approved public spot has a working public page.
+- Every approved public spot has a working public page at `/s/[id]`.
 - Cleanup pages show before/after evidence.
 - Problem-spot pages show current need without implying cleanup.
-- Link previews render a branded card image.
-- Web Share works on supported mobile browsers.
-- Download/copy fallbacks work everywhere.
-- X and Facebook sharing open correctly formed URLs.
-- Instagram is handled through reliable fallback behavior, with deep-linking only if proven.
+- Pasting the URL into X compose renders a 1200×630 card image with title overlay.
+- X share button opens `x.com/intent/post` with pre-filled text and URL.
+- Web Share API works on iOS Safari and Android Chrome.
+- Copy link works on desktop.
+- Hidden spots and spots with no approved media return 404 — no metadata leaks.
 
 ### Verification
 
 - Run lint and typecheck.
-- Test public page metadata.
-- Test OG image generation locally and on Vercel.
-- Test Web Share on mobile.
-- Test fallback download and copy link on desktop.
-- Confirm rejected/private spots do not expose public cards.
+- Test OG image endpoint locally (`/api/og/spot/[id]`) and confirm both variants render.
+- Deploy to Vercel and confirm OG image is accessible over HTTPS (X requires it).
+- Paste `/s/[id]` URL into X compose window — confirm card image appears with title overlay.
+- Test `x.com/intent/post` link in external browser on desktop and mobile.
+- Test Web Share on real iOS and Android devices.
+- Test copy link on desktop.
+- Confirm hidden/rejected spots return 404 and do not expose card images.
 
 ---
 

@@ -12,6 +12,7 @@ import {
 import { SPOT_CATEGORIES, type SpotCategory } from "@/features/spots/types";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
+import { moderateMedia } from "@/lib/moderation/moderate-media";
 import { verifyMedia } from "@/lib/verification/verify-media";
 
 export const dynamic = "force-dynamic";
@@ -222,11 +223,19 @@ export async function POST(request: Request) {
     serverReceivedAt,
   });
 
+  // Phase 5: synchronous AI moderation — never blocks the response, falls back to pending
+  const moderation = await moderateMedia(admin, {
+    spotMediaId: mediaId,
+    category: report.category,
+    imageUrl: publicUrl,
+  });
+
   return NextResponse.json({
     ok: true,
     spot_id: spotId,
     spot_media_id: mediaId,
     verification_status: verification.status,
     verification_reason: verification.reason,
+    moderation_status: moderation.status,
   });
 }

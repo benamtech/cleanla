@@ -5,6 +5,7 @@ import {
 } from "@/features/reports/validation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
+import { moderateMedia } from "@/lib/moderation/moderate-media";
 import { verifyMedia } from "@/lib/verification/verify-media";
 
 export const dynamic = "force-dynamic";
@@ -100,7 +101,7 @@ export async function POST(request: Request) {
   // Load the spot and validate its current state
   const { data: spot, error: spotError } = await admin
     .from("spots")
-    .select("id, status")
+    .select("id, status, category")
     .eq("id", cleanup.spotId)
     .single();
 
@@ -196,10 +197,18 @@ export async function POST(request: Request) {
     }
   }
 
+  // Phase 5: synchronous AI moderation — falls back to pending on any error
+  const moderation = await moderateMedia(admin, {
+    spotMediaId: mediaId,
+    category: spot.category,
+    imageUrl: publicUrl,
+  });
+
   return NextResponse.json({
     ok: true,
     spot_id: cleanup.spotId,
     verification_status: verification.status,
     verification_reason: verification.reason,
+    moderation_status: moderation.status,
   });
 }

@@ -1,1 +1,166 @@
-
+insert into public.spots (
+  id,
+  category,
+  status,
+  description,
+  neighborhood,
+  location,
+  verification_status,
+  verification_reason,
+  created_at,
+  updated_at
+)
+values
+  (
+    '10000000-0000-4000-8000-000000000001',
+    'illegal_dumping',
+    'reported',
+    'mattress and construction debris blocking the curb lane',
+    'boyle heights',
+    ST_SetSRID(ST_MakePoint(-118.2137, 34.0339), 4326)::geography,
+    'unverified',
+    'seed_data',
+    now() - interval '3 days',
+    now() - interval '3 days'
+  ),
+  (
+    '10000000-0000-4000-8000-000000000002',
+    'trash',
+    'reported',
+    'overflowing bags around bus stop and sidewalk tree well',
+    'koreatown',
+    ST_SetSRID(ST_MakePoint(-118.3009, 34.0618), 4326)::geography,
+    'unverified',
+    'seed_data',
+    now() - interval '2 days',
+    now() - interval '2 days'
+  ),
+  (
+    '10000000-0000-4000-8000-000000000003',
+    'graffiti',
+    'in_progress',
+    'fresh graffiti on alley-facing wall near commercial strip',
+    'historic filipinotown',
+    ST_SetSRID(ST_MakePoint(-118.2594, 34.0656), 4326)::geography,
+    'unverified',
+    'seed_data',
+    now() - interval '36 hours',
+    now() - interval '36 hours'
+  ),
+  (
+    '10000000-0000-4000-8000-000000000004',
+    'encampment_debris',
+    'reported',
+    'abandoned debris pile along freeway-adjacent sidewalk',
+    'westlake',
+    ST_SetSRID(ST_MakePoint(-118.2779, 34.0544), 4326)::geography,
+    'unverified',
+    'seed_data',
+    now() - interval '30 hours',
+    now() - interval '30 hours'
+  ),
+  (
+    '10000000-0000-4000-8000-000000000005',
+    'biohazard',
+    'reported',
+    'possible hazardous waste containers left near alley entrance',
+    'south los angeles',
+    ST_SetSRID(ST_MakePoint(-118.2737, 33.9890), 4326)::geography,
+    'unverified',
+    'seed_data',
+    now() - interval '24 hours',
+    now() - interval '24 hours'
+  ),
+  (
+    '10000000-0000-4000-8000-000000000006',
+    'overgrowth',
+    'cleaned',
+    'overgrown vegetation trimmed back from sidewalk pinch point',
+    'highland park',
+    ST_SetSRID(ST_MakePoint(-118.2000, 34.1155), 4326)::geography,
+    'verified',
+    'seed_data',
+    now() - interval '20 hours',
+    now() - interval '12 hours'
+  ),
+  (
+    '10000000-0000-4000-8000-000000000007',
+    'illegal_dumping',
+    'reported',
+    'sofa and broken furniture dumped beside parking lot',
+    'van nuys',
+    ST_SetSRID(ST_MakePoint(-118.4489, 34.1899), 4326)::geography,
+    'unverified',
+    'seed_data',
+    now() - interval '18 hours',
+    now() - interval '18 hours'
+  ),
+  (
+    '10000000-0000-4000-8000-000000000008',
+    'trash',
+    'reported',
+    'loose trash collecting near storm drain',
+    'venice',
+    ST_SetSRID(ST_MakePoint(-118.4695, 33.9916), 4326)::geography,
+    'unverified',
+    'seed_data',
+    now() - interval '15 hours',
+    now() - interval '15 hours'
+  ),
+  (
+    '10000000-0000-4000-8000-000000000009',
+    'graffiti',
+    'reported',
+    'tagging on retaining wall visible from sidewalk',
+    'east hollywood',
+    ST_SetSRID(ST_MakePoint(-118.2915, 34.0900), 4326)::geography,
+    'unverified',
+    'seed_data',
+    now() - interval '12 hours',
+    now() - interval '12 hours'
+  ),
+  (
+    '10000000-0000-4000-8000-000000000010',
+    'trash',
+    'cleaned',
+    'bags removed from corner after weekend cleanup',
+    'leimert park',
+    ST_SetSRID(ST_MakePoint(-118.3306, 34.0090), 4326)::geography,
+    'verified',
+    'seed_data',
+    now() - interval '10 hours',
+    now() - interval '6 hours'
+  ),
+  (
+    '10000000-0000-4000-8000-000000000011',
+    'overgrowth',
+    'reported',
+    'plant growth narrowing sidewalk access near school route',
+    'el sereno',
+    ST_SetSRID(ST_MakePoint(-118.1773, 34.0813), 4326)::geography,
+    'unverified',
+    'seed_data',
+    now() - interval '8 hours',
+    now() - interval '8 hours'
+  ),
+  (
+    '10000000-0000-4000-8000-000000000012',
+    'encampment_debris',
+    'in_progress',
+    'debris remains after partial cleanup under overpass',
+    'downtown',
+    ST_SetSRID(ST_MakePoint(-118.2437, 34.0522), 4326)::geography,
+    'unverified',
+    'seed_data',
+    now() - interval '6 hours',
+    now() - interval '4 hours'
+  )
+on conflict (id) do update set
+  category = excluded.category,
+  status = excluded.status,
+  description = excluded.description,
+  neighborhood = excluded.neighborhood,
+  location = excluded.location,
+  verification_status = excluded.verification_status,
+  verification_reason = excluded.verification_reason,
+  updated_at = excluded.updated_at;

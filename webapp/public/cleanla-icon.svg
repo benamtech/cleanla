@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" role="img" aria-label="CleanLA">
+  <rect width="180" height="180" fill="#FFFFFF"/>
+  <rect x="9" y="9" width="162" height="162" fill="#f8eac7" stroke="#999999" stroke-width="3"/>
+  <rect x="27" y="27" width="126" height="27" fill="#94a3d6" stroke="#999999" stroke-width="3"/>
+  <text x="90" y="47" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#FFFFFF">CLEANLA</text>
+  <path d="M54 126 L90 69 L126 126 Z" fill="#001089" stroke="#999999" stroke-width="3" stroke-linejoin="miter"/>
+  <circle cx="90" cy="108" r="12" fill="#a60315" stroke="#FFFFFF" stroke-width="3"/>
+</svg>

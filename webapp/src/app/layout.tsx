@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
+import "mapbox-gl/dist/mapbox-gl.css";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "CleanLA — report a street issue",
-  description:
-    "A public, transparent place to report and view street issues across Los Angeles. Photos, locations, neighborhood tags — all public.",
+  title: "CleanLA - Los Angeles cleanup map",
+  description: "A public, read-only map of reported cleanup spots across Los Angeles.",
 };
 
 export default function RootLayout({

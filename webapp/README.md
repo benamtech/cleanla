@@ -1,6 +1,6 @@
 # CleanLA Webapp
 
-Phase 1 foundation for the CleanLA PWA. Currently building toward the **Phase 1.5 validation landing page** (see the project root `README.md` for context).
+Phase 2 map MVP for the CleanLA PWA. The home screen is now the read-only Los Angeles cleanup map; the Phase 1.5 validation report table remains as historical input and is migrated into Phase 2 spots.
 
 ## Local Development
 
@@ -19,6 +19,18 @@ Required environment variables are documented in `.env.example`.
 - `npm run lint`: run ESLint
 - `npm run typecheck`: run TypeScript checks
 - `npm run format`: format project files
+
+## Phase 2 Map MVP
+
+Before running the map against a Supabase project, apply migrations through `20260525000200_phase2_spots.sql` and then run `supabase/seed.sql`. The app reads visible spots through the `spots_in_bounds` RPC via `GET /api/spots`.
+
+The primary Phase 2 route is `/`. It requires:
+
+- `NEXT_PUBLIC_MAPBOX_TOKEN`
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+
+If the Mapbox token is missing, the app renders a 369-compliant error panel instead of crashing.
 
 ## Design system — NON-NEGOTIABLE
 

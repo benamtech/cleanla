@@ -491,7 +491,7 @@ Phase 3 complete.
 
 ### Objective
 
-Make user-generated content safer before broad public sharing: flags, review queue, automated screening, privacy policy implementation, and sensitive-category constraints.
+Gate public visibility behind AI-powered content screening before broad public sharing. Claude Haiku 4.5 vision screens every photo on upload. Anything it rejects or cannot confidently evaluate goes to a human admin queue. Humans are the fallback, not the primary path.
 
 ### Dependencies
 
@@ -500,75 +500,109 @@ Phase 3 complete. Preferably Phase 4 complete before final acceptance.
 ### Locked Decisions
 
 - Moderation ships before public launch.
-- Public visibility depends on moderation state.
-- Sensitive categories should describe public-works conditions, not target people.
-- Faces, license plates, and identifying personal details require a policy decision before launch.
+- Public visibility depends on moderation state — `spots_in_bounds` and all public queries only return media with `moderation_status = 'approved'`.
+- AI screening is the primary path. Human review is the fallback for uncertain or rejected content only.
+- Provider is Claude Haiku 4.5 vision (Anthropic). No abstraction layer needed — committing to one provider keeps the implementation simple.
+- Screening runs synchronously in the same API request as upload, the same way verification does. No Edge Functions, no background jobs, no polling.
+- All CleanLA photos are taken outdoors in public spaces. Face blur, license plate redaction, and private property policy are deferred to Phase 7 (Launch) if they become necessary.
+- On any AI call failure the media falls back to `moderation_status = 'pending'` — never auto-approved on error.
+
+### AI Screening Design
+
+**Model:** `claude-haiku-4-5` (vision)
+
+**Cost:** ~$0.001–0.002 per image at 1024px. Negligible at civic app scale.
+
+**System prompt (to keep in `src/lib/moderation/moderate-media.ts`):**
+
+```
+You are a content moderator for CleanLA, a civic app where users photograph
+public blight in Los Angeles. All photos are taken outdoors in public spaces.
+
+The user's claimed category: {category}
+
+Respond with JSON only — no explanation, no markdown:
+{
+  "approved": true | false,
+  "reason": "one short phrase if rejected, null if approved",
+  "category_match": true | false
+}
+
+Approve if: an outdoor photo plausibly showing civic blight — trash, graffiti,
+illegal dumping, overgrowth, encampment debris, or biohazard — even if minor.
+
+Reject if: blank or black image, screenshot of a screen, photo of a photo,
+completely unrelated to outdoor civic conditions, or intentionally offensive content.
+```
+
+**Outcomes:**
+- `approved: true` → `moderation_status = 'approved'`, media is immediately public
+- `approved: false` → `moderation_status = 'rejected'`, goes to human admin queue for review
+- API call throws or returns unparseable JSON → `moderation_status = 'pending'`, goes to human admin queue
+
+**Call location:** after `verifyMedia()` in both `POST /api/reports` and `POST /api/cleanup`. Same synchronous pattern. Result returned in the API response alongside `verification_status`.
 
 ### Work Items
 
-1. Define content policy:
-   - allowed categories
-   - disallowed content
-   - people/face handling
-   - license plate handling
-   - private property guidance
-   - takedown process
-2. Add moderation fields:
-   - `moderation_status`
-   - `moderation_reason`
-   - `reviewed_by`
-   - `reviewed_at`
-3. Add `flags` table:
-   - spot flag
-   - media flag
-   - reason
-   - reporter
-   - status
-4. Build user flag/report UI.
-5. Build admin/reviewer role model.
-6. Build review queue:
-   - flagged spots
-   - flagged media
-   - pending automated review
-   - action controls
-7. Add automated media screening through one provider:
-   - OpenAI moderation endpoint, AWS Rekognition, Hive, or another selected provider
-   - keep provider behind a server-side abstraction
-8. Ensure public map and public pages hide rejected content.
-9. Add coarse-location handling for sensitive categories if applicable.
-10. Add privacy and safety copy:
-    - concise in-product capture guidance
-    - privacy policy draft
-    - terms/community guidelines draft
-11. Add admin audit log for moderation actions.
+1. Add moderation fields to `spot_media` via migration:
+   - `moderation_status` — enum: `pending`, `approved`, `rejected` (default: `pending`)
+   - `moderation_reason` — text, nullable (AI-generated phrase or human note)
+   - `moderated_by` — uuid nullable, FK to `auth.users` — null means AI, uuid means human admin
+   - `moderated_at` — timestamptz nullable
+2. Update `spots_in_bounds` RPC to filter out media with `moderation_status != 'approved'`:
+   - `report_media_url` subquery: add `AND sm.moderation_status = 'approved'`
+   - `after_media_url` subquery: same
+   - A spot with no approved media shows `null` URLs until at least one photo clears
+3. Create `src/lib/moderation/moderate-media.ts`:
+   - `moderateMedia(input: { mediaId, category, imageUrl })` — calls Haiku 4.5 vision
+   - Parses JSON response into `{ status: 'approved' | 'rejected' | 'pending', reason: string | null }`
+   - Updates `spot_media.moderation_status`, `moderation_reason`, `moderated_at` via admin client
+   - Falls back to `pending` on any error — never throws
+4. Call `moderateMedia()` in `POST /api/reports` after `verifyMedia()` — pass `category` and `publicUrl`
+5. Call `moderateMedia()` in `POST /api/cleanup` after `verifyMedia()` — same pattern
+6. Add `ANTHROPIC_API_KEY` to env vars (server-only). Add to `.env.example`.
+7. Build admin moderation queue at `src/app/admin/moderation/page.tsx`:
+   - Server component, gated to admin users only (check `profiles.is_admin` boolean or a simple hardcoded uid list for MVP)
+   - Lists `spot_media` rows where `moderation_status IN ('pending', 'rejected')`, ordered by `created_at ASC`
+   - Shows thumbnail, category, verification status, AI reason (if any), spot description
+   - APPROVE and REJECT buttons — POST to `/api/admin/moderation/[mediaId]`
+8. Create `POST /api/admin/moderation/[mediaId]/route.ts`:
+   - Admin-only (validate user is admin server-side)
+   - Accepts `{ action: 'approved' | 'rejected', reason?: string }`
+   - Updates `spot_media` via admin client: `moderation_status`, `moderation_reason`, `moderated_by = user.id`, `moderated_at`
+9. Add `moderation_status` index to `spot_media` for queue queries
+10. Add brief content policy to `docs/content-policy.md`:
+    - what CleanLA photos must show (outdoor civic blight)
+    - what will be rejected (unrelated content, offensive material)
+    - takedown contact path
 
 ### Expected Files
 
-- `src/features/moderation/*`
-- `src/app/admin/*`
-- `src/features/flags/*`
-- `supabase/functions/moderate-media/*`
-- `supabase/migrations/*_moderation.sql`
-- `docs/privacy-and-safety.md`
+- `src/lib/moderation/moderate-media.ts`
+- `src/app/admin/moderation/page.tsx`
+- `src/app/api/admin/moderation/[mediaId]/route.ts`
+- `supabase/migrations/*_phase5_moderation.sql`
 - `docs/content-policy.md`
 
 ### Acceptance Criteria
 
-- Users can flag spots and media.
-- Reviewers can approve, hide, or reject content.
-- Automated media screening runs on upload or soon after upload.
-- Public surfaces exclude rejected media and spots.
-- Sensitive-category policy is documented and reflected in UI/data behavior.
-- Privacy and takedown policies exist before public launch.
+- Every uploaded photo is screened by Haiku 4.5 in the same API request that creates the spot.
+- Approved photos appear on the public map immediately after upload.
+- Rejected and uncertain photos are hidden from the public map until a human admin approves them.
+- Admin queue shows all pending and rejected items with approve/reject controls.
+- Non-admin users cannot access the admin queue or the moderation API route.
+- AI call failures leave the media in `pending` state — never auto-approved.
+- `moderated_by` is null for AI decisions and a user uuid for human decisions.
 
 ### Verification
 
 - Run lint and typecheck.
-- Test flag creation as a regular user.
-- Test moderation actions as reviewer/admin.
-- Confirm non-reviewers cannot access review queue.
-- Confirm rejected media disappears from public surfaces.
-- Confirm provider failures produce safe pending/review states.
+- Submit a legitimate spot photo and confirm `moderation_status = 'approved'` in the DB and photo appears on map.
+- Submit an obviously unrelated photo (e.g., a blank image) and confirm it lands in `rejected` or `pending` and does not appear on the map.
+- Simulate an AI API failure (bad key) and confirm media lands in `pending`, not `approved`.
+- Access the admin queue as a non-admin user and confirm 401/403.
+- Approve a pending item as admin and confirm it appears on the map.
+- Reject an approved item as admin and confirm it disappears from the map.
 
 ---
 
@@ -698,7 +732,7 @@ Phases 1 through 6 complete.
 5. Cost review:
    - Mapbox map loads
    - Supabase database/storage/egress
-   - moderation provider cost
+   - Claude Haiku 4.5 vision moderation cost (~$0.001–0.002 per image; model the monthly cost at projected submission volume)
    - Vercel function/image generation cost
 6. Document MapLibre migration trigger:
    - monthly map cost threshold

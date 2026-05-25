@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import type { User } from "@supabase/supabase-js";
 import Map, {
   Layer,
   Source,
@@ -11,9 +12,17 @@ import Map, {
   type ViewStateChangeEvent,
 } from "react-map-gl/mapbox";
 import type { LngLatBounds } from "mapbox-gl";
-import { CATEGORY_COLORS, formatCategory, formatCoordinates, formatStatus, formatVerification } from "@/features/spots/display";
+import { ReportSheet } from "@/features/reports/ReportSheet";
+import {
+  CATEGORY_COLORS,
+  formatCategory,
+  formatCoordinates,
+  formatStatus,
+  formatVerification,
+} from "@/features/spots/display";
 import { spotsToGeoJson } from "@/features/spots/geojson";
 import type { SpotSummary } from "@/features/spots/types";
+import { createClient } from "@/lib/supabase/client";
 
 const LOS_ANGELES_VIEW = {
   longitude: -118.2437,
@@ -89,6 +98,12 @@ type FetchState =
   | { kind: "ok" }
   | { kind: "error"; message: string };
 
+type AuthNotice =
+  | { kind: "idle" }
+  | { kind: "sending" }
+  | { kind: "sent" }
+  | { kind: "error"; message: string };
+
 function boundsToQuery(bounds: LngLatBounds): URLSearchParams {
   const params = new URLSearchParams();
   params.set("west", String(bounds.getWest()));
@@ -133,7 +148,7 @@ function StatusPanel({
         : `${count} VISIBLE`;
 
   return (
-    <div className="border border-[#999999] bg-white px-[9px] py-[6px] text-[9px] font-bold uppercase tracking-[0.03em] text-[#001089]">
+    <div className="border border-[#999999] bg-white px-[9px] py-[6px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase">
       {label}
     </div>
   );
@@ -142,13 +157,75 @@ function StatusPanel({
 function EmptyOrErrorPanel({ fetchState }: { fetchState: FetchState }) {
   if (fetchState.kind === "error") {
     return (
-      <div className="border border-[#a60315] bg-white p-[9px] text-[12px] font-bold uppercase tracking-[0.03em] text-[#a60315]">
+      <div className="border border-[#a60315] bg-white p-[9px] text-[12px] font-bold tracking-[0.03em] text-[#a60315] uppercase">
         {fetchState.message}
       </div>
     );
   }
 
   return null;
+}
+
+function SignInPrompt({
+  email,
+  notice,
+  onEmailChange,
+  onSubmit,
+  onClose,
+}: {
+  email: string;
+  notice: AuthNotice;
+  onEmailChange: (email: string) => void;
+  onSubmit: () => void;
+  onClose: () => void;
+}) {
+  return (
+    <aside className="absolute right-[9px] bottom-[9px] left-[9px] z-20 border border-[#999999] bg-white md:left-auto md:w-[360px]">
+      <div className="flex h-[27px] items-center justify-between border-b border-[#999999] bg-[#001089] px-[9px]">
+        <h2 className="text-[15px] font-bold tracking-[0.03em] text-white uppercase">
+          SIGN IN TO REPORT
+        </h2>
+        <button
+          type="button"
+          onClick={onClose}
+          className="border border-white bg-white px-[6px] py-[3px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
+          aria-label="Close sign in"
+        >
+          [x]
+        </button>
+      </div>
+      <div className="grid gap-[9px] p-[9px]">
+        <p className="text-[12px] tracking-[0.03em] text-[#001089] uppercase">
+          PUBLIC MAP BROWSING STAYS OPEN. REPORTING REQUIRES A MAGIC LINK.
+        </p>
+        <input
+          value={email}
+          onChange={(event) => onEmailChange(event.target.value)}
+          placeholder="EMAIL"
+          className="border border-[#999999] bg-white p-[9px] text-[12px] tracking-[0.03em] uppercase"
+          type="email"
+        />
+        <button
+          type="button"
+          onClick={onSubmit}
+          disabled={notice.kind === "sending" || !email.trim()}
+          className="border border-[#999999] bg-[#001089] px-[9px] py-[9px] text-[12px] font-bold tracking-[0.03em] text-white uppercase enabled:hover:bg-[#94a3d6] disabled:bg-white disabled:text-[#999999]"
+        >
+          {notice.kind === "sending" ? "[SENDING]" : "[SEND MAGIC LINK]"}
+        </button>
+        {notice.kind === "sent" ? (
+          <div className="border border-[#228B22] bg-white p-[9px] text-[9px] font-bold tracking-[0.03em] text-[#228B22] uppercase">
+            MAGIC LINK SENT. CHECK YOUR EMAIL.
+          </div>
+        ) : null}
+        {notice.kind === "error" ? (
+          <div className="border border-[#a60315] bg-white p-[9px] text-[9px] font-bold tracking-[0.03em] text-[#a60315] uppercase">
+            {notice.message}
+          </div>
+        ) : null}
+      </div>
+    </aside>
+  );
 }
 
 function SpotDetailSheet({
@@ -159,15 +236,15 @@ function SpotDetailSheet({
   onClose: () => void;
 }) {
   return (
-    <aside className="absolute bottom-[9px] left-[9px] right-[9px] z-10 border border-[#999999] bg-white md:left-auto md:w-[360px]">
+    <aside className="absolute right-[9px] bottom-[9px] left-[9px] z-10 border border-[#999999] bg-white md:left-auto md:w-[360px]">
       <div className="flex h-[27px] items-center justify-between border-b border-[#999999] bg-[#94a3d6] px-[9px]">
-        <h2 className="text-[15px] font-bold uppercase tracking-[0.03em] text-white">
+        <h2 className="text-[15px] font-bold tracking-[0.03em] text-white uppercase">
           SPOT DETAIL
         </h2>
         <button
           type="button"
           onClick={onClose}
-          className="border border-[#999999] bg-white px-[6px] py-[3px] text-[9px] font-bold uppercase tracking-[0.03em] text-[#001089] hover:bg-[#f8eac7]"
+          className="border border-[#999999] bg-white px-[6px] py-[3px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
           aria-label="Close spot detail"
         >
           [x]
@@ -175,28 +252,38 @@ function SpotDetailSheet({
       </div>
       <div className="grid gap-[9px] p-[9px]">
         <div className="flex flex-wrap gap-[6px]">
-          <span className="border border-[#999999] bg-[#f8eac7] px-[6px] py-[3px] text-[9px] font-bold uppercase tracking-[0.03em] text-[#001089]">
+          <span className="border border-[#999999] bg-[#f8eac7] px-[6px] py-[3px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase">
             {formatCategory(spot.category)}
           </span>
-          <span className="border border-[#999999] bg-white px-[6px] py-[3px] text-[9px] font-bold uppercase tracking-[0.03em] text-[#001089]">
+          <span className="border border-[#999999] bg-white px-[6px] py-[3px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase">
             {formatStatus(spot.status)}
           </span>
         </div>
 
-        <p className="text-[12px] leading-relaxed text-[#001089]">{spot.description}</p>
+        <p className="text-[12px] leading-relaxed text-[#001089]">
+          {spot.description}
+        </p>
 
-        <div className="grid gap-[6px] border border-[#999999] bg-[#f8eac7] p-[9px] text-[9px] uppercase tracking-[0.03em] text-[#001089]">
+        <div className="grid gap-[6px] border border-[#999999] bg-[#f8eac7] p-[9px] text-[9px] tracking-[0.03em] text-[#001089] uppercase">
           <div className="flex justify-between gap-[12px]">
             <span className="font-bold">LOCATION</span>
-            <span>{spot.neighborhood || formatCoordinates(spot.lat, spot.lng)}</span>
+            <span>
+              {spot.neighborhood || formatCoordinates(spot.lat, spot.lng)}
+            </span>
           </div>
           <div className="flex justify-between gap-[12px]">
             <span className="font-bold">VERIFY</span>
             <span>{formatVerification(spot.verification_status)}</span>
           </div>
           <div className="flex justify-between gap-[12px]">
+            <span className="font-bold">SEVERITY</span>
+            <span>{spot.severity ?? "N/A"}</span>
+          </div>
+          <div className="flex justify-between gap-[12px]">
             <span className="font-bold">MEDIA</span>
-            <span>{spot.media_url ? "PUBLIC PHOTO" : "PLACEHOLDER"}</span>
+            <span>
+              {spot.media_url ? "PUBLIC PENDING PHOTO" : "PLACEHOLDER"}
+            </span>
           </div>
         </div>
 
@@ -210,7 +297,7 @@ function SpotDetailSheet({
             />
           </div>
         ) : (
-          <div className="border border-[#999999] bg-[#f8eac7] p-[18px] text-center text-[9px] font-bold uppercase tracking-[0.03em] text-[#999999]">
+          <div className="border border-[#999999] bg-[#f8eac7] p-[18px] text-center text-[9px] font-bold tracking-[0.03em] text-[#999999] uppercase">
             MEDIA PLACEHOLDER
           </div>
         )}
@@ -222,10 +309,41 @@ function SpotDetailSheet({
 export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
   const mapRef = useRef<MapRef | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const supabase = useMemo(() => createClient(), []);
   const [spots, setSpots] = useState<SpotSummary[]>([]);
   const [selectedSpot, setSelectedSpot] = useState<SpotSummary | null>(null);
   const [fetchState, setFetchState] = useState<FetchState>({ kind: "idle" });
+  const [user, setUser] = useState<User | null>(null);
+  const [authNotice, setAuthNotice] = useState<AuthNotice>({ kind: "idle" });
+  const [email, setEmail] = useState("");
+  const [showSignIn, setShowSignIn] = useState(false);
+  const [showReport, setShowReport] = useState(false);
   const spotData = useMemo(() => spotsToGeoJson(spots), [spots]);
+
+  useEffect(() => {
+    let mounted = true;
+
+    supabase.auth.getSession().then(({ data }) => {
+      if (mounted) {
+        setUser(data.session?.user ?? null);
+      }
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+      if (session?.user) {
+        setShowSignIn(false);
+        void fetch("/api/profile", { method: "POST" });
+      }
+    });
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
+  }, [supabase]);
 
   const fetchSpots = useCallback(async (params: URLSearchParams) => {
     setFetchState({ kind: "loading" });
@@ -252,7 +370,8 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
     } catch (error) {
       setFetchState({
         kind: "error",
-        message: error instanceof Error ? error.message : "COULD NOT LOAD SPOTS",
+        message:
+          error instanceof Error ? error.message : "COULD NOT LOAD SPOTS",
       });
     }
   }, []);
@@ -287,6 +406,49 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
     }
   }
 
+  function refetchCurrentBounds() {
+    const bounds = mapRef.current?.getBounds();
+    void fetchSpots(bounds ? boundsToQuery(bounds) : defaultBoundsQuery());
+  }
+
+  async function sendMagicLink() {
+    const trimmedEmail = email.trim();
+    if (!trimmedEmail) return;
+
+    setAuthNotice({ kind: "sending" });
+    const redirectTo = `${window.location.origin}/auth/callback`;
+    const { error } = await supabase.auth.signInWithOtp({
+      email: trimmedEmail,
+      options: {
+        emailRedirectTo: redirectTo,
+      },
+    });
+
+    if (error) {
+      setAuthNotice({ kind: "error", message: error.message.toUpperCase() });
+      return;
+    }
+
+    setAuthNotice({ kind: "sent" });
+  }
+
+  async function signOut() {
+    await supabase.auth.signOut();
+    setUser(null);
+    setShowReport(false);
+  }
+
+  function openReport() {
+    setSelectedSpot(null);
+    if (user) {
+      setShowSignIn(false);
+      setShowReport(true);
+    } else {
+      setShowReport(false);
+      setShowSignIn(true);
+    }
+  }
+
   function handleMapClick(event: MapMouseEvent) {
     const feature = event.features?.[0];
     if (!feature) return;
@@ -303,7 +465,10 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
         const [lng, lat] = geometry.coordinates as [number, number];
         mapRef.current?.easeTo({
           center: [lng, lat],
-          zoom: Math.min((mapRef.current.getZoom() ?? LOS_ANGELES_VIEW.zoom) + 2, 16),
+          zoom: Math.min(
+            (mapRef.current.getZoom() ?? LOS_ANGELES_VIEW.zoom) + 2,
+            16,
+          ),
           duration: 300,
         });
       }
@@ -324,11 +489,11 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
       <main className="min-h-screen bg-white p-[18px]">
         <section className="mx-auto max-w-[720px] border border-[#a60315] bg-white p-[18px]">
           <div className="mb-[9px] border-b border-[#999999] pb-[9px]">
-            <h1 className="text-[24px] font-bold uppercase tracking-[0.03em] text-[#a60315]">
+            <h1 className="text-[24px] font-bold tracking-[0.03em] text-[#a60315] uppercase">
               MAPBOX TOKEN MISSING
             </h1>
           </div>
-          <p className="text-[12px] uppercase tracking-[0.03em] text-[#001089]">
+          <p className="text-[12px] tracking-[0.03em] text-[#001089] uppercase">
             SET NEXT_PUBLIC_MAPBOX_TOKEN TO LOAD THE CLEANLA MAP.
           </p>
         </section>
@@ -366,27 +531,45 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
         </Source>
       </Map>
 
-      <header className="absolute left-[9px] right-[9px] top-[9px] z-10 border border-[#999999] bg-white">
+      <header className="absolute top-[9px] right-[9px] left-[9px] z-10 border border-[#999999] bg-white">
         <div className="flex h-[27px] items-center justify-between border-b border-[#999999] bg-[#94a3d6] px-[9px]">
-          <h1 className="text-[15px] font-bold uppercase tracking-[0.03em] text-white">
+          <h1 className="text-[15px] font-bold tracking-[0.03em] text-white uppercase">
             CLEANLA MAP
           </h1>
-          <span className="text-[9px] uppercase tracking-[0.03em] text-white">
-            READ ONLY
+          <span className="text-[9px] tracking-[0.03em] text-white uppercase">
+            {user ? "SIGNED IN" : "PUBLIC"}
           </span>
         </div>
         <div className="flex flex-wrap items-center justify-between gap-[9px] p-[9px]">
-          <p className="text-[12px] uppercase tracking-[0.03em] text-[#001089]">
+          <p className="text-[12px] tracking-[0.03em] text-[#001089] uppercase">
             LOS ANGELES PUBLIC SPOTS
           </p>
-          <StatusPanel fetchState={fetchState} count={spots.length} />
+          <div className="flex flex-wrap items-center gap-[6px]">
+            <StatusPanel fetchState={fetchState} count={spots.length} />
+            <button
+              type="button"
+              onClick={openReport}
+              className="border border-[#999999] bg-white px-[9px] py-[6px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
+            >
+              [REPORT]
+            </button>
+            {user ? (
+              <button
+                type="button"
+                onClick={signOut}
+                className="border border-[#999999] bg-white px-[9px] py-[6px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
+              >
+                [SIGN OUT]
+              </button>
+            ) : null}
+          </div>
         </div>
       </header>
 
-      <div className="absolute right-[9px] top-[90px] z-10 grid gap-[6px]">
+      <div className="absolute top-[90px] right-[9px] z-10 grid gap-[6px]">
         <button
           type="button"
-          className="border border-[#999999] bg-white px-[9px] py-[6px] text-[12px] font-bold uppercase tracking-[0.03em] text-[#001089] hover:bg-[#f8eac7]"
+          className="border border-[#999999] bg-white px-[9px] py-[6px] text-[12px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
           onClick={() => mapRef.current?.zoomIn({ duration: 100 })}
           aria-label="Zoom in"
         >
@@ -394,7 +577,7 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
         </button>
         <button
           type="button"
-          className="border border-[#999999] bg-white px-[9px] py-[6px] text-[12px] font-bold uppercase tracking-[0.03em] text-[#001089] hover:bg-[#f8eac7]"
+          className="border border-[#999999] bg-white px-[9px] py-[6px] text-[12px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
           onClick={() => mapRef.current?.zoomOut({ duration: 100 })}
           aria-label="Zoom out"
         >
@@ -403,13 +586,33 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
       </div>
 
       {fetchState.kind === "error" ? (
-        <div className="absolute left-[9px] top-[150px] z-10 w-[300px]">
+        <div className="absolute top-[150px] left-[9px] z-10 w-[300px]">
           <EmptyOrErrorPanel fetchState={fetchState} />
         </div>
       ) : null}
 
       {selectedSpot ? (
-        <SpotDetailSheet spot={selectedSpot} onClose={() => setSelectedSpot(null)} />
+        <SpotDetailSheet
+          spot={selectedSpot}
+          onClose={() => setSelectedSpot(null)}
+        />
+      ) : null}
+
+      {showSignIn ? (
+        <SignInPrompt
+          email={email}
+          notice={authNotice}
+          onEmailChange={setEmail}
+          onSubmit={sendMagicLink}
+          onClose={() => setShowSignIn(false)}
+        />
+      ) : null}
+
+      {showReport && user ? (
+        <ReportSheet
+          onClose={() => setShowReport(false)}
+          onSubmitted={refetchCurrentBounds}
+        />
       ) : null}
     </main>
   );

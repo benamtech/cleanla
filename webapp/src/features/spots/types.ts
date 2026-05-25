@@ -27,6 +27,7 @@ export type SpotSummary = {
   status: SpotStatus;
   description: string;
   neighborhood: string | null;
+  severity: number | null;
   lat: number;
   lng: number;
   created_at: string;

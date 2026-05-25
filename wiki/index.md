@@ -53,10 +53,11 @@ For the operating rules, see [[../AGENT]]. For the human-facing overview, see [[
 
 ## Decisions
 
-- [[decisions/2026-05-mapbox-over-google-maps]] — use `@rnmapbox/maps` for CleanLA Snap's map screen
-- [[decisions/2026-05-deep-link-not-direct-submit]] — CleanLA Snap v1 deep-links to MyLA311, does not direct-submit
-- [[decisions/2026-05-no-candidate-branding]] — CleanLA Snap is and remains brand-neutral; no candidate, party, or campaign reference anywhere
-- [[decisions/2026-05-on-device-face-blur-required]] — on-device face + plate blur is mandatory; raw photo never leaves the device
+- [[decisions/2026-05-web-stack-over-mobile]] — **current stack**; pivot to Next.js + Supabase + PostGIS web; Expo + Firebase mobile path retired for v1; Phase 1.5 = validation pause
+- [[decisions/2026-05-mapbox-over-google-maps]] — Mapbox vendor choice survives the web pivot; library now `mapbox-gl` (was `@rnmapbox/maps`)
+- [[decisions/2026-05-deep-link-not-direct-submit]] — CleanLA v1 deep-links to MyLA311, does not direct-submit (stack-agnostic, still active)
+- [[decisions/2026-05-no-candidate-branding]] — CleanLA is and remains brand-neutral; no candidate, party, or campaign reference anywhere
+- [[decisions/2026-05-on-device-face-blur-required]] — principle still active (raw photo never leaves device); RN implementation retired with the web pivot, web pipeline TBD
 
 ---
 

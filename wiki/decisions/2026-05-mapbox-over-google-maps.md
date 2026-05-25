@@ -4,9 +4,12 @@ tags: [decision, mobile, mapping]
 created: 2026-05-24
 updated: 2026-05-24
 status: active
+superseded_by:
+  - ./2026-05-web-stack-over-mobile.md  # vendor choice (Mapbox) survives; library swaps @rnmapbox/maps → mapbox-gl on web; EAS dev client clause no longer applies
 related:
   - ../concepts/rn-maps-landscape-2026.md
   - ../projects/cleanla-snap.md
+  - ./2026-05-web-stack-over-mobile.md
 ---
 
 ## Context
@@ -51,3 +54,4 @@ Revisit this decision if any of the following occur:
 
 - [[../projects/cleanla-snap]]
 - [[../concepts/rn-maps-landscape-2026]]
+- [[./2026-05-web-stack-over-mobile]]

@@ -1,6 +1,6 @@
 ---
-title: CleanLA Snap
-tags: [project, civic-tech, los-angeles, mobile]
+title: CleanLA
+tags: [project, civic-tech, los-angeles, web]
 created: 2026-05-24
 updated: 2026-05-24
 related:
@@ -15,106 +15,159 @@ related:
   - ../concepts/civic-app-retention-benchmarks.md
   - ../concepts/la-civic-tech-funding-landscape.md
   - ../concepts/international-civic-app-patterns.md
+  - ../decisions/2026-05-web-stack-over-mobile.md
   - ../decisions/2026-05-mapbox-over-google-maps.md
   - ../decisions/2026-05-deep-link-not-direct-submit.md
   - ../decisions/2026-05-no-candidate-branding.md
   - ../decisions/2026-05-on-device-face-blur-required.md
 ---
 
-A nonpartisan civic transparency app for reporting and tracking street issues in Los Angeles — encampments, illegal dumping, graffiti, biohazards, overgrown lots. Two-tap reporting, on-device privacy redaction, public status loop, deep-link to [[../concepts/myla311-system|MyLA311]].
+A nonpartisan civic transparency app for reporting and tracking street issues in Los Angeles — encampments, illegal dumping, graffiti, biohazards, overgrown lots. Public reports, deep-linked to [[../concepts/myla311-system|MyLA311]], with photos redacted in-browser before upload.
+
+> **Naming note:** the project's original codename was "CleanLA Snap" (per `raw/0001-cleanla-snap-build-prompt.md`). Current shipping name on `benamtech/cleanla` is just **CleanLA**. This page covers both — they refer to the same project. "Snap" is also a [[../concepts/snapcrap-case-study|trademark risk]] and may not survive a USPTO/App-Store check anyway.
 
 ## Overview
 
-**Form factor:** mobile (iOS + Android via Expo).
+**Form factor:** web (Next.js, mobile-responsive). Mobile app form factor explicitly deferred — see [[../decisions/2026-05-web-stack-over-mobile]].
 
-**Core promise:** the simplest possible loop from "I see a problem" to "the city and my neighborhood know about it." Two taps from launch to submission. Faces and plates redacted on-device before upload.
+**Core promise:** simplest possible loop from "I see a problem" to "the city and my neighborhood know about it." Faces and license plates redacted on-device (in-browser) before upload — raw photo never leaves the device.
 
 **Strategic posture:** transparency layer first, submission layer second. The app does not depend on official ingestion to work — see [[../decisions/2026-05-deep-link-not-direct-submit]] and the analysis in [[../concepts/myla311-integration]].
 
-**Institutional intent:** designed to be owned by a 501(c)(3), most plausibly [[../concepts/cleanlawithme-movement|Clean LA With Me]] or a fiscal sponsor. Plan the institutional form on day one to avoid the [[../concepts/snapcrap-case-study|Snapcrap founder-burnout collapse]].
+**Institutional intent:** designed to be owned by a 501(c)(3) — most plausibly [[../concepts/cleanlawithme-movement|Clean LA With Me]] or via fiscal sponsorship through [[../concepts/la-civic-tech-funding-landscape|Community Partners LA]]. Plan the institutional form on day one to avoid the [[../concepts/snapcrap-case-study|Snapcrap founder-burnout collapse]].
 
 **Brand neutrality:** no political candidate, party, or campaign reference anywhere. Codified in [[../decisions/2026-05-no-candidate-branding]].
 
-## Current architecture (v1)
+## Current status (as of 2026-05-24)
 
-### Tech stack (locked)
+**Phase 1: done.** Next.js + Supabase + PostGIS scaffold shipped to `webapp/` on `main` via `benamtech/f95ec95`. Health dashboard at `/` confirms env wiring and Supabase reachability. No user-facing features yet.
 
-- Expo SDK 52+, TypeScript, Expo Router
-- NativeWind (Tailwind) for styling
-- Firebase v10+ (Firestore, Storage, Auth — anonymous + email)
-- `@rnmapbox/maps` with the official Expo config plugin (rationale: [[../decisions/2026-05-mapbox-over-google-maps]])
-- `react-native-vision-camera` + ML Kit (Android) / Apple Vision (iOS) for the on-device blur pipeline ([[../concepts/on-device-photo-privacy]])
-- `expo-location`, `expo-sharing`, `expo-image-manipulator`
+**Phase 1.5: validation pause (current).** The Map MVP is intentionally NOT being built yet. Two gating actions must complete first:
 
-### Firestore data model
+1. **Partnership conversation with [[../concepts/cleanlawithme-movement|Clean LA With Me]].** The app's design assumes Naula's operation will adopt and recommend it — that assumption needs testing before more engineering ships. Goal: 30–60 min call within 14 days of 2026-05-24.
+2. **Legal counsel review.** Nonprofit ownership, fiscal sponsorship options, and the partnership structure all need an attorney's read before formal commitments or co-branding decisions.
 
-```ts
-type Report = {
-  id: string
-  photoURL: string              // blurred only — raw never uploaded
-  geoPoint: { lat: number, lng: number }
-  timestamp: Timestamp
-  status: 'Open' | 'InProgress' | 'Cleaned'
-  serviceType: string           // from the MyLA311 96-type catalog
-  note: string                  // one-line, optional
-  userId: string                // anonymous Firebase Auth UID by default
-  flagCount: number
-  isHidden: boolean             // true when flagCount >= 3
-  cleanedPhotoURL?: string
-  cleanedAt?: Timestamp
-  cleanedByUserId?: string
-}
+In parallel during Phase 1.5: build the smallest possible landing-page version of the v1 mechanic — **photo + location + chronological feed + CSV export**. Web-only, no auth, no in-browser face blur yet. The point is a concrete artifact for the partnership conversation, not a public launch.
+
+## Architecture (v1, web)
+
+### Tech stack (current)
+
+- **Next.js** 15+ (app router) + React + TypeScript
+- **Supabase** v2 — Auth, Postgres 15 + PostGIS, Storage
+- **Mapbox GL JS** (rationale: [[../decisions/2026-05-mapbox-over-google-maps]] — Mapbox vendor choice survives; the library is now `mapbox-gl`, not `@rnmapbox/maps`)
+- **Tailwind** for styling — but every UI surface must route through the [369 design system](../../.claude/skills/369-design-system/SKILL.md) per the project's CLAUDE.md (non-negotiable)
+- **Vercel** for deployment (per ben's `process.env.VERCEL` check in `webapp/src/app/page.tsx`)
+- ESLint + Prettier + TypeScript strict
+
+Full stack-pivot rationale: [[../decisions/2026-05-web-stack-over-mobile]].
+
+### Data model (planned — to be confirmed when Map MVP begins)
+
+Supabase Postgres + PostGIS. Provisional `reports` table:
+
+```sql
+create table reports (
+  id                 uuid primary key default gen_random_uuid(),
+  photo_url          text not null,                              -- blurred only; raw never uploaded
+  location           geography(point, 4326) not null,
+  created_at         timestamptz default now(),
+  status             text check (status in ('open','in_progress','cleaned')) default 'open',
+  service_type       text,                                       -- from MyLA311 96-type catalog
+  note               text,
+  user_id            uuid references auth.users,
+  flag_count         int default 0,
+  is_hidden          boolean default false,
+  cleaned_photo_url  text,
+  cleaned_at         timestamptz,
+  cleaned_by_user_id uuid references auth.users
+);
 ```
 
-Flags live as a `flags/` subcollection on each report. A 5-minute soft hold delays public visibility after submission.
+PostGIS gives clustered map queries natively without a separate spatial service. Flag rows live in a `flags` table with FK to `reports`. The 5-minute soft hold (anti-abuse delay between submission and public visibility) becomes a `created_at + interval '5 minutes' < now()` filter on public feeds.
 
-### Navigation surface
+For Phase 1.5 landing-page prototype: the same `reports` table works, with `user_id` nullable and the auth/flag/hide columns left as defaults until needed.
 
-Bottom tabs: **Report · Map · Feed · Me**
+### Navigation surface (planned)
 
-- **Report (`app/(tabs)/report.tsx`):** opens camera → captures → runs on-device blur → previews blurred photo → user submits with auto GPS + timestamp + optional service type + optional one-line note
-- **Map (`app/(tabs)/map.tsx`):** clustered Mapbox map. Pins styled by status (Open = warm amber, InProgress = blue, Cleaned = green). Tap a pin → bottom sheet with details, before/after photos, status timeline.
-- **Feed (`app/(tabs)/feed.tsx`):** chronological list, pull-to-refresh, filter by status + service type
-- **Me (`app/(tabs)/me.tsx`):** user's own reports, settings, "Delete my data" affordance
+- `/` — landing (Phase 1: health dashboard; Phase 1.5: replaced with the prototype)
+- `/report` — capture surface (Phase 2)
+- `/map` — public clustered map (Phase 2)
+- `/feed` — chronological feed (Phase 1.5 prototype + Phase 2)
+- `/me` — user's own reports + settings (Phase 2)
+- `/export.csv` — CSV export (Phase 1.5 prototype)
 
-### Privacy pipeline (mandatory)
+Phase 1.5 prototype likely consolidates to `/` (landing + capture form), `/feed`, and `/export.csv` — just enough to demonstrate the v1 mechanic for the partnership conversation.
 
-Per [[../decisions/2026-05-on-device-face-blur-required]] and [[../concepts/on-device-photo-privacy]]:
+### Privacy pipeline (principle: locked; web implementation: TBD)
 
-1. Capture frame via `react-native-vision-camera` frame processor
-2. Detect faces (ML Kit / Vision) and license plates (ML Kit object detection or bundled TF Lite model)
-3. Gaussian-blur all detected bounding boxes on-device
-4. Show blurred preview full-screen with Retake/Submit buttons
-5. Block submission if >40% of frame area is human body
-6. Discard the unblurred frame; only the blurred result is uploaded
+Per [[../decisions/2026-05-on-device-face-blur-required]]: every uploaded photo must have faces and license plates redacted on-device before any upload. The raw, unredacted photo must never leave the user's device. **This principle is non-negotiable.** The Phase 1.5 prototype is exempted ONLY because it explicitly does not yet accept public submissions (it is a partnership demo, not a launched product).
 
-### Visual design
+Web implementation candidates (to be selected when the Phase 2 capture surface ships, then locked in a follow-on dated decision):
 
-- Earth/green palette: deep forest green primary, warm sand neutrals, soft terracotta for needs-attention states
-- Civic-modern aesthetic — Citizen-app crispness, public-library design system warmth
-- No emoji-heavy copy, no punitive language, no shaming
-- Status colors: Open = amber, InProgress = blue, Cleaned = green
+- **MediaPipe Tasks Web** — Google's on-device face/object detection, WebGPU/WASM backends. First-class face detection. Likely first to try.
+- **face-api.js** — pre-trained models, browser-only, simpler integration. Older but battle-tested.
+- **onnxruntime-web** — broadest model selection. Could host the same TFLite license-plate models the mobile path would have used.
+- **Custom WebAssembly pipeline** — fallback only if the above prove too slow on lower-spec laptops.
+
+License plate detection on web is genuinely harder than on mobile — no first-party SDK exists. Likely requires a bundled YOLO-class model run via onnxruntime-web. Open question, not blocking until Phase 2.
+
+Companion safeguards (still mandatory, per the original decision):
+
+- **Body-area submission block:** if >40% of frame area is detected as human body, block with the reframe prompt
+- **Honest header copy** on the capture surface
+- **Public flag-and-hide moderation** for anything the model missed
+
+### Visual design — 369 design system
+
+Per the project CLAUDE.md, the `369-design-system` skill is **non-negotiable** for any UI surface in `webapp/`, including the Phase 1.5 prototype. The original color brief (earth/green palette, status colors amber/blue/green, civic-modern aesthetic) is superseded by the 369 token set — navy `#001089`, manila `#f8eac7`, grey `#999999`, success `#228B22`, warning `#a60315` — with the type scale `{9, 12, 15, 18, 24, 30, 33, 36}` and 1px solid `#999999` borders on every container.
+
+Status colors map onto existing 369 tokens: Open → warning amber, InProgress → headerCurrent blue, Cleaned → success green.
 
 ## Distribution strategy
 
-Pre-launch coordination with [[../concepts/cleanlawithme-movement]]'s ~69K Instagram audience. The [[../concepts/snapcrap-case-study]] launch playbook is the template — piggyback an existing engaged audience instead of building one from zero.
+**Conditional on the Phase 1.5 partnership conversation succeeding.** Pre-launch coordination with [[../concepts/cleanlawithme-movement]]'s ~69K Instagram audience. The [[../concepts/snapcrap-case-study]] launch playbook is the template — piggyback an existing engaged audience instead of building one from zero.
 
 Marketing surface is carved out from any political content the developer publishes elsewhere ([[../decisions/2026-05-no-candidate-branding]]).
 
-## Phase 2 (not in v1)
+## Phase 2 (conditional on Phase 1.5 validation succeeding)
 
-- **Server-side Playwright submission agent** for MyLA311 — closes the submission loop, fragile, ToS exposure. Requires legal review. See [[../concepts/myla311-integration]].
+- **Capture surface** with on-device blur (face + plate) — full Map MVP feature
+- **Public map** with PostGIS clustering, status-styled markers
+- **"I cleaned this" loop** with before/after photo flow
+- **Anonymous auth** via Supabase, 5-minute soft hold, flag/moderation
+- **MyLA311 deep-link** with prefilled fields where the form honors them
+
+Shape may change materially based on what the partnership conversation reveals.
+
+## Phase 3 / later
+
+- **Server-side Playwright submission agent** for MyLA311 — closes the loop, fragile, ToS exposure, requires legal review. See [[../concepts/myla311-integration]].
 - **Volunteer-event coordination** — replaces Naula's ad-hoc Instagram DM coordination for Saturday meetups. Native scheduling, RSVPs, location pins.
-- **Heatmaps for partner organizations** — aggregate report data for outreach groups, with explicit suppression of encampment data from public layers per [[../concepts/civic-app-legal-considerations]].
-- **City partnership conversation** — pursue a formal partnership / API access lane with LA's ITA in parallel with shipping. 12–24 month timeline; do not block v1 on it.
+- **Heatmaps for partner organizations** — aggregate report data, with explicit suppression of encampment data from public layers per [[../concepts/civic-app-legal-considerations]].
+- **City partnership conversation** with LA's ITA — pursue in parallel; 12–24 month timeline; do not block v1 on it.
+- **Mobile app revisit** — at what scale (or for what specific user behavior) does a native app become necessary that a PWA can't cover?
 
 ## Open questions
 
-- Does [[../concepts/cleanlawithme-movement|Naula / Clean LA With Me]] want to formally own or co-brand the app?
-- Which MyLA311 web form query params (if any) are actually honored?
-- What's the App Store policy on apps that publicly display photos of encampments? (Some moderator interpretations might consider this targeting vulnerable people.)
-- Trademark check: does "CleanLA Snap" survive a search against the USPTO and the App Store? (Particularly with "Snap" in the name — see the [[../concepts/snapcrap-case-study|Snapcrap]] precedent on Snap Inc.'s aggressive enforcement posture.)
+**Phase 1.5 gating questions (primary):**
+
+- Does [[../concepts/cleanlawithme-movement|Naula / Clean LA With Me]] want to formally adopt or co-brand the app?
+- What are the actual legal options for nonprofit ownership / fiscal sponsorship in LA civic tech in 2026? (Needs attorney review; [[../concepts/la-civic-tech-funding-landscape|Community Partners LA]] is a likely shortcut.)
 - Should v1 ship a multi-stakeholder routing layer (LADWP, Metro, etc.) or LA-city-only? See [[../concepts/snap-send-solve-australia]] for the multi-stakeholder pattern at scale.
+
+**Implementation questions (deferred until Phase 2 starts):**
+
+- Which web on-device face/plate redaction library wins on accuracy + perf in 2026?
+- PWA vs. plain SPA for v1? (Probably PWA — for service-worker caching of map tiles, offline report-drafting.)
+- Anonymous Supabase auth vs. signed-cookie session for the no-auth Phase 1.5 prototype?
+- CSV export shape — per-report rows? aggregate? geo-bounded?
+
+**Strategic / external:**
+
+- Which MyLA311 web-form query params are actually honored?
+- Web hosting policy on platforms that publicly display photos of encampments? (For web: Supabase Storage content policy plus the user's own moderation — cleaner risk surface than App Store review.)
+- Trademark check on the "CleanLA" name (and the legacy "CleanLA Snap" name) given Snap Inc.'s enforcement posture (see the [[../concepts/snapcrap-case-study|Snapcrap precedent]]).
 
 ## Recently de-risked (was an open question, now substantially resolved)
 
@@ -125,9 +178,9 @@ Marketing surface is carved out from any political content the developer publish
 
 - [[../concepts/myla311-system]] — the official system the app deep-links into
 - [[../concepts/myla311-integration]] — strategic options and tradeoffs
-- [[../concepts/on-device-photo-privacy]] — the redaction pipeline
+- [[../concepts/on-device-photo-privacy]] — privacy pipeline principles (RN-specific implementation details now historical; principles survive)
 - [[../concepts/civic-app-legal-considerations]] — doxxing, defamation, campaign-finance, UGC liability
-- [[../concepts/rn-maps-landscape-2026]] — why Mapbox
+- [[../concepts/rn-maps-landscape-2026]] — RN map landscape (historical context for the pre-pivot framing)
 - [[../concepts/cleanlawithme-movement]] — the natural distribution partner
 - [[../concepts/snapcrap-case-study]] — the direct precedent
 - [[../concepts/civic-app-patterns-and-failure-modes]] — what worked and what killed similar US apps
@@ -140,10 +193,11 @@ Marketing surface is carved out from any political content the developer publish
 
 ## Related decisions
 
-- [[../decisions/2026-05-mapbox-over-google-maps]]
-- [[../decisions/2026-05-deep-link-not-direct-submit]]
-- [[../decisions/2026-05-no-candidate-branding]]
-- [[../decisions/2026-05-on-device-face-blur-required]]
+- [[../decisions/2026-05-web-stack-over-mobile]] — **current** stack and Phase 1.5 validation pause
+- [[../decisions/2026-05-mapbox-over-google-maps]] — vendor choice (now `mapbox-gl` for web)
+- [[../decisions/2026-05-deep-link-not-direct-submit]] — MyLA311 strategy (stack-agnostic, still active)
+- [[../decisions/2026-05-no-candidate-branding]] — nonpartisan posture (stack-agnostic, still active)
+- [[../decisions/2026-05-on-device-face-blur-required]] — privacy floor (principle still active, RN implementation retired)
 
 ## Backlinks
 
@@ -156,6 +210,7 @@ Marketing surface is carved out from any political content the developer publish
 - [[../concepts/snapcrap-case-study]]
 - [[../concepts/civic-app-patterns-and-failure-modes]]
 - [[../concepts/fixmystreet-uk]]
+- [[../decisions/2026-05-web-stack-over-mobile]]
 - [[../decisions/2026-05-mapbox-over-google-maps]]
 - [[../decisions/2026-05-deep-link-not-direct-submit]]
 - [[../decisions/2026-05-no-candidate-branding]]

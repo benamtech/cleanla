@@ -4,10 +4,13 @@ tags: [decision, privacy, mobile]
 created: 2026-05-24
 updated: 2026-05-24
 status: active
+superseded_by:
+  - ./2026-05-web-stack-over-mobile.md  # principle survives in full (raw never uploaded, on-device redaction); RN-specific implementation (vision-camera + ML Kit/Vision) no longer applies — web pipeline implementation to be locked in a follow-on decision
 related:
   - ../concepts/on-device-photo-privacy.md
   - ../concepts/civic-app-legal-considerations.md
   - ../projects/cleanla-snap.md
+  - ./2026-05-web-stack-over-mobile.md
 ---
 
 ## Context
@@ -71,3 +74,4 @@ In either case, a new dated decision must supersede this one. The pipeline is no
 - [[../projects/cleanla-snap]]
 - [[../concepts/on-device-photo-privacy]]
 - [[../concepts/civic-app-legal-considerations]]
+- [[./2026-05-web-stack-over-mobile]]

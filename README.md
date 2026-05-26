@@ -1,6 +1,6 @@
 # CleanLA
 
-A nonpartisan civic transparency app for Los Angeles street issues — encampments, illegal dumping, graffiti, biohazards, overgrown lots. Two taps from "I see a problem" to a public, shareable spot page. Server-side AI moderation reviews every submitted image before it appears publicly.
+A nonpartisan civic transparency app for Los Angeles street issues — encampments, illegal dumping, graffiti, biohazards, overgrown lots. Two taps from "I see a problem" to a public, shareable spot page. **Faces and license plates blurred on-device before upload** (Phase 5.5, planned this week). Server-side AI moderation (Claude Haiku 4.5 vision) reviews every submitted image as defense in depth.
 
 > **Status:** Phase 6 (Sharing) code-complete. Phase 7 (Scale + Launch) is next, gated on Vercel-deployed verification of X Card previews.
 
@@ -57,7 +57,7 @@ Required env: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPA
 ## Product principles
 
 - **Nonpartisan.** No candidate, party, or campaign reference anywhere in code, copy, UI, or shared content. (Decision: [`2026-05-no-candidate-branding`](wiki/decisions/2026-05-no-candidate-branding.md))
-- **Public by default with AI safety net.** Every submitted image is reviewed by Claude Haiku 4.5 vision before it appears publicly. A `/admin/moderation` queue lets a human override the model on edge cases. The original on-device-blur principle is documented as superseded — see [`2026-05-ai-moderation-over-on-device-blur`](wiki/decisions/2026-05-ai-moderation-over-on-device-blur.md) for the tradeoff analysis.
+- **Privacy first (defense in depth).** Phase 5.5 (planned) blurs faces and license plates on-device via MediaPipe Tasks Web before any upload — raw photos never leave the device on supported browsers. Phase 5 Claude Haiku 4.5 vision moderation runs on the already-blurred image server-side as a safety net. A `/admin/moderation` queue lets a human override on edge cases. See [`2026-05-on-device-blur-restored`](wiki/decisions/2026-05-on-device-blur-restored.md) for the architecture and `raw/0016-web-on-device-blur-feasibility.md` for the empirical study that flipped the math.
 - **5-minute soft hold + flag-and-hide.** Submitted spots don't appear publicly for 5 minutes; flagged items hide pending review.
 - **Nonprofit-owned (planned).** Designed to be owned by a 501(c)(3) — [Clean LA With Me](https://www.instagram.com/cleanlawithme/) is the natural partner. Pre-attorney prep in [`wiki/concepts/california-nonprofit-legal-mechanics.md`](wiki/concepts/california-nonprofit-legal-mechanics.md).
 
@@ -71,8 +71,9 @@ Required env: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPA
 | **3.5 — Verification** | Server-side media validation (source, metadata, freshness, GPS, PostGIS distance) | done |
 | **4 — Cleanup flow** | "I cleaned this" before/after capture | done |
 | **5 — AI Moderation** | Claude Haiku 4.5 vision auto-moderates submitted media + review queue | done |
+| **5.5 — On-device blur** | MediaPipe Tasks Web face-blur before upload; raw photo never leaves device | planned (4 days eng) |
 | **6 — Sharing** | Public spot pages at `/s/[id]` + X-only sharing + OG cards | done (code) |
-| **7 — Scale + Launch** | Vercel production deploy, monitoring, public launch | next |
+| **7 — Scale + Launch** | Vercel production deploy, monitoring, public launch | gated on Phase 5.5 + X Card preview verification |
 
 Phase 7 is gated on Vercel-deployed verification of X Card previews (the X Card Validator is dead — only way to verify is paste a live `/s/[id]` URL into X compose).
 

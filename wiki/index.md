@@ -60,7 +60,8 @@ For the operating rules, see [[../AGENT]]. For the human-facing overview, see [[
 ## Decisions
 
 - [[decisions/2026-05-web-stack-over-mobile]] — **current stack**; Next.js + Supabase + PostGIS web; Expo + Firebase mobile retired for v1
-- [[decisions/2026-05-ai-moderation-over-on-device-blur]] — **2026-05-25 supersedes** on-device blur; Phase 5 ships server-side Claude Haiku 4.5 vision moderation
+- [[decisions/2026-05-on-device-blur-restored]] — **CURRENT (2026-05-25 PM)** — MediaPipe Tasks Web restores on-device blur as floor; Phase 5 moderation kept as defense in depth; engineering ~4 days for Tier 1 (face)
+- [[decisions/2026-05-ai-moderation-over-on-device-blur]] — **superseded same day** — brief moderation-only architecture; preserved as historical record
 - [[decisions/2026-05-magic-link-auth]] — Phase 3 picked Supabase magic-link (no OAuth, no passwords) for v1
 - [[decisions/2026-05-x-only-sharing]] — Phase 6 ships X-only intent-link sharing + Web Share API + COPY LINK
 - [[decisions/2026-05-mapbox-over-google-maps]] — Mapbox vendor choice survives the web pivot; library now `mapbox-gl` (was `@rnmapbox/maps`)

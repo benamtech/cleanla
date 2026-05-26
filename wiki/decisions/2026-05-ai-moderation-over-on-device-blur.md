@@ -3,7 +3,9 @@ title: Server-side AI moderation (Claude Haiku 4.5 vision) replaces on-device bl
 tags: [decision, privacy, moderation, ai, web, supersedes]
 created: 2026-05-25
 updated: 2026-05-25
-status: active
+status: superseded
+superseded_by:
+  - ./2026-05-on-device-blur-restored.md  # 2026-05-25 afternoon: empirical research found MediaPipe Tasks Web makes on-device blur viable in 4 days, not 2-4 weeks; iOS 26 ships WebGPU; engineering math flipped; principle restored as floor, this decision's moderation-only architecture replaced with defense-in-depth (blur + moderation)
 supersedes:
   - ./2026-05-on-device-face-blur-required.md
 related:
@@ -90,3 +92,4 @@ Revisit this decision if any of:
 - [[../concepts/on-device-photo-privacy]]
 - [[./2026-05-on-device-face-blur-required]]
 - [[./2026-05-web-stack-over-mobile]]
+- [[./2026-05-on-device-blur-restored]]

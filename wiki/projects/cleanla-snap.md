@@ -22,6 +22,7 @@ related:
   - ../concepts/civic-tech-founder-org-handoff-patterns.md
   - ../concepts/cleanla-clean-streets-mayor-scenario.md
   - ../decisions/2026-05-web-stack-over-mobile.md
+  - ../decisions/2026-05-on-device-blur-restored.md
   - ../decisions/2026-05-ai-moderation-over-on-device-blur.md
   - ../decisions/2026-05-magic-link-auth.md
   - ../decisions/2026-05-x-only-sharing.md
@@ -63,6 +64,7 @@ Engineering shipped Phases 3, 3.5, 4, 5, 6 in roughly 24 hours after the origina
 | 3.5 (Verification) | Server-side media validation (source, metadata, freshness, GPS accuracy, PostGIS distance, error fallback) | `webapp/src/lib/verification/verify-media.ts` |
 | 4 (Cleanup) | "I cleaned this" before/after capture | `webapp/src/features/spots/CleanupSheet.tsx`, `/api/cleanup` |
 | 5 (AI Moderation) | Claude Haiku 4.5 vision auto-moderates submitted media + `/admin/moderation/` review queue | `webapp/src/lib/moderation/moderate-media.ts`, `/api/admin/moderation/[mediaId]` |
+| **5.5 (On-device blur) — PLANNED** | MediaPipe Tasks Web face blur on device → upload blurred → existing Phase 5 moderation as safety net. Restores "raw photo never leaves device" claim. ~4 days eng for Tier 1 (face); ~8 days total for Tier 2 (face + plate via PaddleOCR/YOLOv8 ONNX) | Per [[../decisions/2026-05-on-device-blur-restored]]; new files in `webapp/src/lib/blur/` (TBD), `webapp/public/workers/blur-worker.js` (TBD) |
 | 6 (Sharing) | Public spot pages at `/s/[id]` + X-only sharing + OG cards | `webapp/src/app/s/[id]/page.tsx`, `/api/og/spot/[id]`, `webapp/src/features/sharing/ShareActions.tsx` |
 
 Stack runtime deps: `@anthropic-ai/sdk` (Claude Haiku 4.5), `@supabase/ssr`, `@supabase/supabase-js`, `mapbox-gl ^3.24`, `react-map-gl ^8.1`, `next`, `react`, `react-dom`.
@@ -101,17 +103,21 @@ The "Phase 1.5 validation pause" framing from 2026-05-24 was not honored as a ha
 - `/api/admin/moderation/[mediaId]`, `/api/og/spot/[id]`
 - `/auth/callback`, `/manifest.webmanifest`
 
-### Privacy / moderation pipeline (current)
+### Privacy / moderation pipeline (current direction)
 
-Per [[../decisions/2026-05-ai-moderation-over-on-device-blur]]:
+Per [[../decisions/2026-05-on-device-blur-restored]] (supersedes [[../decisions/2026-05-ai-moderation-over-on-device-blur|the brief moderation-only architecture]]):
 
-1. User submits report with photo via authenticated POST `/api/reports`
-2. Phase 3.5 server-side verification runs: source, metadata, freshness, GPS accuracy, PostGIS distance, error fallback
-3. Phase 5 Claude Haiku 4.5 vision moderation classifies the image
-4. Moderated approved → public after 5-minute soft hold; flagged → `/admin/moderation` queue
-5. Public surfaces (`/`, `/s/[id]`, `/api/spots`) only show approved + non-hidden items
+1. User captures photo on device
+2. **Phase 5.5 (planned, 4-day eng):** MediaPipe Tasks Web detects faces → canvas Gaussian-blurs them → HEIC→JPEG → upload BLURRED image to Supabase
+3. **Phase 6+ Tier 2:** PaddleOCR / custom YOLOv8 ONNX adds license-plate detection → blur plates too
+4. **Phase 3.5 server-side verification** runs: source, metadata, freshness, GPS accuracy, PostGIS distance, error fallback
+5. **Phase 5 Claude Haiku 4.5 vision moderation** classifies the blurred image (defense in depth)
+6. Approved → public after 5-min soft hold; flagged → `/admin/moderation` queue
+7. Public surfaces (`/`, `/s/[id]`, `/api/spots`) only show approved + non-hidden items
 
-The original [[../decisions/2026-05-on-device-face-blur-required]] decision is functionally superseded — raw photo IS uploaded to Supabase Storage. Trust posture changed; documented in the successor decision. Privacy policy / user-facing copy must be revised before public launch (Phase 7).
+**Status:** Currently shipping moderation-only (Phase 5 live; Phase 5.5 on-device blur is the next engineering milestone, scoped at 4 days for face-only Tier 1). Raw photo currently IS uploaded; once Phase 5.5 ships, raw photo never leaves the device for supported browsers. Fallback path uploads raw with `redaction_method: "server_only"` flag for unsupported devices (logged as KPI).
+
+Empirical feasibility study: `raw/0016-web-on-device-blur-feasibility.md`.
 
 ### Visual design — 369 design system
 
@@ -120,13 +126,14 @@ Per project CLAUDE.md, `369-design-system` skill is non-negotiable for all UI su
 ## Decisions log
 
 - [[../decisions/2026-05-web-stack-over-mobile]] — **current stack** (Next.js + Supabase web)
-- [[../decisions/2026-05-ai-moderation-over-on-device-blur]] — **2026-05-25 supersedes** on-device blur; server-side Claude Haiku 4.5 vision moderation
+- [[../decisions/2026-05-on-device-blur-restored]] — **CURRENT 2026-05-25 afternoon** — MediaPipe Tasks Web restores on-device blur as floor; Claude Haiku 4.5 stays as defense in depth. Empirical feasibility (`raw/0016`) flipped the engineering math from 2-4 weeks to 4 days for Tier 1
+- [[../decisions/2026-05-ai-moderation-over-on-device-blur]] — **superseded same day** by `on-device-blur-restored`. Brief moderation-only architecture; preserved as historical record + tradeoffs analysis
 - [[../decisions/2026-05-magic-link-auth]] — Supabase magic-link only for v1
 - [[../decisions/2026-05-x-only-sharing]] — Phase 6 ships X-only intent links + Web Share API + COPY LINK
 - [[../decisions/2026-05-mapbox-over-google-maps]] — Mapbox vendor; library is `mapbox-gl` on web
 - [[../decisions/2026-05-deep-link-not-direct-submit]] — CleanLA v1 deep-links to MyLA311, does not direct-submit (stack-agnostic, still active)
 - [[../decisions/2026-05-no-candidate-branding]] — CleanLA is and remains brand-neutral
-- [[../decisions/2026-05-on-device-face-blur-required]] — **superseded** by `ai-moderation-over-on-device-blur` (principle preserved via moderation, implementation reversed)
+- [[../decisions/2026-05-on-device-face-blur-required]] — original RN-specific decision; principle RESTORED via `on-device-blur-restored` with a web stack (MediaPipe Tasks Web)
 
 ## Distribution strategy
 

@@ -95,3 +95,4 @@ Revisit this decision if any of:
 - [[./2026-05-mapbox-over-google-maps]]
 - [[./2026-05-on-device-face-blur-required]]
 - [[./2026-05-ai-moderation-over-on-device-blur]]
+- [[./2026-05-on-device-blur-restored]]

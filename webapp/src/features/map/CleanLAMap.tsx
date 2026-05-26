@@ -255,6 +255,16 @@ function SpotDetailSheet({
   const hasReportPhoto = Boolean(spot.report_media_url);
   const hasCleanPhoto = Boolean(spot.after_media_url);
   const isCleaned = spot.status === "cleaned";
+  const showActionButton =
+    Boolean(user) && !isCleaned && spot.status !== "hidden";
+
+  // ROOF orchestration: 5 stacked pillars separated by 1px lines.
+  //   1. WINDOW BAR   — program identity (27px, fixed)
+  //   2. STATUS STRIP — category + status as a single segmented bar (27px, fixed)
+  //   3. HERO PHOTO   — aspect 3/4, the visual anchor (fixed by aspect)
+  //   4. BODY         — description + clean-section + data table (flex-1, scrolls)
+  //   5. ACTION FOOTER — sticky CTA, doesn't scroll with body
+  // Sections separate by border, NOT by whitespace gaps.
 
   return (
     <div
@@ -268,6 +278,7 @@ function SpotDetailSheet({
         className="flex h-[calc(100vh-36px)] w-full max-w-[420px] flex-col overflow-hidden border border-[#999999] bg-white"
         onClick={(e) => e.stopPropagation()}
       >
+        {/* 1. WINDOW BAR */}
         <div className="flex h-[27px] shrink-0 items-center justify-between border-b border-[#999999] bg-[#94a3d6] px-[9px]">
           <h2 className="text-[15px] font-bold tracking-[0.03em] text-white uppercase">
             SPOT DETAIL
@@ -282,116 +293,169 @@ function SpotDetailSheet({
           </button>
         </div>
 
-        <div className="grid flex-1 gap-[9px] overflow-auto p-[9px]">
-          <div className="flex flex-wrap gap-[6px]">
-            <span
-              className="border-y border-r border-l-[6px] border-[#999999] bg-[#f8eac7] px-[6px] py-[3px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase"
-              style={{ borderLeftColor: CATEGORY_COLORS[spot.category] }}
-            >
+        {/* 2. STATUS STRIP — segmented bar, not floating chips */}
+        <div className="flex h-[27px] shrink-0 items-stretch border-b border-[#999999]">
+          <div
+            className="flex flex-1 items-center bg-[#f8eac7] px-[9px]"
+            style={{
+              borderLeftColor: CATEGORY_COLORS[spot.category],
+              borderLeftWidth: "6px",
+              borderLeftStyle: "solid",
+            }}
+          >
+            <span className="text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase">
               {formatCategory(spot.category)}
             </span>
-            <span className="border border-[#999999] bg-white px-[6px] py-[3px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase">
+          </div>
+          <div className="flex items-center border-l border-[#999999] bg-white px-[9px]">
+            <span
+              className={`text-[9px] font-bold tracking-[0.03em] uppercase ${
+                isCleaned ? "text-[#228B22]" : "text-[#001089]"
+              }`}
+            >
               {formatStatus(spot.status)}
             </span>
           </div>
+        </div>
 
-          <p className="text-[12px] leading-[18px] text-[#001089]">
-            {spot.description}
-          </p>
+        {/* 3. HERO PHOTO — the visual anchor */}
+        <div className="shrink-0 border-b border-[#999999] bg-[#f8eac7]">
+          {hasReportPhoto ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={spot.report_media_url ?? ""}
+              alt={spot.description}
+              className="block aspect-[3/4] w-full object-cover"
+            />
+          ) : (
+            <div className="flex aspect-[3/4] items-center justify-center bg-[#f8eac7] text-[12px] font-bold tracking-[0.03em] text-[#999999] uppercase">
+              NO REPORT PHOTO
+            </div>
+          )}
+        </div>
 
-          {/* REPORT card — the problem photo */}
-          <div className="grid gap-[6px]">
-            <p className="text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase">
-              REPORT
+        {/* 4. BODY — scrollable; sections stack vertically with no gaps */}
+        <div className="flex-1 overflow-auto bg-white">
+          {/* Description */}
+          <div className="border-b border-[#999999] bg-white px-[9px] py-[9px]">
+            <p className="text-[12px] leading-[18px] text-[#001089]">
+              {spot.description}
             </p>
-            {hasReportPhoto ? (
-              <div className="border border-[#999999] bg-[#f8eac7] p-[6px]">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={spot.report_media_url ?? ""}
-                  alt={spot.description}
-                  className="block max-h-[360px] w-full object-cover"
-                />
-              </div>
-            ) : (
-              <div className="border border-[#999999] bg-[#f8eac7] p-[27px] text-center text-[9px] font-bold tracking-[0.03em] text-[#999999] uppercase">
-                NO REPORT PHOTO
-              </div>
-            )}
           </div>
 
-          {/* CLEAN card — the cleanup photo (only if cleaned or has a clean photo) */}
+          {/* CLEAN section — only when relevant */}
           {isCleaned || hasCleanPhoto ? (
-            <div className="grid gap-[6px]">
-              <p className="text-[9px] font-bold tracking-[0.03em] text-[#228B22] uppercase">
-                CLEAN
-              </p>
+            <div className="border-b border-[#999999] bg-white">
+              <div className="flex h-[24px] items-center border-b border-[#228B22] bg-white px-[9px]">
+                <span className="text-[9px] font-bold tracking-[0.03em] text-[#228B22] uppercase">
+                  CLEAN
+                </span>
+              </div>
               {hasCleanPhoto ? (
-                <div className="border border-[#228B22] bg-[#f8eac7] p-[6px]">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={spot.after_media_url ?? ""}
-                    alt="Cleanup photo"
-                    className="block max-h-[360px] w-full object-cover"
-                  />
-                </div>
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={spot.after_media_url ?? ""}
+                  alt="Cleanup photo"
+                  className="block aspect-[3/4] w-full object-cover"
+                />
               ) : (
-                <div className="border border-[#228B22] bg-white p-[27px] text-center text-[9px] font-bold tracking-[0.03em] text-[#228B22] uppercase">
+                <div className="flex h-[48px] items-center justify-center bg-white text-[9px] font-bold tracking-[0.03em] text-[#228B22] uppercase">
                   CLEAN — PHOTO PENDING
                 </div>
               )}
             </div>
           ) : null}
 
-          <div className="grid gap-[6px] border border-[#999999] bg-[#f8eac7] p-[9px] text-[9px] tracking-[0.03em] text-[#001089] uppercase">
-            <div className="flex justify-between gap-[12px]">
-              <span className="font-bold">LOCATION</span>
-              <span>
-                {spot.neighborhood || formatCoordinates(spot.lat, spot.lng)}
-              </span>
-            </div>
-            <div className="flex justify-between gap-[12px]">
-              <span className="font-bold">VERIFY</span>
-              <span>{formatVerification(spot.verification_status)}</span>
-            </div>
-            <div className="flex justify-between gap-[12px]">
-              <span className="font-bold">SEVERITY</span>
-              <span>{spot.severity ?? "N/A"}</span>
-            </div>
-            <div className="flex justify-between gap-[12px]">
-              <span className="font-bold">REPORT</span>
-              <span>{hasReportPhoto ? "PHOTO" : "NONE"}</span>
-            </div>
-            <div className="flex justify-between gap-[12px]">
-              <span className="font-bold">CLEAN</span>
-              <span className={isCleaned ? "text-[#228B22]" : ""}>
-                {hasCleanPhoto ? "PHOTO" : isCleaned ? "PENDING" : "NONE"}
-              </span>
-            </div>
-            <div className="flex justify-between gap-[12px]">
-              <span className="font-bold">REPORTED BY</span>
-              <span>{spot.reporter_username ? `@${spot.reporter_username}` : "ANONYMOUS"}</span>
-            </div>
-            {spot.cleaner_username || isCleaned ? (
-              <div className="flex justify-between gap-[12px]">
-                <span className="font-bold">CLEANED BY</span>
-                <span className="text-[#228B22]">
-                  {spot.cleaner_username ? `@${spot.cleaner_username}` : "ANONYMOUS"}
-                </span>
-              </div>
-            ) : null}
-          </div>
-
-          {user && !isCleaned && spot.status !== "hidden" ? (
-            <button
-              type="button"
-              onClick={onMarkCleaned}
-              className="border border-[#228B22] bg-white px-[9px] py-[9px] text-[12px] font-bold tracking-[0.03em] text-[#228B22] uppercase hover:bg-[#f8eac7]"
-            >
-              [MARK CLEANED]
-            </button>
-          ) : null}
+          {/* Data table — dense rows, no inter-row whitespace */}
+          <table className="w-full border-collapse bg-[#f8eac7] text-[9px] tracking-[0.03em] text-[#001089] uppercase">
+            <tbody>
+              <tr className="border-b border-[#999999]">
+                <th className="w-[120px] px-[9px] py-[6px] text-left font-bold">
+                  LOCATION
+                </th>
+                <td className="px-[9px] py-[6px] text-right">
+                  {spot.neighborhood ||
+                    formatCoordinates(spot.lat, spot.lng)}
+                </td>
+              </tr>
+              <tr className="border-b border-[#999999]">
+                <th className="w-[120px] px-[9px] py-[6px] text-left font-bold">
+                  VERIFY
+                </th>
+                <td className="px-[9px] py-[6px] text-right">
+                  {formatVerification(spot.verification_status)}
+                </td>
+              </tr>
+              <tr className="border-b border-[#999999]">
+                <th className="w-[120px] px-[9px] py-[6px] text-left font-bold">
+                  SEVERITY
+                </th>
+                <td className="px-[9px] py-[6px] text-right">
+                  {spot.severity ?? "N/A"}
+                </td>
+              </tr>
+              <tr className="border-b border-[#999999]">
+                <th className="w-[120px] px-[9px] py-[6px] text-left font-bold">
+                  REPORT
+                </th>
+                <td className="px-[9px] py-[6px] text-right">
+                  {hasReportPhoto ? "PHOTO" : "NONE"}
+                </td>
+              </tr>
+              <tr className="border-b border-[#999999]">
+                <th className="w-[120px] px-[9px] py-[6px] text-left font-bold">
+                  CLEAN
+                </th>
+                <td
+                  className={`px-[9px] py-[6px] text-right ${
+                    isCleaned ? "text-[#228B22]" : ""
+                  }`}
+                >
+                  {hasCleanPhoto ? "PHOTO" : isCleaned ? "PENDING" : "NONE"}
+                </td>
+              </tr>
+              <tr
+                className={
+                  spot.cleaner_username || isCleaned
+                    ? "border-b border-[#999999]"
+                    : ""
+                }
+              >
+                <th className="w-[120px] px-[9px] py-[6px] text-left font-bold">
+                  REPORTED BY
+                </th>
+                <td className="px-[9px] py-[6px] text-right">
+                  {spot.reporter_username
+                    ? `@${spot.reporter_username}`
+                    : "ANONYMOUS"}
+                </td>
+              </tr>
+              {spot.cleaner_username || isCleaned ? (
+                <tr>
+                  <th className="w-[120px] px-[9px] py-[6px] text-left font-bold">
+                    CLEANED BY
+                  </th>
+                  <td className="px-[9px] py-[6px] text-right text-[#228B22]">
+                    {spot.cleaner_username
+                      ? `@${spot.cleaner_username}`
+                      : "ANONYMOUS"}
+                  </td>
+                </tr>
+              ) : null}
+            </tbody>
+          </table>
         </div>
+
+        {/* 5. ACTION FOOTER — sticky bottom, doesn't scroll */}
+        {showActionButton ? (
+          <button
+            type="button"
+            onClick={onMarkCleaned}
+            className="block shrink-0 border-t border-[#228B22] bg-white px-[9px] py-[12px] text-[15px] font-bold tracking-[0.03em] text-[#228B22] uppercase hover:bg-[#f8eac7]"
+          >
+            [MARK CLEANED]
+          </button>
+        ) : null}
       </aside>
     </div>
   );

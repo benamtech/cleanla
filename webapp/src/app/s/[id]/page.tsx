@@ -187,7 +187,7 @@ export default async function SpotPublicPage({
           {isVerified && (
             <div>
               <span className="border border-[#228B22] px-[6px] py-[3px] text-[9px] font-bold uppercase tracking-[0.03em] text-[#228B22]">
-                ✓ LOCATION VERIFIED
+                ✓︎ LOCATION VERIFIED
               </span>
             </div>
           )}
@@ -209,7 +209,7 @@ export default async function SpotPublicPage({
                   SEVERITY
                 </span>
                 <span className="text-[12px] text-[#001089]">
-                  {"★".repeat(spot.severity)}{"☆".repeat(5 - spot.severity)}
+                  {"★︎".repeat(spot.severity)}{"☆︎".repeat(5 - spot.severity)}
                 </span>
               </div>
             )}
@@ -233,7 +233,7 @@ export default async function SpotPublicPage({
 
           {/* Description */}
           <div className="border border-[#999999] p-[9px]">
-            <p className="text-[12px] leading-relaxed text-[#001089]">{spot.description}</p>
+            <p className="text-[12px] leading-[18px] text-[#001089]">{spot.description}</p>
           </div>
         </div>
 

@@ -93,7 +93,7 @@ export function UsernameForm({ initial }: { initial: string | null }) {
         </p>
         {status.kind === "saved" ? (
           <div className="border border-[#228B22] bg-white p-[6px] text-[9px] font-bold tracking-[0.03em] text-[#228B22] uppercase">
-            ✓ USERNAME @{status.username} SAVED
+            ✓︎ USERNAME @{status.username} SAVED
           </div>
         ) : null}
         {status.kind === "error" ? (

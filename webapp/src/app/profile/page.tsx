@@ -64,7 +64,7 @@ export default async function ProfilePage() {
             <p className="text-[9px] font-bold tracking-[0.03em] text-[#999999] uppercase">
               SUBMITTED REPORTS
             </p>
-            <p className="mt-[6px] text-[36px] font-bold leading-none text-[#001089]">
+            <p className="mt-[6px] text-[36px] font-bold leading-[36px] text-[#001089]">
               {stats.submitted_reports}
             </p>
           </div>
@@ -73,7 +73,7 @@ export default async function ProfilePage() {
             <p className="text-[9px] font-bold tracking-[0.03em] text-[#999999] uppercase">
               VERIFIED REPORTS
             </p>
-            <p className="mt-[6px] text-[36px] font-bold leading-none text-[#001089]">
+            <p className="mt-[6px] text-[36px] font-bold leading-[36px] text-[#001089]">
               {stats.verified_reports}
             </p>
           </div>
@@ -82,7 +82,7 @@ export default async function ProfilePage() {
             <p className="text-[9px] font-bold tracking-[0.03em] text-[#999999] uppercase">
               CLEANUPS COMPLETED
             </p>
-            <p className="mt-[6px] text-[36px] font-bold leading-none text-[#228B22]">
+            <p className="mt-[6px] text-[36px] font-bold leading-[36px] text-[#228B22]">
               {stats.cleanups_completed}
             </p>
           </div>

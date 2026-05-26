@@ -244,7 +244,7 @@ export function CleanupSheet({
 
       <div className="grid gap-[9px] p-[9px]">
         <div className="border border-[#999999] p-[9px]">
-          <p className="text-[9px] tracking-[0.03em] text-[#001089] uppercase leading-relaxed">
+          <p className="text-[9px] tracking-[0.03em] text-[#001089] uppercase leading-[18px]">
             {spotDescription}
           </p>
         </div>

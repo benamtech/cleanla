@@ -290,7 +290,7 @@ function SpotDetailSheet({
           </span>
         </div>
 
-        <p className="text-[12px] leading-relaxed text-[#001089]">
+        <p className="text-[12px] leading-[18px] text-[#001089]">
           {spot.description}
         </p>
 
@@ -673,11 +673,11 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
       </header>
 
       {/* Primary CTA — big enough to be the obvious action on the map. */}
-      <div className="absolute right-[9px] bottom-[9px] left-[9px] z-10 md:left-auto md:max-w-[420px]">
+      <div className="absolute right-[9px] bottom-[9px] left-[9px] z-10">
         <button
           type="button"
           onClick={openReport}
-          className="block w-full border border-[#999999] bg-[#001089] px-[9px] py-[18px] text-[18px] font-bold tracking-[0.06em] text-white uppercase hover:bg-[#94a3d6]"
+          className="block min-h-[72px] w-full border border-[#999999] bg-[#001089] px-[18px] py-[27px] text-[30px] font-bold tracking-[0.03em] text-white uppercase hover:bg-[#94a3d6]"
         >
           [+] FILE A REPORT
         </button>

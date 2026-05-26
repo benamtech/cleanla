@@ -121,7 +121,7 @@ export async function GET(
                 opacity: 0.75,
               }}
             >
-              {neighborhood.toUpperCase()} {isVerified ? "· ✓ VERIFIED" : ""}
+              {neighborhood.toUpperCase()} {isVerified ? "· ✓︎ VERIFIED" : ""}
             </span>
           </div>
         </div>

@@ -511,7 +511,7 @@ export function ReportSheet({
                     onChange={(e) => setDescription(e.target.value)}
                     maxLength={REPORT_DESCRIPTION_MAX_LENGTH}
                     placeholder="OPTIONAL CONTEXT"
-                    className="min-h-[54px] border border-[#999999] bg-white p-[6px] text-[12px] leading-relaxed text-[#001089] placeholder:text-[#999999]"
+                    className="min-h-[54px] border border-[#999999] bg-white p-[6px] text-[12px] leading-[18px] text-[#001089] placeholder:text-[#999999]"
                   />
                   <span className="text-[9px] tracking-[0.03em] text-[#999999] uppercase">
                     {description.trim().length}/{REPORT_DESCRIPTION_MAX_LENGTH}
@@ -549,7 +549,7 @@ export function ReportSheet({
       <div className="flex flex-1 flex-col gap-[9px] overflow-auto p-[9px]">
         {submitState.kind === "verified" ? (
           <div className="border border-[#228B22] bg-white p-[9px] text-[12px] font-bold tracking-[0.03em] text-[#228B22] uppercase">
-            ✓ LOCATION VERIFIED. SPOT {submitState.spotId} IS LIVE.
+            ✓︎ LOCATION VERIFIED. SPOT {submitState.spotId} IS LIVE.
           </div>
         ) : null}
         {submitState.kind === "pending" ? (
@@ -610,7 +610,7 @@ export function ReportSheet({
             </div>
             {claimNotice.kind === "sent" ? (
               <p className="mt-[6px] text-[9px] font-bold tracking-[0.03em] text-[#228B22] uppercase">
-                ✓ LOGIN LINK SENT. CHECK YOUR EMAIL.
+                ✓︎ LOGIN LINK SENT. CHECK YOUR EMAIL.
               </p>
             ) : null}
             {claimNotice.kind === "error" ? (
@@ -621,7 +621,7 @@ export function ReportSheet({
           </div>
         ) : (
           <div className="border border-[#228B22] bg-white p-[9px] text-[9px] font-bold tracking-[0.03em] text-[#228B22] uppercase">
-            ✓ ATTRIBUTED TO YOUR ACCOUNT.
+            ✓︎ ATTRIBUTED TO YOUR ACCOUNT.
           </div>
         )}
       </div>

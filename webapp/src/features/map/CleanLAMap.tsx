@@ -530,6 +530,12 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
   const [username, setUsername] = useState<string | null>(null);
   // P2-4 about modal
   const [showAbout, setShowAbout] = useState(false);
+  // WebGL availability: null = checking, true = OK, false = unavailable.
+  // Mapbox-GL 3.x requires WebGL; without it, the map can't render and
+  // mapbox-gl logs "Failed to initialize WebGL" to console. We catch
+  // this proactively + render a friendly fallback so the user isn't
+  // staring at a blank map area while the console screams.
+  const [webglOk, setWebglOk] = useState<boolean | null>(null);
   const spotData = useMemo(() => spotsToGeoJson(spots), [spots]);
 
   useEffect(() => {
@@ -558,6 +564,22 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
       subscription.unsubscribe();
     };
   }, [supabase]);
+
+  // WebGL availability detection on mount. Some browsers throw rather
+  // than return null when context creation fails. queueMicrotask
+  // satisfies the react-hooks/set-state-in-effect lint rule.
+  useEffect(() => {
+    queueMicrotask(() => {
+      try {
+        const canvas = document.createElement("canvas");
+        const gl =
+          canvas.getContext("webgl2") ?? canvas.getContext("webgl");
+        setWebglOk(Boolean(gl));
+      } catch {
+        setWebglOk(false);
+      }
+    });
+  }, []);
 
   // P2-5: fetch the username so we can decide whether to show the
   // [SET USERNAME] nudge in the header. Re-runs when user changes.
@@ -787,6 +809,45 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
 
   return (
     <main className="relative h-screen min-h-[540px] overflow-hidden bg-white text-[#001089]">
+      {webglOk === false ? (
+        <div className="absolute inset-0 grid place-items-center bg-[#f8eac7] p-[18px]">
+          <div className="w-full max-w-[480px] border border-[#a60315] bg-white">
+            <div className="flex h-[27px] items-center border-b border-[#999999] bg-[#a60315] px-[9px]">
+              <h2 className="text-[15px] font-bold tracking-[0.03em] text-white uppercase">
+                MAP UNAVAILABLE · WEBGL REQUIRED
+              </h2>
+            </div>
+            <div className="grid gap-[12px] p-[12px] text-[12px] leading-[18px] tracking-[0.03em] text-[#001089] uppercase">
+              <p>
+                THE MAP USES WEBGL TO RENDER LA. YOUR BROWSER HAS WEBGL
+                DISABLED OR YOUR DEVICE DOES NOT SUPPORT IT.
+              </p>
+              <div className="border border-[#999999] bg-[#f8eac7] p-[9px]">
+                <p className="font-bold">TO FIX (CHROME):</p>
+                <p className="mt-[6px]">
+                  SETTINGS → SYSTEM → ENABLE
+                  &ldquo;USE HARDWARE ACCELERATION WHEN AVAILABLE&rdquo; →
+                  RESTART CHROME.
+                </p>
+              </div>
+              <div className="border border-[#999999] bg-[#f8eac7] p-[9px]">
+                <p className="font-bold">CHECK YOUR GPU STATUS:</p>
+                <p className="mt-[6px]">
+                  OPEN A NEW TAB AND VISIT{" "}
+                  <code className="bg-white px-[3px] text-[12px] font-bold text-[#001089]">
+                    chrome://gpu/
+                  </code>{" "}
+                  · LOOK FOR &ldquo;WEBGL: HARDWARE ACCELERATED&rdquo;.
+                </p>
+              </div>
+              <p className="text-[9px] text-[#999999]">
+                YOU CAN STILL FILE A REPORT BELOW · IT DOES NOT NEED THE
+                MAP TO WORK.
+              </p>
+            </div>
+          </div>
+        </div>
+      ) : (
       <Map
         ref={mapRef}
         mapboxAccessToken={mapboxToken}
@@ -836,6 +897,7 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
           <Layer {...spotLayer} />
         </Source>
       </Map>
+      )}
 
       <header className="absolute top-[9px] right-[9px] left-[9px] z-10 border border-[#999999] bg-white">
         <div className="flex h-[27px] items-center justify-between border-b border-[#999999] bg-[#94a3d6] px-[9px]">

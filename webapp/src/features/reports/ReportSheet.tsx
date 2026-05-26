@@ -454,8 +454,8 @@ export function ReportSheet({
                     onClick={() => setCategory(item)}
                     className={
                       selected
-                        ? "border-l-[6px] border-y border-r border-[#999999] bg-white px-[6px] py-[6px] text-left text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase"
-                        : "border border-[#999999] bg-white px-[6px] py-[6px] text-left text-[9px] font-bold tracking-[0.03em] text-[#999999] uppercase hover:bg-[#f8eac7]"
+                        ? "border-l-[6px] border-y border-r border-[#999999] bg-[#f8eac7] px-[9px] py-[9px] text-left text-[12px] font-bold tracking-[0.03em] text-[#001089] uppercase"
+                        : "border border-[#999999] bg-white px-[9px] py-[9px] text-left text-[12px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
                     }
                     style={
                       selected

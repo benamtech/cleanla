@@ -252,139 +252,192 @@ function SpotDetailSheet({
   onClose: () => void;
   onMarkCleaned: () => void;
 }) {
+  const hasReportPhoto = Boolean(spot.report_media_url);
+  const hasCleanPhoto = Boolean(spot.after_media_url);
+  const isCleaned = spot.status === "cleaned";
+
   return (
     <div
-      className="fixed inset-0 z-10 grid place-items-center p-[9px]"
+      className="fixed inset-0 z-10 flex items-center justify-center p-[18px]"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
       aria-label="Spot detail"
     >
       <aside
-        className="max-h-[calc(100vh-18px)] w-full max-w-[420px] overflow-auto border border-[#999999] bg-white"
+        className="flex h-[calc(100vh-36px)] w-full max-w-[420px] flex-col overflow-hidden border border-[#999999] bg-white"
         onClick={(e) => e.stopPropagation()}
       >
-      <div className="flex h-[27px] items-center justify-between border-b border-[#999999] bg-[#94a3d6] px-[9px]">
-        <h2 className="text-[15px] font-bold tracking-[0.03em] text-white uppercase">
-          SPOT DETAIL
-        </h2>
-        <button
-          type="button"
-          onClick={onClose}
-          className="border border-[#999999] bg-white px-[6px] py-[3px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
-          aria-label="Close spot detail"
-        >
-          [x]
-        </button>
-      </div>
-      <div className="grid gap-[9px] p-[9px]">
-        <div className="flex flex-wrap gap-[6px]">
-          <span
-            className="border-y border-r border-l-[6px] border-[#999999] bg-[#f8eac7] px-[6px] py-[3px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase"
-            style={{ borderLeftColor: CATEGORY_COLORS[spot.category] }}
-          >
-            {formatCategory(spot.category)}
-          </span>
-          <span className="border border-[#999999] bg-white px-[6px] py-[3px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase">
-            {formatStatus(spot.status)}
-          </span>
-        </div>
-
-        <p className="text-[12px] leading-[18px] text-[#001089]">
-          {spot.description}
-        </p>
-
-        <div className="grid gap-[6px] border border-[#999999] bg-[#f8eac7] p-[9px] text-[9px] tracking-[0.03em] text-[#001089] uppercase">
-          <div className="flex justify-between gap-[12px]">
-            <span className="font-bold">LOCATION</span>
-            <span>
-              {spot.neighborhood || formatCoordinates(spot.lat, spot.lng)}
-            </span>
-          </div>
-          <div className="flex justify-between gap-[12px]">
-            <span className="font-bold">VERIFY</span>
-            <span>{formatVerification(spot.verification_status)}</span>
-          </div>
-          <div className="flex justify-between gap-[12px]">
-            <span className="font-bold">SEVERITY</span>
-            <span>{spot.severity ?? "N/A"}</span>
-          </div>
-          <div className="flex justify-between gap-[12px]">
-            <span className="font-bold">BEFORE</span>
-            <span>{spot.report_media_url ? "PHOTO" : "NONE"}</span>
-          </div>
-          <div className="flex justify-between gap-[12px]">
-            <span className="font-bold">AFTER</span>
-            <span>{spot.after_media_url ? "PHOTO" : "NONE"}</span>
-          </div>
-          <div className="flex justify-between gap-[12px]">
-            <span className="font-bold">REPORTED BY</span>
-            <span>{spot.reporter_username ? `@${spot.reporter_username}` : "ANONYMOUS"}</span>
-          </div>
-          {spot.cleaner_username || spot.status === "cleaned" ? (
-            <div className="flex justify-between gap-[12px]">
-              <span className="font-bold">CLEANED BY</span>
-              <span className="text-[#228B22]">
-                {spot.cleaner_username ? `@${spot.cleaner_username}` : "ANONYMOUS"}
-              </span>
-            </div>
-          ) : null}
-        </div>
-
-        {spot.report_media_url ? (
-          <div className="grid gap-[6px]">
-            <p className="text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase">
-              BEFORE
-            </p>
-            <div className="border border-[#999999] bg-[#f8eac7] p-[6px]">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={spot.report_media_url}
-                alt={spot.description}
-                className="block max-h-[180px] w-full object-cover"
-              />
-            </div>
-          </div>
-        ) : (
-          <div className="border border-[#999999] bg-[#f8eac7] p-[18px] text-center text-[9px] font-bold tracking-[0.03em] text-[#999999] uppercase">
-            NO BEFORE PHOTO
-          </div>
-        )}
-
-        {spot.after_media_url ? (
-          <div className="grid gap-[6px]">
-            <p className="text-[9px] font-bold tracking-[0.03em] text-[#228B22] uppercase">
-              AFTER
-            </p>
-            <div className="border border-[#228B22] bg-[#f8eac7] p-[6px]">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={spot.after_media_url}
-                alt="After cleanup"
-                className="block max-h-[180px] w-full object-cover"
-              />
-            </div>
-          </div>
-        ) : spot.status === "cleaned" ? (
-          <div className="border border-[#228B22] bg-white p-[9px] text-[9px] font-bold tracking-[0.03em] text-[#228B22] uppercase">
-            CLEANED — AFTER PHOTO PENDING
-          </div>
-        ) : null}
-
-        {user &&
-        spot.status !== "cleaned" &&
-        spot.status !== "hidden" ? (
+        <div className="flex h-[27px] shrink-0 items-center justify-between border-b border-[#999999] bg-[#94a3d6] px-[9px]">
+          <h2 className="text-[15px] font-bold tracking-[0.03em] text-white uppercase">
+            SPOT DETAIL
+          </h2>
           <button
             type="button"
-            onClick={onMarkCleaned}
-            className="border border-[#228B22] bg-white px-[9px] py-[9px] text-[12px] font-bold tracking-[0.03em] text-[#228B22] uppercase hover:bg-[#f8eac7]"
+            onClick={onClose}
+            className="border border-[#999999] bg-white px-[6px] py-[3px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
+            aria-label="Close spot detail"
           >
-            [MARK CLEANED]
+            [x]
           </button>
-        ) : null}
-      </div>
+        </div>
+
+        <div className="grid flex-1 gap-[9px] overflow-auto p-[9px]">
+          <div className="flex flex-wrap gap-[6px]">
+            <span
+              className="border-y border-r border-l-[6px] border-[#999999] bg-[#f8eac7] px-[6px] py-[3px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase"
+              style={{ borderLeftColor: CATEGORY_COLORS[spot.category] }}
+            >
+              {formatCategory(spot.category)}
+            </span>
+            <span className="border border-[#999999] bg-white px-[6px] py-[3px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase">
+              {formatStatus(spot.status)}
+            </span>
+          </div>
+
+          <p className="text-[12px] leading-[18px] text-[#001089]">
+            {spot.description}
+          </p>
+
+          {/* REPORT card — the problem photo */}
+          <div className="grid gap-[6px]">
+            <p className="text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase">
+              REPORT
+            </p>
+            {hasReportPhoto ? (
+              <div className="border border-[#999999] bg-[#f8eac7] p-[6px]">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={spot.report_media_url ?? ""}
+                  alt={spot.description}
+                  className="block max-h-[360px] w-full object-cover"
+                />
+              </div>
+            ) : (
+              <div className="border border-[#999999] bg-[#f8eac7] p-[27px] text-center text-[9px] font-bold tracking-[0.03em] text-[#999999] uppercase">
+                NO REPORT PHOTO
+              </div>
+            )}
+          </div>
+
+          {/* CLEAN card — the cleanup photo (only if cleaned or has a clean photo) */}
+          {isCleaned || hasCleanPhoto ? (
+            <div className="grid gap-[6px]">
+              <p className="text-[9px] font-bold tracking-[0.03em] text-[#228B22] uppercase">
+                CLEAN
+              </p>
+              {hasCleanPhoto ? (
+                <div className="border border-[#228B22] bg-[#f8eac7] p-[6px]">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={spot.after_media_url ?? ""}
+                    alt="Cleanup photo"
+                    className="block max-h-[360px] w-full object-cover"
+                  />
+                </div>
+              ) : (
+                <div className="border border-[#228B22] bg-white p-[27px] text-center text-[9px] font-bold tracking-[0.03em] text-[#228B22] uppercase">
+                  CLEAN — PHOTO PENDING
+                </div>
+              )}
+            </div>
+          ) : null}
+
+          <div className="grid gap-[6px] border border-[#999999] bg-[#f8eac7] p-[9px] text-[9px] tracking-[0.03em] text-[#001089] uppercase">
+            <div className="flex justify-between gap-[12px]">
+              <span className="font-bold">LOCATION</span>
+              <span>
+                {spot.neighborhood || formatCoordinates(spot.lat, spot.lng)}
+              </span>
+            </div>
+            <div className="flex justify-between gap-[12px]">
+              <span className="font-bold">VERIFY</span>
+              <span>{formatVerification(spot.verification_status)}</span>
+            </div>
+            <div className="flex justify-between gap-[12px]">
+              <span className="font-bold">SEVERITY</span>
+              <span>{spot.severity ?? "N/A"}</span>
+            </div>
+            <div className="flex justify-between gap-[12px]">
+              <span className="font-bold">REPORT</span>
+              <span>{hasReportPhoto ? "PHOTO" : "NONE"}</span>
+            </div>
+            <div className="flex justify-between gap-[12px]">
+              <span className="font-bold">CLEAN</span>
+              <span className={isCleaned ? "text-[#228B22]" : ""}>
+                {hasCleanPhoto ? "PHOTO" : isCleaned ? "PENDING" : "NONE"}
+              </span>
+            </div>
+            <div className="flex justify-between gap-[12px]">
+              <span className="font-bold">REPORTED BY</span>
+              <span>{spot.reporter_username ? `@${spot.reporter_username}` : "ANONYMOUS"}</span>
+            </div>
+            {spot.cleaner_username || isCleaned ? (
+              <div className="flex justify-between gap-[12px]">
+                <span className="font-bold">CLEANED BY</span>
+                <span className="text-[#228B22]">
+                  {spot.cleaner_username ? `@${spot.cleaner_username}` : "ANONYMOUS"}
+                </span>
+              </div>
+            ) : null}
+          </div>
+
+          {user && !isCleaned && spot.status !== "hidden" ? (
+            <button
+              type="button"
+              onClick={onMarkCleaned}
+              className="border border-[#228B22] bg-white px-[9px] py-[9px] text-[12px] font-bold tracking-[0.03em] text-[#228B22] uppercase hover:bg-[#f8eac7]"
+            >
+              [MARK CLEANED]
+            </button>
+          ) : null}
+        </div>
       </aside>
     </div>
+  );
+}
+
+function MapLegend() {
+  const entries: Array<{ label: string; color: string }> = [
+    { label: "ILLEGAL DUMPING", color: CATEGORY_COLORS.illegal_dumping },
+    { label: "TRASH", color: CATEGORY_COLORS.trash },
+    { label: "GRAFFITI", color: CATEGORY_COLORS.graffiti },
+    { label: "ENCAMPMENT DEBRIS", color: CATEGORY_COLORS.encampment_debris },
+    { label: "BIOHAZARD", color: CATEGORY_COLORS.biohazard },
+    { label: "OVERGROWTH", color: CATEGORY_COLORS.overgrowth },
+  ];
+
+  return (
+    <aside className="w-[180px] border border-[#999999] bg-white">
+      <div className="flex h-[27px] items-center border-b border-[#999999] bg-[#94a3d6] px-[9px]">
+        <h2 className="text-[12px] font-bold tracking-[0.03em] text-white uppercase">
+          LEGEND
+        </h2>
+      </div>
+      <div className="grid gap-[6px] p-[9px]">
+        {entries.map((entry) => (
+          <div key={entry.label} className="flex items-center gap-[6px]">
+            <span
+              className="block h-[12px] w-[12px] shrink-0 border border-[#999999]"
+              style={{ backgroundColor: entry.color }}
+              aria-hidden="true"
+            />
+            <span className="text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase">
+              {entry.label}
+            </span>
+          </div>
+        ))}
+        <div className="mt-[3px] flex items-center gap-[6px] border-t border-[#999999] pt-[6px]">
+          <span
+            className="block h-[12px] w-[12px] shrink-0 border-[2px] border-[#228B22] bg-white"
+            aria-hidden="true"
+          />
+          <span className="text-[9px] font-bold tracking-[0.03em] text-[#228B22] uppercase">
+            CLEANED (RING)
+          </span>
+        </div>
+      </div>
+    </aside>
   );
 }
 
@@ -401,6 +454,18 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
   const [showSignIn, setShowSignIn] = useState(false);
   const [showReport, setShowReport] = useState(false);
   const [showCleanup, setShowCleanup] = useState(false);
+  // P2-2 cursor state
+  const [hoverCursor, setHoverCursor] = useState<"grab" | "pointer">("grab");
+  // P1-2 fallback location for GPS-denied case — kept in sync with
+  // the map's view center via handleMoveEnd.
+  const [currentMapCenter, setCurrentMapCenter] = useState<
+    { lat: number; lng: number } | null
+  >(null);
+  // P2-5 username — fetched after user becomes available so we can
+  // show a [SET USERNAME] nudge when one isn't set yet.
+  const [username, setUsername] = useState<string | null>(null);
+  // P2-4 about modal
+  const [showAbout, setShowAbout] = useState(false);
   const spotData = useMemo(() => spotsToGeoJson(spots), [spots]);
 
   useEffect(() => {
@@ -419,6 +484,8 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
       if (session?.user) {
         setShowSignIn(false);
         void fetch("/api/profile", { method: "POST" });
+      } else {
+        setUsername(null);
       }
     });
 
@@ -427,6 +494,36 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
       subscription.unsubscribe();
     };
   }, [supabase]);
+
+  // P2-5: fetch the username so we can decide whether to show the
+  // [SET USERNAME] nudge in the header. Re-runs when user changes.
+  useEffect(() => {
+    let active = true;
+    if (!user) {
+      // Defer the setState so the lint rule's no-setState-in-effect
+      // check is satisfied (we never want a fresh setState during the
+      // effect body's synchronous run; queueMicrotask runs after commit).
+      queueMicrotask(() => {
+        if (active) setUsername(null);
+      });
+      return () => {
+        active = false;
+      };
+    }
+    supabase
+      .from("profiles")
+      .select("username")
+      .eq("id", user.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (active && data?.username) {
+          setUsername(String(data.username));
+        }
+      });
+    return () => {
+      active = false;
+    };
+  }, [user, supabase]);
 
   const fetchSpots = useCallback(async (params: URLSearchParams) => {
     setFetchState({ kind: "loading" });
@@ -480,12 +577,23 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
     } else {
       void fetchSpots(defaultBoundsQuery());
     }
+    // P1-2 seed: capture the initial map center too.
+    const center = event.target.getCenter();
+    if (center) {
+      setCurrentMapCenter({ lat: center.lat, lng: center.lng });
+    }
   }
 
   function handleMoveEnd(event: ViewStateChangeEvent) {
     const bounds = event.target.getBounds();
     if (bounds) {
       scheduleFetch(bounds);
+    }
+    // P1-2: keep the fallback location in sync so the ReportSheet has
+    // a usable lat/lng when the browser denies GPS.
+    const center = event.target.getCenter();
+    if (center) {
+      setCurrentMapCenter({ lat: center.lat, lng: center.lng });
     }
   }
 
@@ -531,6 +639,33 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
     setShowSignIn(false);
     setShowReport(true);
   }
+
+  // P2-1: Escape closes any open overlay. Standard desktop expectation.
+  // Doesn't close the report sheet — that has its own handler so the
+  // user can dismiss it independently of other overlays.
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.key !== "Escape") return;
+      if (selectedSpot) {
+        setSelectedSpot(null);
+        return;
+      }
+      if (showCleanup) {
+        setShowCleanup(false);
+        return;
+      }
+      if (showSignIn) {
+        setShowSignIn(false);
+        return;
+      }
+      if (showAbout) {
+        setShowAbout(false);
+        return;
+      }
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [selectedSpot, showCleanup, showSignIn, showAbout]);
 
   function handleMapClick(event: MapMouseEvent) {
     const feature = event.features?.[0];
@@ -599,6 +734,16 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
         onMoveEnd={handleMoveEnd}
         onClick={handleMapClick}
         interactiveLayerIds={["spot-clusters", "spot-pins"]}
+        // P2-2: cursor reflects affordance — pointer when hovering pins,
+        // grab otherwise. react-map-gl exposes this via the cursor prop
+        // tied to feature-state via onMouseEnter/Leave below.
+        cursor={hoverCursor}
+        onMouseEnter={() => setHoverCursor("pointer")}
+        onMouseLeave={() => setHoverCursor("grab")}
+        // P2-6: pad the bottom 81px so flyTo/fitBounds frames pins in the
+        // area NOT occluded by the big FILE A REPORT CTA. Doesn't shrink
+        // the map's drawing area; only affects auto-camera-positioning.
+        padding={{ top: 90, bottom: 81, left: 9, right: 9 }}
         // Full interaction: drag-pan, scroll-zoom, double-click-zoom,
         // drag-rotate, pitch-with-rotate, touch-pitch, touch-zoom-rotate.
         // react-map-gl defaults most of these on; touchPitch is the
@@ -651,6 +796,14 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
                 [PROFILE]
               </a>
             ) : null}
+            {user && !username ? (
+              <a
+                href="/profile"
+                className="border border-[#999999] bg-[#f8eac7] px-[9px] py-[6px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase no-underline hover:bg-[#b8dae8]"
+              >
+                [SET USERNAME]
+              </a>
+            ) : null}
             {user ? (
               <button
                 type="button"
@@ -668,9 +821,27 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
                 [SIGN IN]
               </button>
             )}
+            <button
+              type="button"
+              onClick={() => setShowAbout(true)}
+              aria-label="About CleanLA"
+              className="border border-[#999999] bg-white px-[9px] py-[6px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
+            >
+              [i]
+            </button>
           </div>
         </div>
       </header>
+
+      {/* P1-4: empty-viewport encouragement. Renders above the CTA when
+          a fetch resolved with zero spots in the current bounds. */}
+      {fetchState.kind === "ok" && spots.length === 0 ? (
+        <div className="pointer-events-none absolute right-[9px] bottom-[111px] left-[9px] z-10">
+          <div className="border border-[#999999] bg-[#f8eac7] p-[9px] text-center text-[12px] font-bold tracking-[0.03em] text-[#001089] uppercase">
+            NO REPORTS HERE YET · BE THE FIRST
+          </div>
+        </div>
+      ) : null}
 
       {/* Primary CTA — big enough to be the obvious action on the map. */}
       <div className="absolute right-[9px] bottom-[9px] left-[9px] z-10">
@@ -681,25 +852,35 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
         >
           [+] FILE A REPORT
         </button>
+        {/* P1-5: surface the cleanup flow so it isn't hidden three taps
+            deep behind a pin click. Aligns with Naula's cleanup-minded
+            volunteer audience — they need to see this as a first-class
+            possibility, not a hidden detail. */}
+        <p className="mt-[6px] text-center text-[9px] font-bold tracking-[0.03em] text-white uppercase mix-blend-difference">
+          OR TAP ANY PIN TO MARK IT CLEANED
+        </p>
       </div>
 
-      <div className="absolute top-[90px] right-[9px] z-10 grid gap-[6px]">
-        <button
-          type="button"
-          className="border border-[#999999] bg-white px-[9px] py-[6px] text-[12px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
-          onClick={() => mapRef.current?.zoomIn({ duration: 100 })}
-          aria-label="Zoom in"
-        >
-          [+]
-        </button>
-        <button
-          type="button"
-          className="border border-[#999999] bg-white px-[9px] py-[6px] text-[12px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
-          onClick={() => mapRef.current?.zoomOut({ duration: 100 })}
-          aria-label="Zoom out"
-        >
-          [-]
-        </button>
+      <div className="absolute top-[90px] right-[9px] z-10 grid gap-[9px]">
+        <MapLegend />
+        <div className="grid justify-items-end gap-[6px]">
+          <button
+            type="button"
+            className="border border-[#999999] bg-white px-[9px] py-[6px] text-[12px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
+            onClick={() => mapRef.current?.zoomIn({ duration: 100 })}
+            aria-label="Zoom in"
+          >
+            [+]
+          </button>
+          <button
+            type="button"
+            className="border border-[#999999] bg-white px-[9px] py-[6px] text-[12px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
+            onClick={() => mapRef.current?.zoomOut({ duration: 100 })}
+            aria-label="Zoom out"
+          >
+            [-]
+          </button>
+        </div>
       </div>
 
       {fetchState.kind === "error" ? (
@@ -730,9 +911,87 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
       {showReport ? (
         <ReportSheet
           onClose={() => setShowReport(false)}
-          onSubmitted={refetchCurrentBounds}
+          onSubmitted={({ lat, lng }) => {
+            refetchCurrentBounds();
+            // P1-3: closes the evaluation gulf — user sees their new
+            // pin appear and the camera zooms to it within 1 second
+            // of the success. The padding={{bottom: 81}} on <Map>
+            // ensures the pin lands above the CTA, not behind it.
+            mapRef.current?.flyTo({
+              center: [lng, lat],
+              zoom: Math.max(mapRef.current.getZoom() ?? 12, 16),
+              duration: 800,
+            });
+          }}
           isSignedIn={Boolean(user)}
+          fallbackLocation={currentMapCenter}
         />
+      ) : null}
+
+      {/* P2-4: About / disclaimer modal. Legal posture per
+          wiki/concepts/civic-app-legal-considerations.md — making the
+          unofficial status visible to first-time visitors. */}
+      {showAbout ? (
+        <div
+          className="fixed inset-0 z-20 grid place-items-center p-[9px]"
+          onClick={() => setShowAbout(false)}
+          role="dialog"
+          aria-modal="true"
+          aria-label="About CleanLA"
+        >
+          <aside
+            className="max-h-[calc(100vh-18px)] w-full max-w-[420px] overflow-auto border border-[#999999] bg-white"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex h-[27px] items-center justify-between border-b border-[#999999] bg-[#94a3d6] px-[9px]">
+              <h2 className="text-[15px] font-bold tracking-[0.03em] text-white uppercase">
+                ABOUT CLEANLA
+              </h2>
+              <button
+                type="button"
+                onClick={() => setShowAbout(false)}
+                className="border border-[#999999] bg-white px-[6px] py-[3px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
+                aria-label="Close about"
+              >
+                [x]
+              </button>
+            </div>
+            <div className="grid gap-[9px] p-[9px] text-[12px] leading-[18px] tracking-[0.03em] text-[#001089] uppercase">
+              <p>
+                CLEANLA IS AN INDEPENDENT CIVIC TRANSPARENCY APP. REPORTS
+                ARE PUBLIC. THIS IS NOT AN OFFICIAL CITY SERVICE.
+              </p>
+              <p>
+                FOR OFFICIAL LA REQUESTS, FILE AT{" "}
+                <a
+                  href="https://myla311.lacity.gov"
+                  className="font-bold text-[#001089] underline hover:bg-[#f8eac7]"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  MYLA311.LACITY.GOV
+                </a>
+                .
+              </p>
+              <p>
+                EVERY SUBMITTED PHOTO IS REVIEWED BY AI MODERATION BEFORE
+                IT APPEARS PUBLICLY. FLAGGED CONTENT IS HIDDEN PENDING
+                HUMAN REVIEW.
+              </p>
+              <p>
+                NONPARTISAN · OPEN SOURCE ·{" "}
+                <a
+                  href="https://github.com/benamtech/cleanla"
+                  className="font-bold text-[#001089] underline hover:bg-[#f8eac7]"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  GITHUB.COM/BENAMTECH/CLEANLA
+                </a>
+              </p>
+            </div>
+          </aside>
+        </div>
       ) : null}
 
       {showCleanup && selectedSpot && user ? (

@@ -79,15 +79,25 @@ export function ReportSheet({
   onClose,
   onSubmitted,
   isSignedIn = false,
+  fallbackLocation = null,
 }: {
   onClose: () => void;
-  onSubmitted: () => void;
+  /**
+   * Called after a successful submit. Receives the spot id + lat/lng so
+   * the parent can fly the camera to the new pin (P1-3 feedback loop).
+   */
+  onSubmitted: (spot: { spotId: string; lat: number; lng: number }) => void;
   /**
    * Whether the user is signed in. Drives the post-submit lazy-auth
    * prompt: anonymous submitters see a "claim your score" form on the
    * DONE screen; signed-in users see a clean confirmation.
    */
   isSignedIn?: boolean;
+  /**
+   * Map's current view center, used as the location fallback when the
+   * browser denies geolocation (P1-2). Null = no fallback available.
+   */
+  fallbackLocation?: { lat: number; lng: number } | null;
 }) {
   // Post-submit lazy-auth state (only used in DONE phase).
   const [claimEmail, setClaimEmail] = useState("");
@@ -192,6 +202,52 @@ export function ReportSheet({
     };
   }, []);
 
+  // P2-1: Escape key closes the sheet. Standard desktop expectation.
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
+  // P1-1: photo library fallback — when camera permission is denied OR
+  // the device has no camera, this loads a photo from the OS picker.
+  // Browser supports it natively via <input type="file" accept="image/*">.
+  // The 'capture="environment"' attr nudges mobile toward the rear camera
+  // but degrades to library on desktop / when camera is unavailable.
+  async function loadPhotoFromFile(file: File) {
+    // Re-encode to webp so the API's PHOTO_MUST_BE_WEBP gate accepts it.
+    try {
+      const img = new Image();
+      const objectUrl = URL.createObjectURL(file);
+      img.src = objectUrl;
+      await img.decode();
+      const canvas = document.createElement("canvas");
+      const maxWidth = 1280;
+      const scale = Math.min(1, maxWidth / img.naturalWidth);
+      canvas.width = Math.round(img.naturalWidth * scale);
+      canvas.height = Math.round(img.naturalHeight * scale);
+      const ctx = canvas.getContext("2d");
+      if (!ctx) throw new Error("CANVAS_NOT_AVAILABLE");
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      URL.revokeObjectURL(objectUrl);
+      const blob = await canvasToWebp(canvas);
+      setPhotoBlob(blob);
+      setPhotoPreview(await dataUrlFromBlob(blob));
+      setPhotoCapturedAt(new Date().toISOString());
+      setPhase("confirm");
+      streamRef.current?.getTracks().forEach((t) => t.stop());
+    } catch {
+      setCameraState({
+        kind: "error",
+        message: "COULD NOT LOAD THAT PHOTO. TRY ANOTHER.",
+      });
+    }
+  }
+
   async function capturePhoto() {
     const video = videoRef.current;
     if (!video || video.videoWidth === 0 || video.videoHeight === 0) {
@@ -284,7 +340,11 @@ export function ReportSheet({
     else setSubmitState({ kind: "pending", spotId });
 
     setPhase("done");
-    onSubmitted();
+    onSubmitted({
+      spotId,
+      lat: gpsCapture.lat,
+      lng: gpsCapture.lng,
+    });
   }
 
   async function sendClaimLink() {
@@ -353,14 +413,36 @@ export function ReportSheet({
               className="absolute inset-0 h-full w-full object-cover"
             />
             {cameraState.kind !== "ready" ? (
-              <div className="absolute inset-0 grid place-items-center bg-[#001089]">
-                <p className="px-[18px] text-center text-[12px] font-bold tracking-[0.03em] text-white uppercase">
-                  {cameraState.kind === "loading"
-                    ? "STARTING CAMERA…"
-                    : cameraState.kind === "error"
-                      ? cameraState.message
-                      : "CAMERA"}
-                </p>
+              <div className="absolute inset-0 grid place-items-center bg-[#001089] p-[18px]">
+                <div className="text-center">
+                  <p className="text-[12px] font-bold tracking-[0.03em] text-white uppercase">
+                    {cameraState.kind === "loading"
+                      ? "STARTING CAMERA…"
+                      : cameraState.kind === "error"
+                        ? cameraState.message
+                        : "CAMERA"}
+                  </p>
+                  {cameraState.kind === "error" ? (
+                    <>
+                      <label className="mt-[18px] inline-block cursor-pointer border border-[#999999] bg-white px-[12px] py-[9px] text-[12px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]">
+                        [USE PHOTO FROM LIBRARY]
+                        <input
+                          type="file"
+                          accept="image/*"
+                          capture="environment"
+                          className="hidden"
+                          onChange={(e) => {
+                            const f = e.currentTarget.files?.[0];
+                            if (f) void loadPhotoFromFile(f);
+                          }}
+                        />
+                      </label>
+                      <p className="mt-[9px] text-[9px] tracking-[0.03em] text-white uppercase">
+                        WORKS WITHOUT CAMERA PERMISSION
+                      </p>
+                    </>
+                  ) : null}
+                </div>
               </div>
             ) : null}
           </div>
@@ -376,13 +458,33 @@ export function ReportSheet({
                       : "GPS · IDLE"}
               </span>
               {gpsState.kind === "error" ? (
-                <button
-                  type="button"
-                  onClick={captureGps}
-                  className="border border-[#999999] bg-white px-[6px] py-[3px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
-                >
-                  [RETRY GPS]
-                </button>
+                <div className="flex flex-wrap gap-[6px]">
+                  <button
+                    type="button"
+                    onClick={captureGps}
+                    className="border border-[#999999] bg-white px-[6px] py-[3px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
+                  >
+                    [RETRY GPS]
+                  </button>
+                  {fallbackLocation ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setGpsCapture({
+                          lat: fallbackLocation.lat,
+                          lng: fallbackLocation.lng,
+                          // 999m accuracy flags this as "POOR GPS" so the
+                          // report submits with a verification fail flag.
+                          accuracy: 999,
+                        });
+                        setGpsState({ kind: "ready" });
+                      }}
+                      className="border border-[#999999] bg-[#f8eac7] px-[6px] py-[3px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#b8dae8]"
+                    >
+                      [USE MAP CENTER]
+                    </button>
+                  ) : null}
+                </div>
               ) : null}
             </div>
             <button
@@ -477,13 +579,13 @@ export function ReportSheet({
               onClick={() => setShowAdvanced((v) => !v)}
               className="text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
             >
-              {showAdvanced ? "[−] HIDE OPTIONAL" : "[+] OPTIONAL: SEVERITY + NOTE"}
+              {showAdvanced ? "[−] HIDE EXTRA DETAILS" : "[+] ADD MORE DETAIL (OPTIONAL)"}
             </button>
             {showAdvanced ? (
               <div className="mt-[9px] grid gap-[9px]">
                 <div className="grid gap-[6px]">
                   <span className="text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase">
-                    SEVERITY · DEFAULT 3
+                    HOW BAD? · 1 SMALL · 5 URGENT
                   </span>
                   <div className="grid grid-cols-5 gap-[6px]">
                     {REPORT_SEVERITIES.map((item) => (

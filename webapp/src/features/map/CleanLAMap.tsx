@@ -907,29 +907,36 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
         </div>
       ) : null}
 
-      {/* Primary CTA — big enough to be the obvious action on the map. */}
-      <div className="absolute right-[12px] bottom-[12px] left-[12px] z-10">
+      {/* P1-5 cleanup hint — floats on the map ABOVE the bottom bar
+          so it doesn't get pushed off-screen by the bar's full-width
+          dominance. mix-blend-difference keeps it legible over any
+          underlying map tile color. */}
+      <div className="pointer-events-none absolute right-[12px] bottom-[150px] left-[12px] z-10">
+        <p className="text-center text-[9px] font-bold tracking-[0.03em] text-white uppercase mix-blend-difference">
+          OR TAP ANY PIN TO MARK IT CLEANED
+        </p>
+      </div>
+
+      {/* Primary CTA — edge-to-edge bottom bar in warning red. Maximum
+          possible visibility within the 369 system:
+            - text-[36px] is the top of the type scale
+            - py-[48px] makes it ~132px tall (~1 inch on a phone)
+            - tracking-[0.06em] gives the caps commanding weight
+            - warning red #a60315 is the loudest single color in the
+              8-token palette (the user explicitly pushed past the
+              "navy is the conservative choice" framing — visibility wins)
+            - inset-x-0 bottom-0 removes all gutters; full-bleed sticky
+              bottom bar pattern (think iOS-app tab bar position)
+            - 1px top border in grey reads as a "sticky footer" rather
+              than a floating button, anchoring it to the screen edge */}
+      <div className="absolute inset-x-0 bottom-0 z-10 border-t border-[#999999]">
         <button
           type="button"
           onClick={openReport}
-          // Maximum 369-compliant visibility: 36px text is the top of the
-          // type scale, 48px vertical padding makes the button ~132px tall
-          // (≈ 1 inch on a phone). tracking 0.06em gives the caps commanding
-          // weight without breaking the 3-multiple rule (0.06 = 6/100 em).
-          // Solid navy on white = highest single-color contrast in the
-          // 369 palette short of switching to warning red (which carries
-          // alarm semantics inappropriate for a non-urgent action).
-          className="block w-full border border-[#999999] bg-[#001089] px-[18px] py-[48px] text-[36px] font-bold tracking-[0.06em] text-white uppercase hover:bg-[#94a3d6]"
+          className="block w-full bg-[#a60315] px-[18px] py-[48px] text-[36px] font-bold tracking-[0.06em] text-white uppercase hover:bg-[#001089]"
         >
           [+] FILE A REPORT
         </button>
-        {/* P1-5: surface the cleanup flow so it isn't hidden three taps
-            deep behind a pin click. Aligns with Naula's cleanup-minded
-            volunteer audience — they need to see this as a first-class
-            possibility, not a hidden detail. */}
-        <p className="mt-[6px] text-center text-[9px] font-bold tracking-[0.03em] text-white uppercase mix-blend-difference">
-          OR TAP ANY PIN TO MARK IT CLEANED
-        </p>
       </div>
 
       <div className="absolute top-[90px] right-[9px] z-10 grid gap-[9px]">

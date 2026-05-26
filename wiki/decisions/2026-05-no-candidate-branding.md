@@ -47,3 +47,4 @@ A civic transparency app that explicitly aligns with a candidate or party is a d
 - [[../projects/cleanla-snap]]
 - [[../concepts/civic-app-legal-considerations]]
 - [[../concepts/cleanla-clean-streets-mayor-scenario]]
+- [[./2026-05-x-only-sharing]]

@@ -2,7 +2,7 @@
 title: Open311 — The Standard and Its Collapse
 tags: [civic-tech, standards, 311, api]
 created: 2026-05-24
-updated: 2026-05-24
+updated: 2026-05-25
 related:
   - seeclickfix-civicplus.md
   - fixmystreet-uk.md
@@ -68,3 +68,4 @@ A public submit API doesn't enable just one competing app; it enables a whole cr
 - [[seeclickfix-civicplus]]
 - [[fixmystreet-uk]]
 - [[civic-app-patterns-and-failure-modes]]
+- [[../projects/cleanla-snap]]

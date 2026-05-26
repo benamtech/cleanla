@@ -59,11 +59,14 @@ For the operating rules, see [[../AGENT]]. For the human-facing overview, see [[
 
 ## Decisions
 
-- [[decisions/2026-05-web-stack-over-mobile]] — **current stack**; pivot to Next.js + Supabase + PostGIS web; Expo + Firebase mobile path retired for v1; Phase 1.5 = validation pause
+- [[decisions/2026-05-web-stack-over-mobile]] — **current stack**; Next.js + Supabase + PostGIS web; Expo + Firebase mobile retired for v1
+- [[decisions/2026-05-ai-moderation-over-on-device-blur]] — **2026-05-25 supersedes** on-device blur; Phase 5 ships server-side Claude Haiku 4.5 vision moderation
+- [[decisions/2026-05-magic-link-auth]] — Phase 3 picked Supabase magic-link (no OAuth, no passwords) for v1
+- [[decisions/2026-05-x-only-sharing]] — Phase 6 ships X-only intent-link sharing + Web Share API + COPY LINK
 - [[decisions/2026-05-mapbox-over-google-maps]] — Mapbox vendor choice survives the web pivot; library now `mapbox-gl` (was `@rnmapbox/maps`)
 - [[decisions/2026-05-deep-link-not-direct-submit]] — CleanLA v1 deep-links to MyLA311, does not direct-submit (stack-agnostic, still active)
 - [[decisions/2026-05-no-candidate-branding]] — CleanLA is and remains brand-neutral; no candidate, party, or campaign reference anywhere
-- [[decisions/2026-05-on-device-face-blur-required]] — principle still active (raw photo never leaves device); RN implementation retired with the web pivot, web pipeline TBD
+- [[decisions/2026-05-on-device-face-blur-required]] — **superseded** by `ai-moderation-over-on-device-blur` (2026-05-25); principle preserved via moderation, implementation reversed
 
 ---
 

@@ -68,3 +68,4 @@ Does CivicPlus offer a partnership lane for third-party feeder apps that drive v
 - [[./civic-tech-founder-org-handoff-patterns]]
 - [[./la-civic-tech-competitive-landscape]]
 - [[./la-city-partnership-mechanics]]
+- [[../projects/cleanla-snap]]

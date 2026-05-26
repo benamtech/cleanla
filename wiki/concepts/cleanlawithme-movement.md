@@ -72,3 +72,4 @@ Naula, an Ecuadorian native, moved to LA from Virginia in October 2024 to develo
 - [[./la-civic-tech-competitive-landscape]]
 - [[./clwm-partnership-prep]]
 - [[./cleanla-clean-streets-mayor-scenario]]
+- [[../decisions/2026-05-magic-link-auth]]

@@ -2,7 +2,7 @@
 title: Pivot to web stack (Next.js + Supabase) — Expo + Firebase mobile path retired for v1
 tags: [decision, stack, web, supabase, nextjs, validation]
 created: 2026-05-24
-updated: 2026-05-24
+updated: 2026-05-25
 status: active
 supersedes:
   - ./2026-05-mapbox-over-google-maps.md
@@ -94,3 +94,4 @@ Revisit this decision if any of:
 - [[../projects/cleanla-snap]]
 - [[./2026-05-mapbox-over-google-maps]]
 - [[./2026-05-on-device-face-blur-required]]
+- [[./2026-05-ai-moderation-over-on-device-blur]]

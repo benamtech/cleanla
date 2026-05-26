@@ -6,6 +6,7 @@ updated: 2026-05-25
 status: active
 superseded_by:
   - ./2026-05-web-stack-over-mobile.md  # principle survives in full (raw never uploaded, on-device redaction); RN-specific implementation (vision-camera + ML Kit/Vision) no longer applies — web pipeline implementation to be locked in a follow-on decision
+  - ./2026-05-ai-moderation-over-on-device-blur.md  # 2026-05-25: Phase 5 ships server-side Claude Haiku 4.5 vision moderation instead of on-device blur; raw photo IS uploaded; trust posture changed; tradeoffs documented in successor
 related:
   - ../concepts/on-device-photo-privacy.md
   - ../concepts/civic-app-legal-considerations.md
@@ -76,3 +77,4 @@ In either case, a new dated decision must supersede this one. The pipeline is no
 - [[../concepts/civic-app-legal-considerations]]
 - [[./2026-05-web-stack-over-mobile]]
 - [[../concepts/cleanla-clean-streets-mayor-scenario]]
+- [[./2026-05-ai-moderation-over-on-device-blur]]

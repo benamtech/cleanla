@@ -253,7 +253,17 @@ function SpotDetailSheet({
   onMarkCleaned: () => void;
 }) {
   return (
-    <aside className="absolute right-[9px] bottom-[9px] left-[9px] z-10 border border-[#999999] bg-white md:left-auto md:w-[360px]">
+    <div
+      className="fixed inset-0 z-10 grid place-items-center p-[9px]"
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Spot detail"
+    >
+      <aside
+        className="max-h-[calc(100vh-18px)] w-full max-w-[420px] overflow-auto border border-[#999999] bg-white"
+        onClick={(e) => e.stopPropagation()}
+      >
       <div className="flex h-[27px] items-center justify-between border-b border-[#999999] bg-[#94a3d6] px-[9px]">
         <h2 className="text-[15px] font-bold tracking-[0.03em] text-white uppercase">
           SPOT DETAIL
@@ -269,7 +279,10 @@ function SpotDetailSheet({
       </div>
       <div className="grid gap-[9px] p-[9px]">
         <div className="flex flex-wrap gap-[6px]">
-          <span className="border border-[#999999] bg-[#f8eac7] px-[6px] py-[3px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase">
+          <span
+            className="border-y border-r border-l-[6px] border-[#999999] bg-[#f8eac7] px-[6px] py-[3px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase"
+            style={{ borderLeftColor: CATEGORY_COLORS[spot.category] }}
+          >
             {formatCategory(spot.category)}
           </span>
           <span className="border border-[#999999] bg-white px-[6px] py-[3px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase">
@@ -358,7 +371,8 @@ function SpotDetailSheet({
           </button>
         ) : null}
       </div>
-    </aside>
+      </aside>
+    </div>
   );
 }
 

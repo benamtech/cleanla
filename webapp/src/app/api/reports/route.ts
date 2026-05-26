@@ -115,14 +115,13 @@ function validateFormData(formData: FormData): ReportValidation {
 
 export async function POST(request: Request) {
   const supabase = await createClient();
+  // Lazy auth: anonymous submissions are allowed. The session is consulted
+  // only to attribute the report when one exists. The post-submit screen
+  // offers an optional sign-in to "claim your score" — that flow lives in
+  // ReportSheet, not here.
   const {
     data: { user },
-    error: userError,
   } = await supabase.auth.getUser();
-
-  if (userError || !user) {
-    return NextResponse.json({ error: "AUTH_REQUIRED" }, { status: 401 });
-  }
 
   const formData = await request.formData();
   const report = validateFormData(formData);
@@ -135,20 +134,24 @@ export async function POST(request: Request) {
   }
 
   const admin = createAdminClient();
-  const { error: profileError } = await admin.from("profiles").upsert(
-    {
-      id: user.id,
-      email: user.email ?? null,
-      updated_at: new Date().toISOString(),
-    },
-    { onConflict: "id" },
-  );
 
-  if (profileError) {
-    return NextResponse.json(
-      { error: "PROFILE_CREATE_FAILED" },
-      { status: 500 },
+  // Only upsert a profile row if the user is signed in. Anonymous
+  // reports have no profile to upsert.
+  if (user) {
+    const { error: profileError } = await admin.from("profiles").upsert(
+      {
+        id: user.id,
+        email: user.email ?? null,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "id" },
     );
+    if (profileError) {
+      return NextResponse.json(
+        { error: "PROFILE_CREATE_FAILED" },
+        { status: 500 },
+      );
+    }
   }
 
   const { data: spotId, error: spotError } = await admin.rpc(
@@ -158,7 +161,8 @@ export async function POST(request: Request) {
       p_description: report.description,
       p_lat: report.lat,
       p_lng: report.lng,
-      p_created_by: user.id,
+      // null for anonymous — created_by on spots is nullable.
+      p_created_by: user?.id ?? null,
       p_severity: report.severity,
     },
   );
@@ -168,7 +172,10 @@ export async function POST(request: Request) {
   }
 
   const mediaId = crypto.randomUUID();
-  const mediaPath = `${user.id}/${spotId}/${mediaId}.webp`;
+  // Bucket-level paths group by user.id when signed in, otherwise
+  // by "anonymous" so we can find orphaned uploads later.
+  const ownerPrefix = user?.id ?? "anonymous";
+  const mediaPath = `${ownerPrefix}/${spotId}/${mediaId}.webp`;
   const { error: uploadError } = await admin.storage
     .from("report-photos")
     .upload(mediaPath, report.photo, {
@@ -192,7 +199,8 @@ export async function POST(request: Request) {
     spot_id: spotId,
     media_kind: "report",
     media_url: publicUrl,
-    created_by: user.id,
+    // null for anonymous — created_by on spot_media is nullable.
+    created_by: user?.id ?? null,
     capture_source: "live_camera",
     captured_lat: report.lat,
     captured_lng: report.lng,

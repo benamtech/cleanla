@@ -10,6 +10,7 @@ import {
 } from "@/features/reports/constants";
 import { CATEGORY_COLORS, formatCategory } from "@/features/spots/display";
 import { SPOT_CATEGORIES, type SpotCategory } from "@/features/spots/types";
+import { createClient as createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 /**
  * 3-tap report flow:
@@ -77,10 +78,26 @@ function canvasToWebp(canvas: HTMLCanvasElement): Promise<Blob> {
 export function ReportSheet({
   onClose,
   onSubmitted,
+  isSignedIn = false,
 }: {
   onClose: () => void;
   onSubmitted: () => void;
+  /**
+   * Whether the user is signed in. Drives the post-submit lazy-auth
+   * prompt: anonymous submitters see a "claim your score" form on the
+   * DONE screen; signed-in users see a clean confirmation.
+   */
+  isSignedIn?: boolean;
 }) {
+  // Post-submit lazy-auth state (only used in DONE phase).
+  const [claimEmail, setClaimEmail] = useState("");
+  const [claimNotice, setClaimNotice] = useState<
+    | { kind: "idle" }
+    | { kind: "sending" }
+    | { kind: "sent" }
+    | { kind: "error"; message: string }
+  >({ kind: "idle" });
+
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const [cameraState, setCameraState] = useState<CameraState>({ kind: "idle" });
@@ -268,6 +285,34 @@ export function ReportSheet({
 
     setPhase("done");
     onSubmitted();
+  }
+
+  async function sendClaimLink() {
+    const trimmed = claimEmail.trim();
+    if (!trimmed) return;
+    setClaimNotice({ kind: "sending" });
+    try {
+      const supabase = createSupabaseBrowserClient();
+      const { error } = await supabase.auth.signInWithOtp({
+        email: trimmed,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
+      if (error) {
+        setClaimNotice({
+          kind: "error",
+          message: error.message.toUpperCase(),
+        });
+        return;
+      }
+      setClaimNotice({ kind: "sent" });
+    } catch (err) {
+      setClaimNotice({
+        kind: "error",
+        message: err instanceof Error ? err.message.toUpperCase() : "FAILED",
+      });
+    }
   }
 
   const containerCls =
@@ -528,6 +573,57 @@ export function ReportSheet({
             {submitState.message}
           </div>
         ) : null}
+        {!isSignedIn ? (
+          <div className="border border-[#999999] bg-[#f8eac7] p-[9px]">
+            <p className="text-[12px] font-bold tracking-[0.03em] text-[#001089] uppercase">
+              YOUR REPORT IS LIVE.
+            </p>
+            <p className="mt-[6px] text-[9px] tracking-[0.03em] text-[#001089] uppercase">
+              WANT CREDIT FOR IT? GET A LOGIN LINK BY EMAIL. NO PASSWORD.
+              FUTURE REPORTS WILL BE ATTRIBUTED TO YOUR ACCOUNT.
+            </p>
+            <div className="mt-[9px] flex flex-wrap gap-[6px]">
+              <input
+                value={claimEmail}
+                onChange={(e) => setClaimEmail(e.target.value)}
+                type="email"
+                placeholder="EMAIL"
+                disabled={claimNotice.kind === "sending" || claimNotice.kind === "sent"}
+                className="flex-1 border border-[#999999] bg-white p-[6px] text-[12px] tracking-[0.03em] uppercase placeholder:text-[#999999] disabled:bg-[#f8eac7]"
+              />
+              <button
+                type="button"
+                onClick={sendClaimLink}
+                disabled={
+                  !claimEmail.trim() ||
+                  claimNotice.kind === "sending" ||
+                  claimNotice.kind === "sent"
+                }
+                className="border border-[#999999] bg-[#001089] px-[9px] py-[6px] text-[9px] font-bold tracking-[0.03em] text-white uppercase enabled:hover:bg-[#94a3d6] disabled:bg-white disabled:text-[#999999]"
+              >
+                {claimNotice.kind === "sending"
+                  ? "[SENDING]"
+                  : claimNotice.kind === "sent"
+                    ? "[LINK SENT]"
+                    : "[EMAIL ME]"}
+              </button>
+            </div>
+            {claimNotice.kind === "sent" ? (
+              <p className="mt-[6px] text-[9px] font-bold tracking-[0.03em] text-[#228B22] uppercase">
+                ✓ LOGIN LINK SENT. CHECK YOUR EMAIL.
+              </p>
+            ) : null}
+            {claimNotice.kind === "error" ? (
+              <p className="mt-[6px] text-[9px] font-bold tracking-[0.03em] text-[#a60315] uppercase">
+                × {claimNotice.message}
+              </p>
+            ) : null}
+          </div>
+        ) : (
+          <div className="border border-[#228B22] bg-white p-[9px] text-[9px] font-bold tracking-[0.03em] text-[#228B22] uppercase">
+            ✓ ATTRIBUTED TO YOUR ACCOUNT.
+          </div>
+        )}
       </div>
       <div className="flex-none border-t border-[#999999] bg-white p-[9px]">
         <button

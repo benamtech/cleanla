@@ -196,7 +196,7 @@ function SignInPrompt({
     <aside className="absolute right-[9px] bottom-[9px] left-[9px] z-20 border border-[#999999] bg-white md:left-auto md:w-[360px]">
       <div className="flex h-[27px] items-center justify-between border-b border-[#999999] bg-[#001089] px-[9px]">
         <h2 className="text-[15px] font-bold tracking-[0.03em] text-white uppercase">
-          SIGN IN TO REPORT
+          SIGN IN TO CLEANLA
         </h2>
         <button
           type="button"
@@ -209,7 +209,7 @@ function SignInPrompt({
       </div>
       <div className="grid gap-[9px] p-[9px]">
         <p className="text-[12px] tracking-[0.03em] text-[#001089] uppercase">
-          PUBLIC MAP BROWSING STAYS OPEN. REPORTING REQUIRES A MAGIC LINK.
+          WE EMAIL YOU A ONE-TIME LOGIN LINK. NO PASSWORD.
         </p>
         <input
           value={email}
@@ -224,11 +224,11 @@ function SignInPrompt({
           disabled={notice.kind === "sending" || !email.trim()}
           className="border border-[#999999] bg-[#001089] px-[9px] py-[9px] text-[12px] font-bold tracking-[0.03em] text-white uppercase enabled:hover:bg-[#94a3d6] disabled:bg-white disabled:text-[#999999]"
         >
-          {notice.kind === "sending" ? "[SENDING]" : "[SEND MAGIC LINK]"}
+          {notice.kind === "sending" ? "[SENDING]" : "[EMAIL ME A LOGIN LINK]"}
         </button>
         {notice.kind === "sent" ? (
           <div className="border border-[#228B22] bg-white p-[9px] text-[9px] font-bold tracking-[0.03em] text-[#228B22] uppercase">
-            MAGIC LINK SENT. CHECK YOUR EMAIL.
+            LOGIN LINK SENT. CHECK YOUR EMAIL.
           </div>
         ) : null}
         {notice.kind === "error" ? (
@@ -525,13 +525,11 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
   function openReport() {
     setSelectedSpot(null);
     setShowCleanup(false);
-    if (user) {
-      setShowSignIn(false);
-      setShowReport(true);
-    } else {
-      setShowReport(false);
-      setShowSignIn(true);
-    }
+    // Lazy auth: open the report sheet for everyone. The post-submit
+    // screen offers an optional sign-in to claim the report for your
+    // contributor score. No pre-report friction.
+    setShowSignIn(false);
+    setShowReport(true);
   }
 
   function handleMapClick(event: MapMouseEvent) {
@@ -601,7 +599,19 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
         onMoveEnd={handleMoveEnd}
         onClick={handleMapClick}
         interactiveLayerIds={["spot-clusters", "spot-pins"]}
-        cursor="crosshair"
+        // Full interaction: drag-pan, scroll-zoom, double-click-zoom,
+        // drag-rotate, pitch-with-rotate, touch-pitch, touch-zoom-rotate.
+        // react-map-gl defaults most of these on; touchPitch is the
+        // notable exception — enabling it lets users 2-finger drag up
+        // to pitch the camera on mobile, matching what the user asked for.
+        dragPan
+        dragRotate
+        pitchWithRotate
+        touchPitch
+        touchZoomRotate
+        scrollZoom
+        doubleClickZoom
+        keyboard
         style={{ width: "100%", height: "100%" }}
       >
         <Source
@@ -633,13 +643,6 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
           </p>
           <div className="flex flex-wrap items-center gap-[6px]">
             <StatusPanel fetchState={fetchState} count={spots.length} />
-            <button
-              type="button"
-              onClick={openReport}
-              className="border border-[#999999] bg-white px-[9px] py-[6px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
-            >
-              [REPORT]
-            </button>
             {user ? (
               <a
                 href="/profile"
@@ -656,10 +659,29 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
               >
                 [SIGN OUT]
               </button>
-            ) : null}
+            ) : (
+              <button
+                type="button"
+                onClick={() => setShowSignIn(true)}
+                className="border border-[#999999] bg-white px-[9px] py-[6px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
+              >
+                [SIGN IN]
+              </button>
+            )}
           </div>
         </div>
       </header>
+
+      {/* Primary CTA — big enough to be the obvious action on the map. */}
+      <div className="absolute right-[9px] bottom-[9px] left-[9px] z-10 md:left-auto md:max-w-[420px]">
+        <button
+          type="button"
+          onClick={openReport}
+          className="block w-full border border-[#999999] bg-[#001089] px-[9px] py-[18px] text-[18px] font-bold tracking-[0.06em] text-white uppercase hover:bg-[#94a3d6]"
+        >
+          [+] FILE A REPORT
+        </button>
+      </div>
 
       <div className="absolute top-[90px] right-[9px] z-10 grid gap-[6px]">
         <button
@@ -705,10 +727,11 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
         />
       ) : null}
 
-      {showReport && user ? (
+      {showReport ? (
         <ReportSheet
           onClose={() => setShowReport(false)}
           onSubmitted={refetchCurrentBounds}
+          isSignedIn={Boolean(user)}
         />
       ) : null}
 

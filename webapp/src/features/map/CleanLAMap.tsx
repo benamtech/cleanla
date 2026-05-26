@@ -743,7 +743,7 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
         // P2-6: pad the bottom 81px so flyTo/fitBounds frames pins in the
         // area NOT occluded by the big FILE A REPORT CTA. Doesn't shrink
         // the map's drawing area; only affects auto-camera-positioning.
-        padding={{ top: 90, bottom: 81, left: 9, right: 9 }}
+        padding={{ top: 90, bottom: 144, left: 12, right: 12 }}
         // Full interaction: drag-pan, scroll-zoom, double-click-zoom,
         // drag-rotate, pitch-with-rotate, touch-pitch, touch-zoom-rotate.
         // react-map-gl defaults most of these on; touchPitch is the
@@ -836,7 +836,7 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
       {/* P1-4: empty-viewport encouragement. Renders above the CTA when
           a fetch resolved with zero spots in the current bounds. */}
       {fetchState.kind === "ok" && spots.length === 0 ? (
-        <div className="pointer-events-none absolute right-[9px] bottom-[111px] left-[9px] z-10">
+        <div className="pointer-events-none absolute right-[12px] bottom-[174px] left-[12px] z-10">
           <div className="border border-[#999999] bg-[#f8eac7] p-[9px] text-center text-[12px] font-bold tracking-[0.03em] text-[#001089] uppercase">
             NO REPORTS HERE YET · BE THE FIRST
           </div>
@@ -844,11 +844,18 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
       ) : null}
 
       {/* Primary CTA — big enough to be the obvious action on the map. */}
-      <div className="absolute right-[9px] bottom-[9px] left-[9px] z-10">
+      <div className="absolute right-[12px] bottom-[12px] left-[12px] z-10">
         <button
           type="button"
           onClick={openReport}
-          className="block min-h-[72px] w-full border border-[#999999] bg-[#001089] px-[18px] py-[27px] text-[30px] font-bold tracking-[0.03em] text-white uppercase hover:bg-[#94a3d6]"
+          // Maximum 369-compliant visibility: 36px text is the top of the
+          // type scale, 48px vertical padding makes the button ~132px tall
+          // (≈ 1 inch on a phone). tracking 0.06em gives the caps commanding
+          // weight without breaking the 3-multiple rule (0.06 = 6/100 em).
+          // Solid navy on white = highest single-color contrast in the
+          // 369 palette short of switching to warning red (which carries
+          // alarm semantics inappropriate for a non-urgent action).
+          className="block w-full border border-[#999999] bg-[#001089] px-[18px] py-[48px] text-[36px] font-bold tracking-[0.06em] text-white uppercase hover:bg-[#94a3d6]"
         >
           [+] FILE A REPORT
         </button>

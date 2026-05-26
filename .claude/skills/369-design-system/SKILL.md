@@ -15,9 +15,9 @@ The number 3 operates at three scales — visual primitives (3=BASE), program mo
 2. **Works on any screen device.** Responsive-by-construction. The 999px breakpoint, `repeat(auto-fit, minmax(...))` patterns, and `CARD_RESPONSIVE_COLLAPSE` rules are mechanisms; the principle is platform-universality.
 3. **Source material is owned, not borrowed.** Tufte, Bertin, etc. are re-expressed in 369-native form. Don't write "per Tufte's data-ink"; write "the data-ink criterion in the 369 rubric." Rebrand, don't reinvent.
 
-This skill is structured as a thin router plus on-demand references. **Read the 8 non-negotiable rules below for every invocation.** Load a reference from `references/` only when the work needs depth that the router does not provide.
+This skill is structured as a thin router plus on-demand references. **Read the 9 non-negotiable rules below for every invocation.** Load a reference from `references/` only when the work needs depth that the router does not provide.
 
-## The 8 non-negotiable rules
+## The 9 non-negotiable rules
 
 1. **Spacing — multiples of 3 ONLY.** Allowed: 3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36, 42, 48, 54, 60, 72, 84, 96, 120, 150, 180, 210, 240. Forbidden: 4, 5, 7, 8, 10, 14, 16, 20 — any non-multiple of 3 is a bug. Applies to padding, margin, gap, width, height, font-size, letter-spacing. SVG internals (`strokeWidth`, `r`, `cx`, `cy`, coordinates) are exempt.
 2. **Border radius — zero, everywhere.** Enforced globally as `* { border-radius: 0 !important; }`. NEVER use `rounded-*` Tailwind classes. The ONE exception: circular SSM annotation pins (`border-radius: 50%`).
@@ -27,6 +27,7 @@ This skill is structured as a thin router plus on-demand references. **Read the 
 6. **Decoration — NONE.** No shadows, no gradients, no blur, no rounded corners, no icon libraries (Lucide, Heroicons). Text glyphs only: `★ ✓ ✕ → ← • [+] [−] [×] i`. SVG: `strokeLinecap="square"`. NO emoji on `/369` (platform fonts ignore design tokens).
 7. **Run engines, don't guess.** For data → `presentation(data, intent, medium)` in `src/base/presentation/`. For entities → `resolveAny(component, intent)` in `src/base/resolver.ts`. Hand-picking a chart or hardcoding a component's values defeats the system.
 8. **Same input → same output.** The system is deterministic. Run it twice; if the HTML differs, something is wrong. Show the decision trace for data compositions so the verdict is defended, not asserted.
+9. **Composition — every screen has a hierarchy: BASE → PILLARS → ROOF.** A screen is not "a list of things in a grid." Decide: **PILLARS** (which 3–6 sections compose the screen — window bar, status strip, hero, body, action footer), **ROOF** (which section is the HERO and visually dominates; which are secondary; which are tertiary), **BASE** (which primitive — button, badge, table row, image — each section uses). Implement: sections separate by `border-b border-[#999999]`, NOT by whitespace gaps. The hero takes a deterministic share of the viewport (aspect ratio or fixed height). Body scrolls; window bar + status strip + footer are sticky via `shrink-0`. **If sections are floating in `grid gap-[N]` and visually competing, the composition has failed.** Empty states use minimum viable footprint (single row or aspect-matched to the slot they replace), never dominate.
 
 ## Which reference do I need?
 
@@ -43,7 +44,7 @@ References cross-link to each other rather than restate — e.g., `cards.md` def
 
 ## Quick-reference patterns (no reference needed)
 
-The five compositions used most often. Copy-paste into source.
+The six compositions used most often. Copy-paste into source.
 
 **Window bar (program header):**
 ```tsx
@@ -73,6 +74,27 @@ className="bg-[#f8eac7] border border-[#999999] p-[9px]"
 // hover: bg-[#b8dae8]
 ```
 
+**Stacked-pillars portrait modal (the canonical card composition for detail views):**
+```tsx
+<aside className="flex h-[calc(100vh-36px)] w-full max-w-[420px] flex-col overflow-hidden border border-[#999999] bg-white">
+  {/* 1. WINDOW BAR */}
+  <div className="flex h-[27px] shrink-0 ...">...</div>
+  {/* 2. STATUS STRIP — segmented, NOT floating chips */}
+  <div className="flex h-[27px] shrink-0 items-stretch border-b border-[#999999]">...</div>
+  {/* 3. HERO — aspect ratio anchors visual weight */}
+  <div className="shrink-0 border-b border-[#999999]">
+    <img className="block aspect-[3/4] w-full object-cover" />
+  </div>
+  {/* 4. BODY — scrolls; inner sections separate by border, not gap */}
+  <div className="flex-1 overflow-auto">
+    <div className="border-b border-[#999999] px-[9px] py-[9px]">...</div>
+    <table className="w-full border-collapse">...</table>
+  </div>
+  {/* 5. ACTION FOOTER — sticky bottom */}
+  <button className="shrink-0 border-t border-[#999999] ...">...</button>
+</aside>
+```
+
 ## Red flags — Stop and Fix
 
 | Violation | Fix |
@@ -91,6 +113,10 @@ className="bg-[#f8eac7] border border-[#999999] p-[9px]"
 | Hand-picked chart type for structured data | Run `presentation(data, intent, 'desktop')` and use the winner |
 | `<Card.Body columns={N}>` or `<Card.Body density="...">` | Hoist both props to `<Card>` root (compile error otherwise) |
 | `[C]` / `[P]` shorthand in user-visible UI | Use full words: `[CLIENT]`, `[PRODUCER]` |
+| `grid flex-1 gap-[N]` (grid with flex-grow and no `content-start`) | Default `align-content: normal` distributes rows to fill height → dead whitespace. Add `content-start` OR replace `grid` with sequential `<div>` stack separated by `border-b` |
+| Empty-state placeholder with `p-[18px]` or larger padding | Empty states use minimum footprint (`h-[48px]` single row, or aspect-ratio that matches the slot it replaces); never dominate |
+| `flex flex-wrap gap-[6px]` for badges + status that should be a single segmented bar | Use a single horizontal flex strip `h-[27px] items-stretch` with `border-l` between segments. Floating chips don't visually relate |
+| Data table with `flex justify-between gap-[12px]` per row | Use a real `<table class="border-collapse">` with `<tr class="border-b border-[#999999]">`. Native tables hold dense layouts; flex sprawls |
 
 ## Six programs + bracket notation
 

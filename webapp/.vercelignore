@@ -1,0 +1,8 @@
+# Keep deployment artifacts focused on the Next.js app.
+*.md
+supabase/
+.env
+.env.*
+.next/
+node_modules/
+tsconfig.tsbuildinfo

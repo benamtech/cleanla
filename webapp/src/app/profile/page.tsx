@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { UsernameForm } from "./UsernameForm";
 
 export const dynamic = "force-dynamic";
 
@@ -18,14 +19,20 @@ export default async function ProfilePage() {
 
   if (!user) redirect("/");
 
-  const { data, error } = await supabase.rpc("get_profile_contributions", {
-    p_user_id: user.id,
-  });
+  const [statsResult, profileResult] = await Promise.all([
+    supabase.rpc("get_profile_contributions", { p_user_id: user.id }),
+    supabase.from("profiles").select("username").eq("id", user.id).maybeSingle(),
+  ]);
 
   const stats: ProfileStats =
-    !error && Array.isArray(data) && data[0]
-      ? (data[0] as ProfileStats)
+    !statsResult.error && Array.isArray(statsResult.data) && statsResult.data[0]
+      ? (statsResult.data[0] as ProfileStats)
       : { submitted_reports: 0, verified_reports: 0, cleanups_completed: 0 };
+
+  const username =
+    !profileResult.error && profileResult.data?.username
+      ? String(profileResult.data.username)
+      : null;
 
   return (
     <main className="min-h-screen bg-white p-[18px]">
@@ -45,9 +52,12 @@ export default async function ProfilePage() {
           <div className="p-[9px]">
             <p className="text-[9px] tracking-[0.03em] text-[#001089] uppercase">
               {user.email}
+              {username ? ` · @${username}` : " · ANONYMOUS"}
             </p>
           </div>
         </div>
+
+        <UsernameForm initial={username} />
 
         <div className="grid gap-[9px] md:grid-cols-3">
           <div className="border border-[#999999] p-[18px]">

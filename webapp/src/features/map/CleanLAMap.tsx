@@ -317,6 +317,18 @@ function SpotDetailSheet({
             <span className="font-bold">AFTER</span>
             <span>{spot.after_media_url ? "PHOTO" : "NONE"}</span>
           </div>
+          <div className="flex justify-between gap-[12px]">
+            <span className="font-bold">REPORTED BY</span>
+            <span>{spot.reporter_username ? `@${spot.reporter_username}` : "ANONYMOUS"}</span>
+          </div>
+          {spot.cleaner_username || spot.status === "cleaned" ? (
+            <div className="flex justify-between gap-[12px]">
+              <span className="font-bold">CLEANED BY</span>
+              <span className="text-[#228B22]">
+                {spot.cleaner_username ? `@${spot.cleaner_username}` : "ANONYMOUS"}
+              </span>
+            </div>
+          ) : null}
         </div>
 
         {spot.report_media_url ? (

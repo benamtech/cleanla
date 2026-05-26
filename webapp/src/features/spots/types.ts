@@ -46,6 +46,10 @@ export type SpotSummary = {
   verification_status: VerificationStatus;
   report_media_url?: string | null;
   after_media_url?: string | null;
+  // Public attribution (per 20260525001000_public_usernames.sql).
+  // Null when the contributor never set a username — display as ANONYMOUS.
+  reporter_username?: string | null;
+  cleaner_username?: string | null;
 };
 
 export type SpotsBounds = {

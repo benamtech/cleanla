@@ -28,7 +28,7 @@ import { createClient } from "@/lib/supabase/client";
 const LOS_ANGELES_VIEW = {
   longitude: -118.2437,
   latitude: 34.0522,
-  zoom: 10.5,
+  zoom: 16,
   pitch: 60,
   bearing: -18,
 };
@@ -857,7 +857,7 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
         ref={mapRef}
         mapboxAccessToken={mapboxToken}
         initialViewState={LOS_ANGELES_VIEW}
-        mapStyle="mapbox://styles/mapbox/standard"
+        mapStyle="mapbox://styles/mapbox/satellite-v9"
         minZoom={8}
         maxZoom={17}
         onLoad={handleLoad}

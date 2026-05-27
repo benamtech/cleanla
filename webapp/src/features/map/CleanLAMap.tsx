@@ -813,7 +813,7 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
   }
 
   return (
-    <main className="relative h-screen min-h-[540px] overflow-hidden bg-white text-[#001089]">
+    <main className="relative h-[100dvh] overflow-hidden bg-white text-[#001089] md:min-h-[540px]">
       {webglOk === false ? (
         <div className="absolute inset-0 grid place-items-center bg-[#f8eac7] p-[18px]">
           <div className="w-full max-w-[480px] border border-[#a60315] bg-white">
@@ -873,7 +873,7 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
         // P2-6: pad the bottom 81px so flyTo/fitBounds frames pins in the
         // area NOT occluded by the big FILE A REPORT CTA. Doesn't shrink
         // the map's drawing area; only affects auto-camera-positioning.
-        padding={{ top: 120, bottom: 120, left: 12, right: 12 }}
+        padding={{ top: 96, bottom: 96, left: 12, right: 12 }}
         // Full interaction: drag-pan, scroll-zoom, double-click-zoom,
         // drag-rotate, pitch-with-rotate, touch-pitch, touch-zoom-rotate.
         // react-map-gl defaults most of these on; touchPitch is the
@@ -990,17 +990,12 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
             </button>
           </div>
         </div>
-        <div className="flex min-h-[36px] items-center bg-[#b8dae8] px-[9px]">
-          <p className="text-[12px] font-bold leading-[18px] tracking-[0.03em] text-[#001089] uppercase">
-            FIND A SPOT NEAR YOU. TAP A PIN TO SEE THE STORY.
-          </p>
-        </div>
       </header>
 
       {/* P1-4: empty-viewport encouragement. Renders above the CTA when
           a fetch resolved with zero spots in the current bounds. */}
       {fetchState.kind === "ok" && spots.length === 0 ? (
-        <div className="pointer-events-none absolute right-[12px] bottom-[120px] left-[12px] z-10">
+        <div className="pointer-events-none fixed right-[12px] bottom-[84px] left-[12px] z-10">
           <div className="border border-[#999999] bg-[#f8eac7] p-[9px] text-center text-[12px] font-bold tracking-[0.03em] text-[#001089] uppercase">
             NO REPORTS HERE YET · BE THE FIRST
           </div>
@@ -1011,19 +1006,6 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
           so it doesn't get pushed off-screen by the bar's full-width
           dominance. mix-blend-difference keeps it legible over any
           underlying map tile color. */}
-      <div className="pointer-events-none absolute right-[12px] bottom-[96px] left-[12px] z-10 md:left-auto md:w-[360px]">
-        <div className="border border-[#999999] bg-white">
-          <div className="flex h-[27px] items-center border-b border-[#999999] bg-[#f8eac7] px-[9px]">
-            <span className="text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase">
-              NEXT MOVE
-            </span>
-          </div>
-          <p className="px-[9px] py-[6px] text-[12px] font-bold leading-[18px] tracking-[0.03em] text-[#001089] uppercase">
-            PAN THE MAP. OPEN A PIN. ADD WHAT LA IS MISSING.
-          </p>
-        </div>
-      </div>
-
       {/* Primary CTA — edge-to-edge bottom bar in warning red. Maximum
           possible visibility within the 369 system:
             - text-[36px] is the top of the type scale
@@ -1036,7 +1018,7 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
               bottom bar pattern (think iOS-app tab bar position)
             - 1px top border in grey reads as a "sticky footer" rather
               than a floating button, anchoring it to the screen edge */}
-      <div className="absolute inset-x-0 bottom-0 z-10 border-t border-[#999999] bg-white">
+      <div className="fixed inset-x-0 bottom-0 z-10 border-t border-[#999999] bg-white">
         <button
           type="button"
           onClick={openReport}
@@ -1046,7 +1028,7 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
         </button>
       </div>
 
-      <div className="absolute top-[177px] right-[9px] z-10 grid gap-[9px] md:top-[9px]">
+      <div className="absolute top-[141px] right-[9px] z-10 grid gap-[9px] md:top-[9px]">
         {showLegend ? <MapLegend /> : null}
         <div className="grid justify-items-end">
           <button

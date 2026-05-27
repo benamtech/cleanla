@@ -29,6 +29,10 @@ This skill is structured as a thin router plus on-demand references. **Read the 
 8. **Same input → same output.** The system is deterministic. Run it twice; if the HTML differs, something is wrong. Show the decision trace for data compositions so the verdict is defended, not asserted.
 9. **Composition — every screen has a hierarchy: BASE → PILLARS → ROOF.** A screen is not "a list of things in a grid." Decide: **PILLARS** (which 3–6 sections compose the screen — window bar, status strip, hero, body, action footer), **ROOF** (which section is the HERO and visually dominates; which are secondary; which are tertiary), **BASE** (which primitive — button, badge, table row, image — each section uses). Implement: sections separate by `border-b border-[#999999]`, NOT by whitespace gaps. The hero takes a deterministic share of the viewport (aspect ratio or fixed height). Body scrolls; window bar + status strip + footer are sticky via `shrink-0`. **If sections are floating in `grid gap-[N]` and visually competing, the composition has failed.** Empty states use minimum viable footprint (single row or aspect-matched to the slot they replace), never dominate.
 
+## Canon master index
+
+The complete canon library (30 files, ~612KB) lives under `references/canon/`. For a topical map of all entries plus task-based and provenance navigation, load `references/canon/INDEX.md`. For meta-context about confidence levels and epistemic limits, load `references/canon/knowledge-bounds.md`.
+
 ## Which reference do I need?
 
 | If the work is… | Load |

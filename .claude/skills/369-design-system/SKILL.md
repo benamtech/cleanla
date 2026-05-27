@@ -56,6 +56,10 @@ This skill is structured as a thin router plus on-demand references. **Read the 
 | "What did Bill Joy / Knuth / Kernighan / McGugan say about TUI design? Museum catalog refs?" | `references/canon/museums-oral-history.md` — CHM, YUCoM, Bletchley, Smithsonian, Bitsavers + pull-quotes |
 | "What changed in TUI ecosystem 2024-2026? (Bubble Tea v2, Ratatui no-std, Toad, Ghostty)" | `references/canon/tui-modern-2026.md` — current versions, active maintainers, validations |
 | "What about NAPLPS / RIPscrip / PRESTEL / Minitel / Mode 7 / MouseText / Plan 9 Rio?" | `references/canon/niche-text-traditions.md` — 17 parallel text-art traditions |
+| "What does this canon NOT know? Where are the epistemic limits?" | `references/canon/knowledge-bounds.md` — meta-document: confidence levels, gaps, what only direct outreach could close |
+| "Accessibility / mobile / WASM / analytics / keybinding / AI-TUI patterns 2024–26 status" | `references/canon/tui-modern-gaps.md` — the 6 gaps from tui-modern-2026.md, filled |
+| "Cite MIT / CMU / Stanford / UCSC / ProQuest / JSTOR / IEEE TUI research" | `references/canon/academic-extended.md` — extended database survey + access-barrier notes |
+| "Who do I contact to clarify [demoscene history / framework roadmap / artist intent]?" | `references/canon/practitioner-network.md` — verified-active 2024–26 practitioners + contact paths |
 | "Tell me about the theory behind [teacher/concept]" (Tufte, Bauhaus, Rams, Vignelli, Swiss Style, sacred geometry) | `references/canon/<name>.md` |
 | "Is this 369-compliant?" (quick check, no deep audit) | The 9 rules above suffice |
 

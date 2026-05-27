@@ -158,6 +158,166 @@ The pattern survives 40+ years: tools that **encode domain knowledge** outcompet
 
 ---
 
+## Axiom 11 — Perceptual Accuracy Beats Aesthetic Preference (from [[canon/cleveland-mcgill]])
+
+Cleveland & McGill (1984) measured perceptual error rates per channel: position ~2.5%, length ~5%, area ~15%, color saturation ~30%. **A chart encoding the primary quantity in color when position was available has accepted 10× the error rate.** This is measurable inferiority, not "aesthetic choice."
+
+**369 application:**
+- `presentation()` MUST weight channel selection by Cleveland-McGill ranks
+- Position is always preferred for quantitative data
+- Color saturation alone is forbidden for primary encoding
+- Decision trace shows C-M weights ("position got 1.0; color saturation 0.08")
+
+**Operative rule:** A 369 chart that encodes magnitude in color hue when position was viable is broken, not stylized.
+
+---
+
+## Axiom 12 — Patterns Form Languages, Not Catalogs (from [[canon/pattern-language]])
+
+Alexander's *Pattern Language* (1977): patterns link in a graph, with each pattern declaring which larger patterns it completes and which smaller patterns complete it. The 1,800+ inter-pattern relationships form the *language*. GoF (1994), POSA (1996), Atomic Design (2013), Material Design — all inherit this.
+
+**369 application:**
+- Each 369 component / card / layout declares its position in the language
+- Pattern format: name, context, problem, forces, solution, related patterns
+- The 15 properties of living structure form the audit rubric for visual coherence
+- "Quality Without A Name" (QWAN) is the emergent property of correct composition
+
+**Operative rule:** A 369 component that doesn't link up + down the pattern hierarchy is a generic abstraction — Axiom 9 red flag.
+
+---
+
+## Axiom 13 — Three-Level Emotional Design (from [[canon/hci-foundations]])
+
+Don Norman (2005): every interaction is processed at three levels — Visceral (first impression), Behavioral (fluency in use), Reflective (meaning + identity). A 369 surface succeeds at all three or fails entirely.
+
+**369 application:**
+- Visceral: clean ×3 grid + sparse palette = immediate "I trust this"
+- Behavioral: single-keystroke ops + sub-100ms feedback = "this is fast"
+- Reflective: TUI heritage + power-user lineage = "I am the user who uses tools like this"
+
+**Operative rule:** A 369 component that wins visceral + behavioral but fails reflective will be abandoned despite functional success.
+
+---
+
+## Axiom 14 — Bridge Both Gulfs (from [[canon/hci-foundations]])
+
+Norman's Gulf of Execution (user goal → action) + Gulf of Evaluation (system state → user perception). Design that fails closes neither. Design that succeeds bridges both.
+
+**369 application:**
+- Affordances + signifiers + constraints bridge Execution gulf
+- Feedback + status line + mental-model alignment bridge Evaluation gulf
+- Every 369 surface must do both. Not just signal "click here" — also signal "X happened because you clicked there."
+
+**Operative rule:** A 369 component without status feedback fails Axiom 14, regardless of other qualities.
+
+---
+
+## Axiom 15 — ×3 Is Mathematically Defensible (from [[canon/grid-typography]])
+
+Rule 1 is not arbitrary. ×3 chains generate the same harmonic ratios (perfect fourth, perfect fifth, octave) as Bringhurst's typographic canon + Müller-Brockmann's 12-column Swiss grid, at finer granularity than Material's ×8, with cleaner divisibility (3 divides 12 cleanly; 8 does not), and visual differentiation from Material/iOS.
+
+**369 application:**
+- When a designer asks "why ×3 not ×8?", cite this axiom + the canon page
+- All spacing chains contain harmonic ratios at semantic boundaries
+- Type scale `{9, 12, 15, 18, 24, 30, 33, 36}` is hybrid arithmetic/harmonic
+
+**Operative rule:** Rule 1 is defensible to skeptics, citable in design reviews, derivable from first principles.
+
+---
+
+## Axiom 16 — Accessibility Is Innovation, Not Compliance (from [[canon/inclusive-design]])
+
+Mismatch theory (Holmes 2018): disability is in the interaction, not the person. Curb-cut effect: features designed for permanent disability create wins for the much larger situational-disability population. Designing for one extends to many.
+
+**369 application:**
+- "Accessibility tier IS the 369 baseline." No separate mode.
+- Permanent / temporary / situational matrix used in design reviews
+- Universal Design's 7 principles applied as defaults
+- WCAG POUR (Perceivable, Operable, Understandable, Robust) as audit rubric
+
+**Operative rule:** A 369 feature reframed as compliance-only is positioned wrong. The same feature reframed as innovation source is design-positive.
+
+---
+
+## Axiom 17 — Information Has Math (from [[canon/information-theory]])
+
+Shannon entropy, Hick-Hyman log₂(N), Miller's 7±2 / Cowan's 4±1, Sweller's cognitive load, Fitts's bits-per-second, Kahneman's System 1/2. Density rules have **measurable cost**, not just "feels right."
+
+**369 application:**
+- Sidebar items ≤ 7 (Miller) or ≤ 4 (Cowan) — depending on whether grouping is possible
+- Dropdown N > 16 switches to fuzzy-find (Hick-Hyman threshold)
+- Form fields per screen ≤ 5
+- One System-2 pattern wastes ~5000 hours/year per 1000 users — measurable economic argument
+- Animations are extraneous load unless they convey state
+
+**Operative rule:** When density tradeoffs come up in review, compute the bits + cite the law. Replace opinion with math.
+
+---
+
+## Axiom 18 — Survive Aesthetic Cycles via Token-First (from [[canon/design-system-history]])
+
+Apple HIG (39 years), Material (12 years through 3 regenerations), Bauhaus principles (100+ years) all survived because tokens + grid + principles outlive specific aesthetic choices. Microsoft Metro (7 years), Apple Aqua (14 years), Skeuomorphism died when their aesthetic dated.
+
+**369 application:**
+- Ship tokens (×3, palette, type scale) first; components second
+- Version aggressively, name it evolution (369 → 369.2 → 369.3)
+- Never fork-and-replace (avoid "369 → newname" trap)
+- Keep 369 as token + grid system + axioms; not "the manila aesthetic"
+- If aesthetic dates, swap colors but keep structure
+
+**Operative rule:** A 369 decision that bets on a specific aesthetic detail (e.g., a culturally-locked metaphor) carries a 10-year expiration. Decisions on tokens + grid + principles do not expire.
+
+---
+
+## Axiom 19 — Design for the 10,000th User (from [[canon/habit-formation]])
+
+Vim users practice for years and commit; most apps churn at week 2. The difference is *which user the design optimizes for*. 369 optimizes for the 10,000th use, not the first. This is a structural design choice with consequences.
+
+**369 application:**
+- Hotkeys are habit-loop scaffolds (Cue → Routine → Reward)
+- 66-day commitment curve is real — design for failure-tolerance days 1–14, speed-reward days 45+
+- Flow state preserved over feature density
+- No dopamine hijacking — no streaks, badges, gamification, notifications
+- Custom configurability is investment that raises switching cost ethically
+- Stable conventions reinforce System 1 — never reassign canonical keys
+
+**Operative rule:** A 369 feature that optimizes for first-use ease at the cost of 10,000th-use velocity is a strategic mistake.
+
+---
+
+## Axiom 20 — Glyphs Are Icons at Maximum Compression (from [[canon/glyph-cognition]])
+
+Paivio's dual-coding (1971): verbal + visual encoding combine for memory. Picture-superiority effect (Shepard 1967): 98% picture recognition vs 88% words. Susan Kare's 1-bit Mac icons proved constraint clarity. Bouba/Kiki (Köhler/Ramachandran): 80–95% cross-cultural sound-shape agreement.
+
+**369 application:**
+- Unicode glyphs are dual-coded (visual + verbal); icon-font SVGs are visual-only; text labels are verbal-only
+- Pair glyph + label whenever both fit
+- Choose glyphs by Bouba/Kiki alignment (sharp for sharp concepts, round for round)
+- No icon libraries (Lucide, Heroicons, Phosphor) — cross-platform stability, accessibility, AI-readability all fail
+- No emoji on `/369` (variation selectors, platform inconsistency)
+- 22-glyph canonical 369 set; additions require justification
+
+**Operative rule:** Rule 6 (text glyphs only) is not aesthetic — it's the cognitively optimal icon choice.
+
+---
+
+## Axiom 21 — Format Is Interface (from [[canon/format-as-interface]])
+
+The longest-lasting UI in computing is not an app — it's a file format. README.md, .NFO files, dotfiles, JSON, CSV, Markdown. In the LLM-agent era (2024+), files-as-interface is the substrate both humans AND AI agents consume.
+
+**369 application:**
+- Markdown-first documentation (CommonMark-compliant)
+- TOML for user-facing config; JSON for machine-generated; Cuelang for schema
+- Every PILLAR has README.md following documented structure
+- AGENTS.md or equivalent at every 369 project root
+- Data export = data interface (JSONL preferred; CSV for spreadsheet compat)
+- Durability over platform: no Notion, no Figma as canonical state
+- Man-page format for complex 369 CLI tools
+
+**Operative rule:** A 369 component that doesn't expose its state through a human-readable, agent-readable file format is incomplete.
+
+---
+
 ## Axiom 10 — Knowledge is Append-Only with Corrections (from [[canon/knowledge-bounds]])
 
 The canon documents what's known *as of 2026-05-27*. New knowledge appears continuously: new framework releases, new academic papers, new artists active 2027+, new escape codes ratified.
@@ -195,6 +355,16 @@ This table makes the integration explicit:
 | [[canon/tui-modern-gaps]] | Accessibility/i18n/keyboard-protocol baselines |
 | [[canon/final-sweep]] §Julia Evans | Axiom 7 + 7 unwritten terminal conventions |
 | [[canon/final-sweep]] §Brandur Leach | Axiom 3 + composability framing |
+| [[canon/cleveland-mcgill]] | **Axiom 11** — perceptual accuracy ladder |
+| [[canon/pattern-language]] | **Axiom 12** — patterns form languages |
+| [[canon/hci-foundations]] | **Axioms 13 + 14** — three-level design + bridge both gulfs |
+| [[canon/grid-typography]] | **Axiom 15** — ×3 mathematical defense |
+| [[canon/inclusive-design]] | **Axiom 16** — accessibility as innovation |
+| [[canon/information-theory]] | **Axiom 17** — information has math |
+| [[canon/design-system-history]] | **Axiom 18** — token-first survives aesthetic cycles |
+| [[canon/habit-formation]] | **Axiom 19** — design for the 10,000th user |
+| [[canon/glyph-cognition]] | **Axiom 20** — glyphs are icons at max compression |
+| [[canon/format-as-interface]] | **Axiom 21** — format IS interface |
 
 ---
 

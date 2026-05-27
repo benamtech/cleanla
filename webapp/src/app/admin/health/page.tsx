@@ -1,5 +1,8 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { getPublicEnvStatus, getServerEnvStatus, getSiteUrl } from "@/lib/env/server";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/server";
 import { checkSupabaseHealth } from "@/lib/supabase/health";
 
 export const dynamic = "force-dynamic";
@@ -46,6 +49,22 @@ function formatMissing(missing: string[]) {
 }
 
 export default async function HealthPage() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) redirect("/");
+
+  const admin = createAdminClient();
+  const { data: profile } = await admin
+    .from("profiles")
+    .select("is_admin")
+    .eq("id", user.id)
+    .single();
+
+  if (!profile?.is_admin) redirect("/");
+
   const publicEnv = getPublicEnvStatus();
   const serverEnv = getServerEnvStatus();
   const supabaseHealth = await checkSupabaseHealth();

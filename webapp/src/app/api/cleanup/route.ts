@@ -174,8 +174,15 @@ export async function POST(request: Request) {
     serverReceivedAt,
   });
 
-  // Only transition to cleaned when the after photo is fully verified on-site.
-  if (verification.status === "verified") {
+  let pointsAwarded = 0;
+  let pointBalance: number | null = null;
+
+  // Manual review is the default. Final cleanup acceptance and points happen
+  // when an admin approves the verified after-photo in the moderation queue.
+  if (
+    process.env.CLEANLA_ALLOW_IMMEDIATE_CLEANUP_ACCEPTANCE === "true" &&
+    verification.status === "verified"
+  ) {
     const fromStatus = spot.status as string;
 
     const { error: updateError } = await admin
@@ -184,14 +191,39 @@ export async function POST(request: Request) {
       .eq("id", cleanup.spotId);
 
     if (!updateError) {
-      await admin.from("contribution_history").insert({
-        spot_id: cleanup.spotId,
-        actor_id: user.id,
-        action: "cleanup_submitted",
-        from_status: fromStatus,
-        to_status: "cleaned",
-        spot_media_id: mediaId,
-      });
+      const { data: contribution, error: contributionError } = await admin
+        .from("contribution_history")
+        .insert({
+          spot_id: cleanup.spotId,
+          actor_id: user.id,
+          action: "cleanup_submitted",
+          from_status: fromStatus,
+          to_status: "cleaned",
+          spot_media_id: mediaId,
+        })
+        .select("id")
+        .single();
+
+      if (!contributionError && contribution?.id) {
+        const { data: awardRows, error: awardError } = await admin.rpc(
+          "award_cleanup_points",
+          {
+            p_user_id: user.id,
+            p_spot_id: cleanup.spotId,
+            p_spot_media_id: mediaId,
+            p_contribution_history_id: contribution.id,
+          },
+        );
+
+        if (!awardError && awardRows?.[0]) {
+          pointsAwarded = Number(awardRows[0].points_awarded ?? 0);
+          pointBalance = Number(awardRows[0].point_balance ?? 0);
+        } else if (awardError) {
+          console.error("[cleanup] point award failed:", awardError);
+        }
+      } else if (contributionError) {
+        console.error("[cleanup] contribution insert failed:", contributionError);
+      }
     } else {
       console.error("[cleanup] spot status update failed:", updateError);
     }
@@ -210,5 +242,13 @@ export async function POST(request: Request) {
     verification_status: verification.status,
     verification_reason: verification.reason,
     moderation_status: moderation.status,
+    cleanup_status:
+      verification.status === "verified" && moderation.status === "pending"
+        ? "pending_admin_review"
+        : pointsAwarded > 0
+          ? "accepted"
+          : "not_accepted",
+    points_awarded: pointsAwarded,
+    point_balance: pointBalance,
   });
 }

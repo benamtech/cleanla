@@ -12,7 +12,7 @@ type GpsCapture = {
 type SubmitState =
   | { kind: "idle" }
   | { kind: "submitting" }
-  | { kind: "verified"; spotId: string }
+  | { kind: "verified"; spotId: string; pointsAwarded: number }
   | { kind: "unverified"; spotId: string; reason: string }
   | { kind: "location_mismatch"; spotId: string }
   | { kind: "pending"; spotId: string }
@@ -213,9 +213,19 @@ export function CleanupSheet({
       typeof body.verification_reason === "string"
         ? body.verification_reason
         : "";
+    const pointsAwarded =
+      typeof body.points_awarded === "number" ? body.points_awarded : 0;
+    const cleanupStatus =
+      typeof body.cleanup_status === "string" ? body.cleanup_status : "";
+    const moderationStatus =
+      typeof body.moderation_status === "string"
+        ? body.moderation_status
+        : "pending";
 
-    if (vs === "verified") {
-      setSubmitState({ kind: "verified", spotId: returnedSpotId });
+    if (cleanupStatus === "pending_admin_review" || moderationStatus === "pending") {
+      setSubmitState({ kind: "pending", spotId: returnedSpotId });
+    } else if (vs === "verified") {
+      setSubmitState({ kind: "verified", spotId: returnedSpotId, pointsAwarded });
     } else if (vs === "unverified") {
       setSubmitState({ kind: "unverified", spotId: returnedSpotId, reason: vr });
     } else if (vs === "location_mismatch") {
@@ -326,6 +336,9 @@ export function CleanupSheet({
         {submitState.kind === "verified" ? (
           <div className="border border-[#228B22] bg-white p-[9px] text-[9px] font-bold tracking-[0.03em] text-[#228B22] uppercase">
             LOCATION VERIFIED — SPOT MARKED CLEANED.
+            {submitState.pointsAwarded > 0
+              ? ` +${submitState.pointsAwarded} POINTS.`
+              : ""}
           </div>
         ) : null}
 
@@ -343,7 +356,7 @@ export function CleanupSheet({
 
         {submitState.kind === "pending" ? (
           <div className="border border-[#999999] bg-white p-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase">
-            AFTER PHOTO SUBMITTED — PENDING REVIEW.
+            AFTER PHOTO SUBMITTED — PENDING ADMIN REVIEW.
           </div>
         ) : null}
 

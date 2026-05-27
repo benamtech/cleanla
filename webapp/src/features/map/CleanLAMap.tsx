@@ -1,6 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type PointerEvent as ReactPointerEvent,
+} from "react";
 import type { User } from "@supabase/supabase-js";
 import Map, {
   Layer,
@@ -14,6 +21,7 @@ import Map, {
 import type { LngLatBounds } from "mapbox-gl";
 import { CleanupSheet } from "@/features/spots/CleanupSheet";
 import { ReportSheet } from "@/features/reports/ReportSheet";
+import { formatPoints, pointsForCategory } from "@/features/points/constants";
 import {
   CATEGORY_COLORS,
   formatCategory,
@@ -28,7 +36,7 @@ import { createClient } from "@/lib/supabase/client";
 const LOS_ANGELES_VIEW = {
   longitude: -118.2437,
   latitude: 34.0522,
-  zoom: 10.5,
+  zoom: 16,
   pitch: 60,
   bearing: -18,
 };
@@ -116,6 +124,28 @@ type AuthNotice =
   | { kind: "sending" }
   | { kind: "sent" }
   | { kind: "error"; message: string };
+
+type MapDirection = "up" | "down" | "left" | "right";
+
+const DESKTOP_PAN_STEP_PX = 120;
+const MOBILE_PAN_STEP_PX = 72;
+const PITCH_STEP = 6;
+const BEARING_STEP = 12;
+const CAMERA_DURATION_MS = 120;
+const MIN_PITCH = 0;
+const MAX_PITCH = 75;
+
+function clamp(value: number, min: number, max: number) {
+  return Math.min(Math.max(value, min), max);
+}
+
+function isKeyboardInputTarget(target: EventTarget | null) {
+  if (!(target instanceof HTMLElement)) return false;
+  if (target.isContentEditable) return true;
+  return Boolean(
+    target.closest("input, textarea, select, button, a, [contenteditable]"),
+  );
+}
 
 function boundsToQuery(bounds: LngLatBounds): URLSearchParams {
   const params = new URLSearchParams();
@@ -255,6 +285,7 @@ function SpotDetailSheet({
   const hasReportPhoto = Boolean(spot.report_media_url);
   const hasCleanPhoto = Boolean(spot.after_media_url);
   const isCleaned = spot.status === "cleaned";
+  const cleanupPoints = pointsForCategory(spot.category);
   const showActionButton =
     Boolean(user) && !isCleaned && spot.status !== "hidden";
 
@@ -325,10 +356,10 @@ function SpotDetailSheet({
             <img
               src={spot.report_media_url ?? ""}
               alt={spot.description}
-              className="block aspect-[3/4] w-full object-cover"
+              className="block h-[180px] w-full object-cover sm:h-[240px]"
             />
           ) : (
-            <div className="flex aspect-[3/4] items-center justify-center bg-[#f8eac7] text-[12px] font-bold tracking-[0.03em] text-[#999999] uppercase">
+            <div className="flex h-[180px] items-center justify-center bg-[#f8eac7] text-[12px] font-bold tracking-[0.03em] text-[#999999] uppercase sm:h-[240px]">
               NO REPORT PHOTO
             </div>
           )}
@@ -342,6 +373,14 @@ function SpotDetailSheet({
               {spot.description}
             </p>
           </div>
+
+          {!isCleaned && spot.status !== "hidden" ? (
+            <div className="border-b border-[#228B22] bg-white px-[9px] py-[9px]">
+              <p className="text-[12px] font-bold tracking-[0.03em] text-[#228B22] uppercase">
+                CLEAN THIS TO EARN {formatPoints(cleanupPoints)}
+              </p>
+            </div>
+          ) : null}
 
           {/* CLEAN section — only when relevant */}
           {isCleaned || hasCleanPhoto ? (
@@ -453,11 +492,161 @@ function SpotDetailSheet({
             onClick={onMarkCleaned}
             className="block shrink-0 border-t border-[#228B22] bg-white px-[9px] py-[12px] text-[15px] font-bold tracking-[0.03em] text-[#228B22] uppercase hover:bg-[#f8eac7]"
           >
-            [MARK CLEANED]
+            [MARK CLEANED / {formatPoints(cleanupPoints)}]
           </button>
         ) : null}
       </aside>
     </div>
+  );
+}
+
+function CameraJoystick({
+  label,
+  caption = "SHIFT",
+  compact = false,
+  onAdjust,
+}: {
+  label: string;
+  caption?: string | null;
+  compact?: boolean;
+  onAdjust: (direction: MapDirection) => void;
+}) {
+  const originRef = useRef<{ x: number; y: number } | null>(null);
+  const lastActionRef = useRef(0);
+  const [offset, setOffset] = useState({ x: 0, y: 0 });
+
+  function resetJoystick() {
+    originRef.current = null;
+    setOffset({ x: 0, y: 0 });
+  }
+
+  function handlePointerDown(event: ReactPointerEvent<HTMLButtonElement>) {
+    event.currentTarget.setPointerCapture(event.pointerId);
+    originRef.current = { x: event.clientX, y: event.clientY };
+    lastActionRef.current = 0;
+  }
+
+  function handlePointerMove(event: ReactPointerEvent<HTMLButtonElement>) {
+    if (!originRef.current) return;
+
+    const dx = event.clientX - originRef.current.x;
+    const dy = event.clientY - originRef.current.y;
+    const limit = compact ? 18 : 14;
+    const visualX = clamp(dx, -limit, limit);
+    const visualY = clamp(dy, -limit, limit);
+    setOffset({ x: visualX, y: visualY });
+
+    const threshold = compact ? 18 : 12;
+    if (Math.abs(dx) < threshold && Math.abs(dy) < threshold) return;
+
+    const now = window.performance.now();
+    if (now - lastActionRef.current < 90) return;
+    lastActionRef.current = now;
+
+    if (Math.abs(dx) > Math.abs(dy)) {
+      onAdjust(dx > 0 ? "right" : "left");
+    } else {
+      onAdjust(dy > 0 ? "down" : "up");
+    }
+  }
+
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={resetJoystick}
+      onPointerCancel={resetJoystick}
+      className={`relative grid touch-none place-items-center border border-[#999999] bg-white font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7] ${
+        compact ? "h-[72px] w-[72px]" : "h-[45px] w-[45px]"
+      }`}
+    >
+      {caption ? (
+        <span className="absolute top-[6px] text-[9px] text-[#999999]">
+          {caption}
+        </span>
+      ) : null}
+      <span
+        className={`grid place-items-center border border-[#001089] bg-[#f8eac7] ${
+          compact ? "h-[27px] w-[27px]" : "h-[18px] w-[18px]"
+        }`}
+        style={{
+          transform: `translate(${offset.x}px, ${offset.y}px)`,
+        }}
+      >
+        <span className={compact ? "text-[12px]" : "text-[9px]"}>+</span>
+      </span>
+    </button>
+  );
+}
+
+function MapGameControls({
+  onPan,
+  onAdjust,
+}: {
+  onPan: (direction: MapDirection) => void;
+  onAdjust: (direction: MapDirection) => void;
+}) {
+  const moveButtonClass =
+    "h-[45px] w-[45px] border border-[#999999] bg-white text-[12px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]";
+
+  return (
+    <>
+      <div className="absolute right-[9px] bottom-[90px] z-10 hidden border border-[#999999] bg-white p-[6px] md:block">
+        <div className="mb-[6px] border-b border-[#999999] pb-[6px] text-center text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase">
+          WASD MOVE
+        </div>
+        <div className="grid grid-cols-3 gap-[3px]">
+          <div />
+          <button
+            type="button"
+            className={moveButtonClass}
+            onClick={() => onPan("up")}
+            aria-label="Move map up with W"
+          >
+            W
+          </button>
+          <div />
+          <button
+            type="button"
+            className={moveButtonClass}
+            onClick={() => onPan("left")}
+            aria-label="Move map left with A"
+          >
+            A
+          </button>
+          <CameraJoystick label="Drag joystick to pitch or rotate map" onAdjust={onAdjust} />
+          <button
+            type="button"
+            className={moveButtonClass}
+            onClick={() => onPan("right")}
+            aria-label="Move map right with D"
+          >
+            D
+          </button>
+          <div />
+          <button
+            type="button"
+            className={moveButtonClass}
+            onClick={() => onPan("down")}
+            aria-label="Move map down with S"
+          >
+            S
+          </button>
+          <div />
+        </div>
+      </div>
+
+      <div className="absolute right-[12px] bottom-[90px] z-10 md:hidden">
+        <CameraJoystick
+          compact
+          caption={null}
+          label="Drag joystick to explore map pitch and rotation"
+          onAdjust={onAdjust}
+        />
+      </div>
+    </>
   );
 }
 
@@ -529,6 +718,8 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
   // P2-5 username — fetched after user becomes available so we can
   // show a [SET USERNAME] nudge when one isn't set yet.
   const [username, setUsername] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [pointBalance, setPointBalance] = useState<number | null>(null);
   // P2-4 about modal
   const [showAbout, setShowAbout] = useState(false);
   // WebGL availability: null = checking, true = OK, false = unavailable.
@@ -557,6 +748,8 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
         void fetch("/api/profile", { method: "POST" });
       } else {
         setUsername(null);
+        setIsAdmin(false);
+        setPointBalance(null);
       }
     });
 
@@ -591,7 +784,11 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
       // check is satisfied (we never want a fresh setState during the
       // effect body's synchronous run; queueMicrotask runs after commit).
       queueMicrotask(() => {
-        if (active) setUsername(null);
+        if (active) {
+          setUsername(null);
+          setIsAdmin(false);
+          setPointBalance(null);
+        }
       });
       return () => {
         active = false;
@@ -599,13 +796,30 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
     }
     supabase
       .from("profiles")
-      .select("username")
+      .select("username, is_admin")
       .eq("id", user.id)
       .maybeSingle()
       .then(({ data }) => {
-        if (active && data?.username) {
-          setUsername(String(data.username));
+        if (active) {
+          setUsername(data?.username ? String(data.username) : null);
+          setIsAdmin(Boolean(data?.is_admin));
         }
+      });
+    fetch("/api/profile/points", { cache: "no-store" })
+      .then((response) => (response.ok ? response.json() : null))
+      .then((payload: unknown) => {
+        if (
+          active &&
+          typeof payload === "object" &&
+          payload !== null &&
+          "balance" in payload &&
+          typeof (payload as { balance: unknown }).balance === "number"
+        ) {
+          setPointBalance((payload as { balance: number }).balance);
+        }
+      })
+      .catch(() => {
+        if (active) setPointBalance(null);
       });
     return () => {
       active = false;
@@ -689,6 +903,48 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
     void fetchSpots(bounds ? boundsToQuery(bounds) : defaultBoundsQuery());
   }
 
+  const panMap = useCallback((direction: MapDirection) => {
+    const map = mapRef.current?.getMap();
+    if (!map) return;
+
+    const center = map.getCenter();
+    const point = map.project(center);
+    const step =
+      window.innerWidth < 768 ? MOBILE_PAN_STEP_PX : DESKTOP_PAN_STEP_PX;
+    const dx = direction === "left" ? -step : direction === "right" ? step : 0;
+    const dy = direction === "up" ? -step : direction === "down" ? step : 0;
+    const nextCenter = map.unproject([point.x + dx, point.y + dy]);
+
+    mapRef.current?.easeTo({
+      center: [nextCenter.lng, nextCenter.lat],
+      duration: CAMERA_DURATION_MS,
+    });
+  }, []);
+
+  const adjustCamera = useCallback((direction: MapDirection) => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    const currentPitch = map.getPitch();
+    const currentBearing = map.getBearing();
+
+    map.easeTo({
+      pitch:
+        direction === "up"
+          ? clamp(currentPitch + PITCH_STEP, MIN_PITCH, MAX_PITCH)
+          : direction === "down"
+            ? clamp(currentPitch - PITCH_STEP, MIN_PITCH, MAX_PITCH)
+            : currentPitch,
+      bearing:
+        direction === "left"
+          ? currentBearing - BEARING_STEP
+          : direction === "right"
+            ? currentBearing + BEARING_STEP
+            : currentBearing,
+      duration: CAMERA_DURATION_MS,
+    });
+  }, []);
+
   async function sendMagicLink() {
     const trimmedEmail = email.trim();
     if (!trimmedEmail) return;
@@ -757,6 +1013,43 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [selectedSpot, showCleanup, showSignIn, showLegend, showAbout]);
+
+  useEffect(() => {
+    const overlaysOpen =
+      Boolean(selectedSpot) || showReport || showCleanup || showSignIn || showAbout;
+
+    function onKey(e: KeyboardEvent) {
+      if (overlaysOpen || isKeyboardInputTarget(e.target)) return;
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+
+      const directionByKey: Record<string, MapDirection> = {
+        w: "up",
+        a: "left",
+        s: "down",
+        d: "right",
+      };
+      const direction = directionByKey[e.key.toLowerCase()];
+      if (!direction) return;
+
+      e.preventDefault();
+      if (e.shiftKey) {
+        adjustCamera(direction);
+      } else {
+        panMap(direction);
+      }
+    }
+
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [
+    adjustCamera,
+    panMap,
+    selectedSpot,
+    showAbout,
+    showCleanup,
+    showReport,
+    showSignIn,
+  ]);
 
   function handleMapClick(event: MapMouseEvent) {
     const feature = event.features?.[0];
@@ -857,7 +1150,7 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
         ref={mapRef}
         mapboxAccessToken={mapboxToken}
         initialViewState={LOS_ANGELES_VIEW}
-        mapStyle="mapbox://styles/mapbox/standard"
+        mapStyle="mapbox://styles/mapbox/satellite-v9"
         minZoom={8}
         maxZoom={17}
         onLoad={handleLoad}
@@ -955,6 +1248,22 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
                 [PROFILE]
               </a>
             ) : null}
+            <a
+              href="/rewards"
+              className="flex min-h-[36px] items-center border-r border-[#999999] bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#228B22] uppercase hover:bg-[#f8eac7]"
+            >
+              {user && pointBalance !== null
+                ? `[REWARDS / ${formatPoints(pointBalance)}]`
+                : "[REWARDS]"}
+            </a>
+            {user && isAdmin ? (
+              <a
+                href="/admin"
+                className="flex min-h-[36px] items-center border-r border-[#999999] bg-[#f8eac7] px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#b8dae8]"
+              >
+                [ADMIN]
+              </a>
+            ) : null}
             {user && !username ? (
               <a
                 href="/profile"
@@ -1027,6 +1336,10 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
           [+] FILE A REPORT
         </button>
       </div>
+
+      {webglOk ? (
+        <MapGameControls onPan={panMap} onAdjust={adjustCamera} />
+      ) : null}
 
       <div className="absolute top-[141px] right-[9px] z-10 grid gap-[9px] md:top-[9px]">
         {showLegend ? <MapLegend /> : null}

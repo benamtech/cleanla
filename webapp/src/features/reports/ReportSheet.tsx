@@ -331,8 +331,13 @@ export function ReportSheet({
       typeof body.verification_reason === "string"
         ? body.verification_reason
         : "";
+    const moderationStatus =
+      typeof body.moderation_status === "string"
+        ? body.moderation_status
+        : "pending";
 
-    if (vs === "verified") setSubmitState({ kind: "verified", spotId });
+    if (moderationStatus === "pending") setSubmitState({ kind: "pending", spotId });
+    else if (vs === "verified") setSubmitState({ kind: "verified", spotId });
     else if (vs === "unverified")
       setSubmitState({ kind: "unverified", spotId, reason: vr });
     else if (vs === "location_mismatch")
@@ -651,23 +656,23 @@ export function ReportSheet({
       <div className="flex flex-1 flex-col gap-[9px] overflow-auto p-[9px]">
         {submitState.kind === "verified" ? (
           <div className="border border-[#228B22] bg-white p-[9px] text-[12px] font-bold tracking-[0.03em] text-[#228B22] uppercase">
-            ✓︎ LOCATION VERIFIED. SPOT {submitState.spotId} IS LIVE.
+            LOCATION VERIFIED. SPOT {submitState.spotId} IS APPROVED.
           </div>
         ) : null}
         {submitState.kind === "pending" ? (
           <div className="border border-[#999999] bg-white p-[9px] text-[12px] font-bold tracking-[0.03em] text-[#001089] uppercase">
-            SPOT {submitState.spotId} SUBMITTED · PENDING REVIEW.
+            SPOT {submitState.spotId} SUBMITTED / PENDING ADMIN REVIEW.
           </div>
         ) : null}
         {submitState.kind === "unverified" ? (
           <div className="border border-[#999999] bg-white p-[9px] text-[12px] font-bold tracking-[0.03em] text-[#c7a87d] uppercase">
-            SUBMITTED · UNVERIFIED. SPOT {submitState.spotId} IS LIVE WITH A
+            SUBMITTED / UNVERIFIED. SPOT {submitState.spotId} IS WAITING WITH A
             FLAG.
           </div>
         ) : null}
         {submitState.kind === "location_mismatch" ? (
           <div className="border border-[#999999] bg-white p-[9px] text-[12px] font-bold tracking-[0.03em] text-[#c7a87d] uppercase">
-            SUBMITTED · GPS DID NOT MATCH. SPOT {submitState.spotId} FLAGGED.
+            SUBMITTED / GPS DID NOT MATCH. SPOT {submitState.spotId} FLAGGED.
           </div>
         ) : null}
         {submitState.kind === "failed" ? (
@@ -678,7 +683,7 @@ export function ReportSheet({
         {!isSignedIn ? (
           <div className="border border-[#999999] bg-[#f8eac7] p-[9px]">
             <p className="text-[12px] font-bold tracking-[0.03em] text-[#001089] uppercase">
-              YOUR REPORT IS LIVE.
+              YOUR REPORT IS WAITING FOR REVIEW.
             </p>
             <p className="mt-[6px] text-[9px] tracking-[0.03em] text-[#001089] uppercase">
               WANT CREDIT FOR IT? GET A LOGIN LINK BY EMAIL. NO PASSWORD.

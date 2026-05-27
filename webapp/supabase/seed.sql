@@ -164,3 +164,101 @@ on conflict (id) do update set
   verification_status = excluded.verification_status,
   verification_reason = excluded.verification_reason,
   updated_at = excluded.updated_at;
+
+insert into public.organizations (
+  id,
+  name,
+  contact_name,
+  contact_email,
+  contact_phone,
+  street_address,
+  website_url,
+  business_category,
+  description,
+  status,
+  created_at,
+  updated_at
+)
+values
+  (
+    '20000000-0000-4000-8000-000000000001',
+    'Nate''s Mexican Food Cart',
+    'Nate Ramirez',
+    'nate@example.com',
+    '213-555-0101',
+    '1200 E 1st St, Los Angeles, CA',
+    'https://example.com/nates',
+    'food',
+    'Neighborhood food cart offering quick rewards for cleanup points.',
+    'approved',
+    now() - interval '2 days',
+    now() - interval '2 days'
+  ),
+  (
+    '20000000-0000-4000-8000-000000000002',
+    'Echo Park Bike Repair',
+    'Maya Chen',
+    'maya@example.com',
+    '213-555-0102',
+    '1500 Sunset Blvd, Los Angeles, CA',
+    'https://example.com/echo-bike',
+    'bike repair',
+    'Local repair counter supporting cleaner neighborhood streets.',
+    'approved',
+    now() - interval '1 day',
+    now() - interval '1 day'
+  )
+on conflict (id) do update set
+  name = excluded.name,
+  contact_name = excluded.contact_name,
+  contact_email = excluded.contact_email,
+  contact_phone = excluded.contact_phone,
+  street_address = excluded.street_address,
+  website_url = excluded.website_url,
+  business_category = excluded.business_category,
+  description = excluded.description,
+  status = excluded.status,
+  updated_at = excluded.updated_at;
+
+insert into public.organization_rewards (
+  id,
+  organization_id,
+  title,
+  description,
+  points_required,
+  redemption_instructions,
+  is_active,
+  created_at,
+  updated_at
+)
+values
+  (
+    '30000000-0000-4000-8000-000000000001',
+    '20000000-0000-4000-8000-000000000001',
+    'Two chicken empanadas',
+    'Redeem points for two chicken empanadas at Nate''s cart.',
+    500,
+    'Show the claim code at the counter before ordering.',
+    true,
+    now() - interval '1 day',
+    now() - interval '1 day'
+  ),
+  (
+    '30000000-0000-4000-8000-000000000002',
+    '20000000-0000-4000-8000-000000000002',
+    'Flat tire patch',
+    'Redeem points for one standard bicycle tube patch.',
+    350,
+    'Bring the bike and show the claim code when checking in.',
+    true,
+    now() - interval '12 hours',
+    now() - interval '12 hours'
+  )
+on conflict (id) do update set
+  organization_id = excluded.organization_id,
+  title = excluded.title,
+  description = excluded.description,
+  points_required = excluded.points_required,
+  redemption_instructions = excluded.redemption_instructions,
+  is_active = excluded.is_active,
+  updated_at = excluded.updated_at;

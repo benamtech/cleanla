@@ -10,7 +10,10 @@ type ModerateMediaInput = {
 export type ModerateMediaResult =
   | { status: "approved"; reason: null }
   | { status: "rejected"; reason: string }
-  | { status: "pending"; reason: "ai_parse_error" | "ai_call_error" };
+  | {
+      status: "pending";
+      reason: "manual_review_required" | "ai_parse_error" | "ai_call_error";
+    };
 
 const SYSTEM_PROMPT = `You are a content moderator for CleanLA, a civic app where users photograph
 public blight in Los Angeles. All photos are taken outdoors in public spaces.
@@ -34,6 +37,16 @@ export async function moderateMedia(
   admin: SupabaseClient,
   input: ModerateMediaInput,
 ): Promise<ModerateMediaResult> {
+  if (process.env.CLEANLA_AI_REVIEW_ENABLED !== "true") {
+    return await applyResult(
+      admin,
+      input.spotMediaId,
+      "pending",
+      "manual_review_required",
+      false,
+    );
+  }
+
   try {
     const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -99,19 +112,26 @@ async function applyResult(
   spotMediaId: string,
   status: "approved" | "rejected" | "pending",
   reason: string | null,
+  stampModeratedAt = true,
 ): Promise<ModerateMediaResult> {
-  const { error } = await admin
-    .from("spot_media")
-    .update({
-      moderation_status: status,
-      moderation_reason: reason,
-      moderated_at: new Date().toISOString(),
-    })
-    .eq("id", spotMediaId);
+  const update: Record<string, unknown> = {
+    moderation_status: status,
+    moderation_reason: reason,
+  };
+  if (stampModeratedAt) {
+    update.moderated_at = new Date().toISOString();
+  }
+
+  const { error } = await admin.from("spot_media").update(update).eq("id", spotMediaId);
 
   if (error) throw new Error("spot_media_moderation_update_failed");
 
   if (status === "approved") return { status: "approved", reason: null };
   if (status === "rejected") return { status: "rejected", reason: reason ?? "rejected_by_ai" };
-  return { status: "pending", reason: (reason as "ai_parse_error" | "ai_call_error") ?? "ai_call_error" };
+  return {
+    status: "pending",
+    reason:
+      (reason as "manual_review_required" | "ai_parse_error" | "ai_call_error") ??
+      "ai_call_error",
+  };
 }

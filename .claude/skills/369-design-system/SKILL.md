@@ -60,6 +60,10 @@ This skill is structured as a thin router plus on-demand references. **Read the 
 | "Accessibility / mobile / WASM / analytics / keybinding / AI-TUI patterns 2024–26 status" | `references/canon/tui-modern-gaps.md` — the 6 gaps from tui-modern-2026.md, filled |
 | "Cite MIT / CMU / Stanford / UCSC / ProQuest / JSTOR / IEEE TUI research" | `references/canon/academic-extended.md` — extended database survey + access-barrier notes |
 | "Who do I contact to clarify [demoscene history / framework roadmap / artist intent]?" | `references/canon/practitioner-network.md` — verified-active 2024–26 practitioners + contact paths |
+| "Who won the ANSI/ASCII compo at [demoparty + year]?" | `references/canon/demoparty-results.md` — Assembly / Revision / Evoke / Lovebyte / Demosplash chronological results |
+| "What's the exact escape code for [obscure operation]?" | `references/canon/escape-codes-complete.md` — exhaustive CSI/OSC/DCS/APC + Kitty/Sixel/iTerm2 extensions |
+| "What FIGlet font / banner generator should I use?" | `references/canon/banner-fonts.md` — 3,000+ fonts across 8 systems with 369 recommendations |
+| "Who is [ANSI artist handle]? Which group / era / works?" | `references/canon/artist-roster.md` — 150+ chronologically indexed practitioners 1989–2026 |
 | "Tell me about the theory behind [teacher/concept]" (Tufte, Bauhaus, Rams, Vignelli, Swiss Style, sacred geometry) | `references/canon/<name>.md` |
 | "Is this 369-compliant?" (quick check, no deep audit) | The 9 rules above suffice |
 

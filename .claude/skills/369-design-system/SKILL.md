@@ -64,6 +64,9 @@ This skill is structured as a thin router plus on-demand references. **Read the 
 | "What's the exact escape code for [obscure operation]?" | `references/canon/escape-codes-complete.md` — exhaustive CSI/OSC/DCS/APC + Kitty/Sixel/iTerm2 extensions |
 | "What FIGlet font / banner generator should I use?" | `references/canon/banner-fonts.md` — 3,000+ fonts across 8 systems with 369 recommendations |
 | "Who is [ANSI artist handle]? Which group / era / works?" | `references/canon/artist-roster.md` — 150+ chronologically indexed practitioners 1989–2026 |
+| "Polish / Hungarian / Russian / Czech demoscene? Hugi / Imphobia / PAiN diskmags?" | `references/canon/regional-scenes-diskmags.md` — Eastern European scenes + scene-magazine archives |
+| "Pre-1990 BBS art? Razor 1911 / THG / cDc / Phrack / Apple II ANSI?" | `references/canon/pre-1995-archives.md` — pre-organizational era, hacker zines, warez group lineage |
+| "Brandur Leach / Julia Evans / WordGrinder / aerc / yazi / Dwarf Fortress interviews?" | `references/canon/final-sweep.md` — open-access academic + practitioner blogs + niche tool catalog |
 | "Tell me about the theory behind [teacher/concept]" (Tufte, Bauhaus, Rams, Vignelli, Swiss Style, sacred geometry) | `references/canon/<name>.md` |
 | "Is this 369-compliant?" (quick check, no deep audit) | The 9 rules above suffice |
 

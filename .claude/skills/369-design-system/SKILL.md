@@ -68,6 +68,7 @@ The complete canon library (30 files, ~612KB) lives under `references/canon/`. F
 | "How does an image→ASCII algorithm actually work? (luminance, dithering, shape vectors)" | `references/canon/ascii-rendering-algorithms.md` — 8 algorithms with implementation snippets |
 | "What's the historical lineage of TUIs?" | `references/canon/tui-history.md` — RTTY → smart terminal → curses → ANSI/BBS → renaissance |
 | "What TUI interaction / layout / accessibility patterns should I follow?" | `references/canon/tui-patterns.md` — modal vs modeless, command palette, focus mgmt, accessibility, animation, live-coding |
+| "Why do good TUIs feel good? Nielsen heuristics, cognitive ergonomics, information design, affordances without hover, error UX, onboarding, time-perception, contrast?" | `references/canon/tui-ux-design.md` — the TUI ↔ design ↔ UX intersection. Strategic design-principles layer. |
 | "How do I handle CJK / RTL / emoji / complex scripts in a terminal?" | `references/canon/tui-i18n.md` — wcwidth, BiDi (TR9), East Asian Width (TR11), emoji ZWJ, IME, font matrix |
 | "Tell me about the demoscene / cracktros / 64K intros / demoparties" | `references/canon/demoscene.md` — groups (Future Crew, Farbrausch), parties (Assembly, Revision, Lovebyte), size-coding, trackers |
 | "How did WordStar / VisiCalc / WordPerfect / Norton Commander / lazygit / btop / etc. shape TUI conventions?" | `references/canon/historical-tuis.md` — 20 landmark TUIs with patterns invented + verdicts |

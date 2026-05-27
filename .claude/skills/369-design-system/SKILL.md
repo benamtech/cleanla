@@ -15,7 +15,7 @@ The number 3 operates at three scales — visual primitives (3=BASE), program mo
 2. **Works on any screen device.** Responsive-by-construction. The 999px breakpoint, `repeat(auto-fit, minmax(...))` patterns, and `CARD_RESPONSIVE_COLLAPSE` rules are mechanisms; the principle is platform-universality.
 3. **Source material is owned, not borrowed.** Tufte, Bertin, etc. are re-expressed in 369-native form. Don't write "per Tufte's data-ink"; write "the data-ink criterion in the 369 rubric." Rebrand, don't reinvent.
 
-This skill is structured as a thin router plus on-demand references. **Read the 9 non-negotiable rules below for every invocation.** Load a reference from `references/` only when the work needs depth that the router does not provide.
+This skill is structured as a thin router plus on-demand references. **Read the 9 non-negotiable rules below for every invocation.** Load a reference from `references/` only when the work needs depth that the router does not provide. Canon references in `references/canon/` are teacher-pages and framework docs — load only when the work is explicitly about theory, history, or TUI/CLI design.
 
 ## The 9 non-negotiable rules
 
@@ -38,7 +38,9 @@ This skill is structured as a thin router plus on-demand references. **Read the 
 | "I have data or an entity — give me the best 369 HTML" | `references/engines.md` |
 | "Build a card with me / iterate on this card / audit this card" | `references/cards.md` (entering an iteration loop) |
 | "Design or critique a chart, dashboard, sparkline, table, or any data display" | `references/tufte.md`; for deep canon also `references/tufte-principles.md` and `references/analytical-design.md` |
-| "Is this 369-compliant?" (quick check, no deep audit) | The 8 rules above suffice |
+| "Build a TUI / terminal UI / CLI tool in 369 style" | `references/canon/tui-design.md`; for CLI conventions also `references/canon/unix-cli-principles.md` |
+| "Tell me about the theory behind [teacher/concept]" (Tufte, Bauhaus, Rams, Vignelli, Swiss Style, sacred geometry) | `references/canon/<name>.md` |
+| "Is this 369-compliant?" (quick check, no deep audit) | The 9 rules above suffice |
 
 References cross-link to each other rather than restate — e.g., `cards.md` defers to `visual-rules.md` for spacing rules.
 

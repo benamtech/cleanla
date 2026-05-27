@@ -57,6 +57,8 @@ export async function POST(
   }
 
   const { mediaId } = await params;
+  let cleanupFinalized = false;
+  let pointsAwarded = 0;
 
   const { data: media } = await admin
     .from("spot_media")
@@ -107,14 +109,17 @@ export async function POST(
         .single();
 
       if (!contributionError && contribution?.id) {
-        const { error: awardError } = await admin.rpc("award_cleanup_points", {
+        const { data: awardRows, error: awardError } = await admin.rpc("award_cleanup_points", {
           p_user_id: media.created_by,
           p_spot_id: media.spot_id,
           p_spot_media_id: media.id,
           p_contribution_history_id: contribution.id,
         });
 
-        if (awardError) {
+        if (!awardError && awardRows?.[0]) {
+          cleanupFinalized = true;
+          pointsAwarded = Number(awardRows[0].points_awarded ?? 0);
+        } else if (awardError) {
           console.error("[admin moderation] point award failed:", awardError);
         }
       } else if (contributionError) {
@@ -128,5 +133,9 @@ export async function POST(
     }
   }
 
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({
+    ok: true,
+    cleanup_finalized: cleanupFinalized,
+    points_awarded: pointsAwarded,
+  });
 }

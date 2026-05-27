@@ -3,7 +3,12 @@ import { redirect } from "next/navigation";
 import { formatPoints } from "@/features/points/constants";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
-import { ConfirmRedemptionForm, RewardCreateForm } from "./OrganizationDashboardActions";
+import {
+  CancelRedemptionButton,
+  ConfirmRedemptionForm,
+  RewardCreateForm,
+  RewardStatusButton,
+} from "./OrganizationDashboardActions";
 
 export const dynamic = "force-dynamic";
 
@@ -91,14 +96,33 @@ export default async function OrganizationDashboardPage({ params }: Props) {
               REWARDS
             </div>
             {rewards.map((reward) => (
-              <div key={reward.id} className="border-b border-[#999999] p-[9px] last:border-b-0">
-                <p className="text-[12px] font-bold text-[#001089] uppercase">
-                  {reward.title}
-                </p>
-                <p className="text-[9px] text-[#999999] uppercase">
-                  {formatPoints(Number(reward.points_required))} /{" "}
-                  {reward.is_active ? "ACTIVE" : "INACTIVE"}
-                </p>
+              <div
+                key={reward.id}
+                className="grid gap-[6px] border-b border-[#999999] p-[9px] last:border-b-0"
+              >
+                <div>
+                  <p className="text-[12px] font-bold text-[#001089] uppercase">
+                    {reward.title}
+                  </p>
+                  <p className="text-[9px] text-[#999999] uppercase">
+                    {formatPoints(Number(reward.points_required))} /{" "}
+                    {reward.is_active ? "ACTIVE" : "INACTIVE"}
+                  </p>
+                </div>
+                <RewardStatusButton
+                  orgId={orgId}
+                  reward={{
+                    id: String(reward.id),
+                    title: String(reward.title),
+                    description: String(reward.description),
+                    points_required: Number(reward.points_required),
+                    redemption_instructions:
+                      typeof reward.redemption_instructions === "string"
+                        ? reward.redemption_instructions
+                        : null,
+                    is_active: Boolean(reward.is_active),
+                  }}
+                />
               </div>
             ))}
           </section>
@@ -108,13 +132,22 @@ export default async function OrganizationDashboardPage({ params }: Props) {
               REDEMPTIONS
             </div>
             {redemptions.map((redemption) => (
-              <div key={redemption.id} className="border-b border-[#999999] p-[9px] last:border-b-0">
+              <div
+                key={redemption.id}
+                className="grid gap-[6px] border-b border-[#999999] p-[9px] last:border-b-0"
+              >
                 <p className="text-[12px] font-bold tracking-[0.12em] text-[#001089] uppercase">
                   {redemption.claim_code}
                 </p>
                 <p className="text-[9px] text-[#999999] uppercase">
                   {formatPoints(Number(redemption.points))} / {redemption.status}
                 </p>
+                <p className="text-[9px] text-[#999999] uppercase">
+                  EXPIRES {new Date(String(redemption.expires_at)).toISOString().slice(0, 10)}
+                </p>
+                {redemption.status === "pending" ? (
+                  <CancelRedemptionButton redemptionId={String(redemption.id)} />
+                ) : null}
               </div>
             ))}
           </section>

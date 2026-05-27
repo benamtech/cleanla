@@ -170,3 +170,80 @@ export function ConfirmRedemptionForm({ orgId }: { orgId: string }) {
     </div>
   );
 }
+
+export function RewardStatusButton({
+  orgId,
+  reward,
+}: {
+  orgId: string;
+  reward: {
+    id: string;
+    title: string;
+    description: string;
+    points_required: number;
+    redemption_instructions: string | null;
+    is_active: boolean;
+  };
+}) {
+  const router = useRouter();
+  const [busy, setBusy] = useState(false);
+
+  async function toggle() {
+    setBusy(true);
+    await fetch(`/api/organizations/${orgId}/rewards/${reward.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: reward.title,
+        description: reward.description,
+        points_required: reward.points_required,
+        redemption_instructions: reward.redemption_instructions,
+        is_active: !reward.is_active,
+      }),
+    });
+    router.refresh();
+    setBusy(false);
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={toggle}
+      disabled={busy}
+      className="border border-[#999999] bg-white px-[9px] py-[6px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7] disabled:opacity-50"
+    >
+      {reward.is_active ? "[DEACTIVATE]" : "[ACTIVATE]"}
+    </button>
+  );
+}
+
+export function CancelRedemptionButton({
+  redemptionId,
+}: {
+  redemptionId: string;
+}) {
+  const router = useRouter();
+  const [busy, setBusy] = useState(false);
+
+  async function cancel() {
+    setBusy(true);
+    await fetch(`/api/rewards/redemptions/${redemptionId}/cancel`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ reason: "organization canceled pending code" }),
+    });
+    router.refresh();
+    setBusy(false);
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={cancel}
+      disabled={busy}
+      className="border border-[#999999] bg-white px-[9px] py-[6px] text-[9px] font-bold tracking-[0.03em] text-[#a60315] uppercase hover:bg-[#f8eac7] disabled:opacity-50"
+    >
+      [CANCEL / REFUND]
+    </button>
+  );
+}

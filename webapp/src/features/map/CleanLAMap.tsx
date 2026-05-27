@@ -21,6 +21,7 @@ import Map, {
 import type { LngLatBounds } from "mapbox-gl";
 import { CleanupSheet } from "@/features/spots/CleanupSheet";
 import { ReportSheet } from "@/features/reports/ReportSheet";
+import { formatPoints, pointsForCategory } from "@/features/points/constants";
 import {
   CATEGORY_COLORS,
   formatCategory,
@@ -284,6 +285,7 @@ function SpotDetailSheet({
   const hasReportPhoto = Boolean(spot.report_media_url);
   const hasCleanPhoto = Boolean(spot.after_media_url);
   const isCleaned = spot.status === "cleaned";
+  const cleanupPoints = pointsForCategory(spot.category);
   const showActionButton =
     Boolean(user) && !isCleaned && spot.status !== "hidden";
 
@@ -371,6 +373,14 @@ function SpotDetailSheet({
               {spot.description}
             </p>
           </div>
+
+          {!isCleaned && spot.status !== "hidden" ? (
+            <div className="border-b border-[#228B22] bg-white px-[9px] py-[9px]">
+              <p className="text-[12px] font-bold tracking-[0.03em] text-[#228B22] uppercase">
+                CLEAN THIS TO EARN {formatPoints(cleanupPoints)}
+              </p>
+            </div>
+          ) : null}
 
           {/* CLEAN section — only when relevant */}
           {isCleaned || hasCleanPhoto ? (
@@ -482,7 +492,7 @@ function SpotDetailSheet({
             onClick={onMarkCleaned}
             className="block shrink-0 border-t border-[#228B22] bg-white px-[9px] py-[12px] text-[15px] font-bold tracking-[0.03em] text-[#228B22] uppercase hover:bg-[#f8eac7]"
           >
-            [MARK CLEANED]
+            [MARK CLEANED / {formatPoints(cleanupPoints)}]
           </button>
         ) : null}
       </aside>
@@ -709,6 +719,7 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
   // show a [SET USERNAME] nudge when one isn't set yet.
   const [username, setUsername] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [pointBalance, setPointBalance] = useState<number | null>(null);
   // P2-4 about modal
   const [showAbout, setShowAbout] = useState(false);
   // WebGL availability: null = checking, true = OK, false = unavailable.
@@ -738,6 +749,7 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
       } else {
         setUsername(null);
         setIsAdmin(false);
+        setPointBalance(null);
       }
     });
 
@@ -775,6 +787,7 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
         if (active) {
           setUsername(null);
           setIsAdmin(false);
+          setPointBalance(null);
         }
       });
       return () => {
@@ -791,6 +804,22 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
           setUsername(data?.username ? String(data.username) : null);
           setIsAdmin(Boolean(data?.is_admin));
         }
+      });
+    fetch("/api/profile/points", { cache: "no-store" })
+      .then((response) => (response.ok ? response.json() : null))
+      .then((payload: unknown) => {
+        if (
+          active &&
+          typeof payload === "object" &&
+          payload !== null &&
+          "balance" in payload &&
+          typeof (payload as { balance: unknown }).balance === "number"
+        ) {
+          setPointBalance((payload as { balance: number }).balance);
+        }
+      })
+      .catch(() => {
+        if (active) setPointBalance(null);
       });
     return () => {
       active = false;
@@ -1219,6 +1248,14 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
                 [PROFILE]
               </a>
             ) : null}
+            <a
+              href="/rewards"
+              className="flex min-h-[36px] items-center border-r border-[#999999] bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#228B22] uppercase hover:bg-[#f8eac7]"
+            >
+              {user && pointBalance !== null
+                ? `[REWARDS / ${formatPoints(pointBalance)}]`
+                : "[REWARDS]"}
+            </a>
             {user && isAdmin ? (
               <a
                 href="/admin"

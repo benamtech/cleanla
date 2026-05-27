@@ -9,7 +9,15 @@ type Status =
   | { kind: "claimed"; claimCode: string; expiresAt: string }
   | { kind: "error"; message: string };
 
-export function ClaimRewardButton({ rewardId }: { rewardId: string }) {
+export function ClaimRewardButton({
+  rewardId,
+  canClaim,
+  disabledReason,
+}: {
+  rewardId: string;
+  canClaim: boolean;
+  disabledReason: string | null;
+}) {
   const router = useRouter();
   const [status, setStatus] = useState<Status>({ kind: "idle" });
 
@@ -61,11 +69,16 @@ export function ClaimRewardButton({ rewardId }: { rewardId: string }) {
       <button
         type="button"
         onClick={claim}
-        disabled={status.kind === "claiming"}
+        disabled={!canClaim || status.kind === "claiming"}
         className="border border-[#999999] bg-[#228B22] px-[9px] py-[6px] text-[12px] font-bold tracking-[0.03em] text-white uppercase enabled:hover:opacity-90 disabled:bg-white disabled:text-[#999999]"
       >
         {status.kind === "claiming" ? "[CLAIMING]" : "[CLAIM REWARD]"}
       </button>
+      {!canClaim && disabledReason ? (
+        <p className="border border-[#999999] p-[6px] text-[9px] font-bold tracking-[0.03em] text-[#999999] uppercase">
+          {disabledReason}
+        </p>
+      ) : null}
       {status.kind === "error" ? (
         <p className="border border-[#a60315] p-[6px] text-[9px] font-bold tracking-[0.03em] text-[#a60315] uppercase">
           {status.message}

@@ -71,6 +71,11 @@ export default async function RewardsPage() {
         <div className="grid gap-[9px] md:grid-cols-2">
           {rewards.map((reward) => (
             <article key={reward.id} className="grid gap-[9px] border border-[#999999] p-[9px]">
+              {(() => {
+                const needed = Math.max(0, reward.points_required - balance);
+                const canClaim = Boolean(user) && needed === 0;
+                return (
+                  <>
               <div>
                 <p className="text-[9px] font-bold tracking-[0.03em] text-[#999999] uppercase">
                   {reward.organizations?.name} / {reward.organizations?.business_category}
@@ -86,7 +91,24 @@ export default async function RewardsPage() {
                 {formatPoints(reward.points_required)}
               </p>
               {user ? (
-                <ClaimRewardButton rewardId={reward.id} />
+                <p
+                  className={`text-[9px] font-bold tracking-[0.03em] uppercase ${
+                    canClaim ? "text-[#228B22]" : "text-[#a60315]"
+                  }`}
+                >
+                  {canClaim
+                    ? "AVAILABLE WITH YOUR BALANCE"
+                    : `NEED ${formatPoints(needed)} MORE`}
+                </p>
+              ) : null}
+              {user ? (
+                <ClaimRewardButton
+                  rewardId={reward.id}
+                  canClaim={canClaim}
+                  disabledReason={
+                    canClaim ? null : `NEED ${formatPoints(needed)} MORE`
+                  }
+                />
               ) : (
                 <Link
                   href="/"
@@ -95,6 +117,9 @@ export default async function RewardsPage() {
                   [SIGN IN ON MAP]
                 </Link>
               )}
+                  </>
+                );
+              })()}
             </article>
           ))}
         </div>

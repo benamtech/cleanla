@@ -40,6 +40,13 @@ This skill is structured as a thin router plus on-demand references. **Read the 
 | "Design or critique a chart, dashboard, sparkline, table, or any data display" | `references/tufte.md`; for deep canon also `references/tufte-principles.md` and `references/analytical-design.md` |
 | "Build a TUI / terminal UI / CLI tool in 369 style" | `references/canon/tui-design.md`; for CLI conventions also `references/canon/unix-cli-principles.md` |
 | "Draw an ASCII chart / terminal data display / pick the right Unicode glyph" | `references/canon/ascii-composition.md` — full glyph vocabulary + exact bar/sparkline/histogram/scatter algorithms + layout templates |
+| "Which TUI framework should I pick? Textual vs Ratatui vs Bubbletea vs Ink vs …" | `references/canon/tui-frameworks-complete.md` — 18 frameworks across 7 languages with selection guide |
+| "What ANSI escape code / mouse mode / Sixel / Kitty protocol does this terminal support?" | `references/canon/terminal-capabilities.md` — full protocol reference (CSI/OSC/DCS, color tiers, sync output, graphics) |
+| "What command-line tool exists for ASCII banners / image→terminal / terminal recording?" | `references/canon/ascii-tools.md` — 21 tools indexed (figlet, chafa, jp2a, asciinema, etc.) |
+| "What's the codepoint for [glyph]? Which Unicode block holds [thing]?" | `references/canon/unicode-art-extended.md` — 11 Unicode blocks, 1500+ codepoints catalogued |
+| "Tell me about the history / culture of ANSI / ASCII / BBS art" | `references/canon/ascii-ansi-art.md` — full history, art groups, techniques, archives |
+| "How does an image→ASCII algorithm actually work? (luminance, dithering, shape vectors)" | `references/canon/ascii-rendering-algorithms.md` — 8 algorithms with implementation snippets |
+| "What's the historical lineage of TUIs?" | `references/canon/tui-history.md` — RTTY → smart terminal → curses → ANSI/BBS → renaissance |
 | "Tell me about the theory behind [teacher/concept]" (Tufte, Bauhaus, Rams, Vignelli, Swiss Style, sacred geometry) | `references/canon/<name>.md` |
 | "Is this 369-compliant?" (quick check, no deep audit) | The 9 rules above suffice |
 

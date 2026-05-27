@@ -12,22 +12,37 @@ The number 3 operates at three scales — visual primitives (3=BASE), program mo
 **Three corollaries that follow from the definition:**
 
 1. **Best GUI for the input — every time.** Not "good UI" or "consistent UI." The engines (`presentation()`, `resolveAny()`) compute the *optimal* presentation under the rubric and the trap gate. Same input → same best output.
-2. **Works on any screen device.** Responsive-by-construction. The 999px breakpoint, `repeat(auto-fit, minmax(...))` patterns, and `CARD_RESPONSIVE_COLLAPSE` rules are mechanisms; the principle is platform-universality.
+2. **Works on any screen device.** Responsive-by-construction. The 999px breakpoint, `repeat(auto-fit, minmax(...))` patterns, and `CARD_RESPONSIVE_COLLAPSE` rules are mechanisms; the principle is platform-universality. **Terminal is a first-class medium** alongside desktop/mobile — see Axiom 3 in `references/canon-axioms.md`.
 3. **Source material is owned, not borrowed.** Tufte, Bertin, etc. are re-expressed in 369-native form. Don't write "per Tufte's data-ink"; write "the data-ink criterion in the 369 rubric." Rebrand, don't reinvent.
 
-This skill is structured as a thin router plus on-demand references. **Read the 9 non-negotiable rules below for every invocation.** Load a reference from `references/` only when the work needs depth that the router does not provide. Canon references in `references/canon/` are teacher-pages and framework docs — load only when the work is explicitly about theory, history, or TUI/CLI design.
+**Plus three canon-derived corollaries** (full treatment in `references/canon-axioms.md`):
 
-## The 9 non-negotiable rules
+4. **Constraints generate style.** Reunanen + Botz: severity of limitation ↔ elegance of solution. The 369 rules are *self-imposed* — they make ingenuity visible. A non-multiple-of-3 spacing is a violated invariant, not a "limitation."
+5. **Same-input → same-output is structural.** Elm Architecture (Bubbletea MVU) enforces it; `presentation()` and `resolveAny()` MUST be pure functions. No `Date.now()`, no `Math.random()`, no env reads outside `medium`. If you can't run twice and get the same output, the function is broken.
+6. **Domain-specific abstraction beats generic tools.** k9s models Kubernetes; lazygit models git; Emacs is a Lisp machine. A 369 PILLAR's name should disclose its domain (`<SSMCard>` not `<DetailView>`).
+
+This skill is structured as a thin router plus on-demand references. **Read the 9 non-negotiable rules below for every invocation.** **Always-loaded:** the rules + corollaries above + `references/canon-axioms.md` (10 axioms derived from canon). **On-demand:** `references/visual-rules.md`, `engines.md`, `cards.md`, etc., plus `references/canon/` teacher-pages for theory/history/TUI depth.
+
+## The 13 non-negotiable rules
+
+Rules 1–9 are universal across all 369 work. Rules 10–13 apply when the medium is `terminal`. All 13 are derived (rules 1–9 from the original design philosophy; rules 10–13 from canon — see `references/canon-axioms.md` for full derivation).
 
 1. **Spacing — multiples of 3 ONLY.** Allowed: 3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36, 42, 48, 54, 60, 72, 84, 96, 120, 150, 180, 210, 240. Forbidden: 4, 5, 7, 8, 10, 14, 16, 20 — any non-multiple of 3 is a bug. Applies to padding, margin, gap, width, height, font-size, letter-spacing. SVG internals (`strokeWidth`, `r`, `cx`, `cy`, coordinates) are exempt.
 2. **Border radius — zero, everywhere.** Enforced globally as `* { border-radius: 0 !important; }`. NEVER use `rounded-*` Tailwind classes. The ONE exception: circular SSM annotation pins (`border-radius: 50%`).
 3. **Borders — `1px solid #999999` on every container.** No 2px. No thick lines. No colored borders except `success` / `warning`.
 4. **Typography — Helvetica Neue eText Pro, 12px body, type scale {9, 12, 15, 18, 24, 30, 33, 36}.** UPPERCASE for all labels, headers, buttons, badges, window bars. Weights 400 (Roman, body) and 500 (Md, headings). No Eurostile, no SteelTongs, no serif anything (except SHOP boutique titles via `font-shop-serif`).
 5. **Colors — 8 core tokens + 8 SSM pin colors. NEVER Tailwind defaults.** Core: navy `#001089`, grey `#999999`, white `#FFFFFF`, manila `#f8eac7`, amberSand `#c7a87d`, headerTop `#94a3d6`, headerCurrent `#b8dae8`, success `#228B22`, warning `#a60315`. (`gray-100`, `blue-500`, etc. are bugs.)
-6. **Decoration — NONE.** No shadows, no gradients, no blur, no rounded corners, no icon libraries (Lucide, Heroicons). Text glyphs only: `★ ✓ ✕ → ← • [+] [−] [×] i`. SVG: `strokeLinecap="square"`. NO emoji on `/369` (platform fonts ignore design tokens).
-7. **Run engines, don't guess.** For data → `presentation(data, intent, medium)` in `src/base/presentation/`. For entities → `resolveAny(component, intent)` in `src/base/resolver.ts`. Hand-picking a chart or hardcoding a component's values defeats the system.
-8. **Same input → same output.** The system is deterministic. Run it twice; if the HTML differs, something is wrong. Show the decision trace for data compositions so the verdict is defended, not asserted.
+6. **Decoration — NONE.** No shadows, no gradients, no blur, no rounded corners, no icon libraries (Lucide, Heroicons). Text glyphs only: `★ ✓ ✕ → ← • [+] [−] [×] i`. SVG: `strokeLinecap="square"`. NO emoji on `/369` (platform fonts ignore design tokens). **Sub-cell precision when needed:** for terminal medium, use the named algorithms — half-blocks `▀▄▌▐` (color doubling), eighth-blocks `▁▂▃▄▅▆▇█` / `▏▎▍▌▋▊▉█` (sub-cell bars), quadrants `▘▝▖▗▙▚▛▜▟▞` (2×2 pixel art), braille `⠀…⣿` (2×4 dots), sextants `🬀…🬵` (2×3 blocks). See canon-axioms.md Axiom 4 and `references/canon/unicode-art-extended.md`.
+7. **Run engines, don't guess.** For data → `presentation(data, intent, medium)` in `src/base/presentation/`. For entities → `resolveAny(component, intent)` in `src/base/resolver.ts`. Hand-picking a chart or hardcoding a component's values defeats the system. **`medium: 'terminal'` is a peer, not a fallback** — every component should support it (Axiom 3). The terminal path emits BSU/ESU (`CSI ? 2026 h` / `l`) around every frame for sync output (Axiom 5).
+8. **Same input → same output.** The system is deterministic. Run it twice; if the HTML differs, something is wrong. Show the decision trace for data compositions so the verdict is defended, not asserted. **Structural enforcement:** engines are pure functions of `(data, intent, medium)`. No `Date.now()`, no `Math.random()`, no env reads outside `medium`. The Elm Architecture proves this is achievable (Axiom 2).
 9. **Composition — every screen has a hierarchy: BASE → PILLARS → ROOF.** A screen is not "a list of things in a grid." Decide: **PILLARS** (which 3–6 sections compose the screen — window bar, status strip, hero, body, action footer), **ROOF** (which section is the HERO and visually dominates; which are secondary; which are tertiary), **BASE** (which primitive — button, badge, table row, image — each section uses). Implement: sections separate by `border-b border-[#999999]`, NOT by whitespace gaps. The hero takes a deterministic share of the viewport (aspect ratio or fixed height). Body scrolls; window bar + status strip + footer are sticky via `shrink-0`. **If sections are floating in `grid gap-[N]` and visually competing, the composition has failed.** Empty states use minimum viable footprint (single row or aspect-matched to the slot they replace), never dominate.
+
+**Rules 10–13 — TUI-specific (from `references/canon/tui-design.md` T1–T7, distilled):**
+
+10. **Terminal protocol baseline.** A 369 TUI assumes: truecolor (24-bit), Kitty keyboard protocol (`CSI > 1 u` on startup, `CSI ? u` to query), synchronized output (mode 2026), focus reporting (mode 1004), bracketed paste (mode 2004). Detect + degrade gracefully. Honor `NO_COLOR`. Restore terminal on exit (`?1049l ?25h SGR-0`) — **mandatory** in signal handlers (SIGINT, SIGTERM, SIGHUP).
+11. **Internationalization is pre-display, not render-time** (Axiom 8). Normalize text to NFC. Run BiDi through fribidi or HarfBuzz **before** emit. Use utf8proc or fish-shell-style wcwidth, not glibc's. For complex scripts where pure terminal rendering fails, fall back to the image plane (Sixel / Kitty graphics).
+12. **Rule of Silence in production output** (Axiom 7, ESR Rule 11). Successful operations produce no output unless `--verbose`. Progress to stderr; data to stdout. Pipeable. Honor `NO_COLOR`. Honor `DO_NOT_TRACK=1` for any optional telemetry.
+13. **Modular composability, not monolithic state** (Axiom 9, Plan 9 Rio). Separate concerns: text I/O, graphics I/O, input streams — independent layers. Don't model "terminal state" as a single monolith; treat each surface (window bar, body, footer) as its own composable PILLAR.
 
 ## Canon master index
 
@@ -37,6 +52,7 @@ The complete canon library (30 files, ~612KB) lives under `references/canon/`. F
 
 | If the work is… | Load |
 |---|---|
+| "Why does 369 work this way? What's the foundational reasoning?" | `references/canon-axioms.md` — 10 axioms inherited from canon (constraint aesthetics, structural determinism, terminal-as-peer, etc.) |
 | A rules question ("is `padding: 10px` legal?", "what color for warning?") | `references/visual-rules.md` |
 | A file-placement question ("where does `JobBoard.tsx` go?") | `references/architecture.md` |
 | "I have data or an entity — give me the best 369 HTML" | `references/engines.md` |
@@ -72,7 +88,7 @@ The complete canon library (30 files, ~612KB) lives under `references/canon/`. F
 | "Pre-1990 BBS art? Razor 1911 / THG / cDc / Phrack / Apple II ANSI?" | `references/canon/pre-1995-archives.md` — pre-organizational era, hacker zines, warez group lineage |
 | "Brandur Leach / Julia Evans / WordGrinder / aerc / yazi / Dwarf Fortress interviews?" | `references/canon/final-sweep.md` — open-access academic + practitioner blogs + niche tool catalog |
 | "Tell me about the theory behind [teacher/concept]" (Tufte, Bauhaus, Rams, Vignelli, Swiss Style, sacred geometry) | `references/canon/<name>.md` |
-| "Is this 369-compliant?" (quick check, no deep audit) | The 9 rules above suffice |
+| "Is this 369-compliant?" (quick check, no deep audit) | The 13 rules above suffice (1–9 universal, 10–13 terminal-medium) |
 
 References cross-link to each other rather than restate — e.g., `cards.md` defers to `visual-rules.md` for spacing rules.
 
@@ -151,6 +167,14 @@ className="bg-[#f8eac7] border border-[#999999] p-[9px]"
 | Empty-state placeholder with `p-[18px]` or larger padding | Empty states use minimum footprint (`h-[48px]` single row, or aspect-ratio that matches the slot it replaces); never dominate |
 | `flex flex-wrap gap-[6px]` for badges + status that should be a single segmented bar | Use a single horizontal flex strip `h-[27px] items-stretch` with `border-l` between segments. Floating chips don't visually relate |
 | Data table with `flex justify-between gap-[12px]` per row | Use a real `<table class="border-collapse">` with `<tr class="border-b border-[#999999]">`. Native tables hold dense layouts; flex sprawls |
+| **TUI emits successful-operation message without `--verbose`** | Rule of Silence (Axiom 7). Print on errors only; silent on success |
+| **TUI frame without BSU/ESU wrapping** | Wrap each frame in `CSI ? 2026 h` / `CSI ? 2026 l` for synchronized output (mode 2026). Tearing is a UX failure |
+| **TUI doesn't restore terminal on exit** | Add `?1049l ?25h \e[0m` in SIGINT/SIGTERM/SIGHUP handlers. Mandatory |
+| **Engine reads `Date.now()` or `Math.random()`** | Engines are pure functions of `(data, intent, medium)`. Inject the clock/RNG; do not read inside the engine (Axiom 2) |
+| **Hand-coded image-to-terminal rendering** | Use a named algorithm (half-block / eighth-block / quadrant / braille / sextant) from `references/canon/ascii-composition.md`. Don't reinvent |
+| **BiDi text rendered directly to terminal** | Pre-shape via fribidi / HarfBuzz **before** emit (Axiom 8). Normalize to NFC. Terminal cannot reorder |
+| **glibc `wcwidth()` used for column math** | Use utf8proc or fish-shell-style wcwidth instead. glibc lags Unicode + breaks on emoji ZWJ |
+| **Component name discloses no domain (`<DetailView>`, `<FormGrid>`)** | Generic abstraction — Axiom 9 red flag. Rename to model the domain (`<SSMCard>`, `<JobBidForm>`) |
 
 ## Six programs + bracket notation
 

@@ -1,6 +1,8 @@
 # 369 Visual Rules — Full Reference
 
-Canonical 3/6/9 visual rule set. The router `SKILL.md` states the 8 non-negotiables; this file expands each rule with the full tables, exceptions, and rationale.
+Canonical 3/6/9 visual rule set. The router `SKILL.md` states the 13 non-negotiables (rules 1–9 universal, rules 10–13 terminal-medium); this file expands each rule with the full tables, exceptions, and rationale.
+
+**For the foundational reasoning behind these rules** — why constraints generate style, why same-input-same-output is structural, why terminal is a peer medium — load `canon-axioms.md`. The axioms are the *why*; this file is the *what*.
 
 ## Spacing
 

@@ -2,6 +2,10 @@
 
 Where every file goes in the 3/6/9 architecture. Three layers — BASE (3), PILLARS (6), ROOF (9). Each layer owns a specific concern; `src/app/` is the Next.js routing shell and is NOT a layer.
 
+**Foundational principle:** Domain-specific abstraction beats generic tools (`canon-axioms.md` Axiom 9). A PILLAR's name should disclose its domain (`<SSMCard>` not `<DetailView>`). If a component name is generic, the design is probably wrong.
+
+**Separation of concerns** (`canon-axioms.md` Axiom 9, Plan 9 Rio lineage): text I/O, graphics I/O, and input streams are **independent layers**. Don't model "terminal state" or "screen state" as a single monolith — treat each surface (window bar, body, footer, status strip) as its own composable PILLAR.
+
 ## The three layers
 
 | # | Layer | Location | Owns | Principle |

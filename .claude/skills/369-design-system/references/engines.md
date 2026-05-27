@@ -121,9 +121,40 @@ Live demonstrations sit in `/369` — the **Engine** section: *Generated Composi
 ## Engine rules
 
 - **Run the engines; don't guess.** The verdict is deterministic — `presentation()` and `resolveAny()` produce it. Hand-picking a chart or hardcoding a component's values defeats the whole system.
-- **Same input → same output.** Run it twice; if the HTML differs, something is wrong.
+- **Same input → same output.** Run it twice; if the HTML differs, something is wrong. **Structural enforcement:** engines are pure functions. No `Date.now()`, no `Math.random()`, no env reads outside the explicit `medium` parameter. The Elm Architecture proves this is achievable — see `canon-axioms.md` Axiom 2.
 - **Show the reasoning.** A data composition ships with its decision trace — that is what makes it defended.
 - **369 or it's a bug.** Every spacing value 3/6/9; every colour a token; 1px borders; 0 radius. See `visual-rules.md` for the full set.
+
+## The `medium` parameter — three peer outputs
+
+`presentation(data, intent, medium)` accepts `medium` ∈ `{ 'desktop', 'mobile', 'terminal' }`. **Terminal is a peer, not a fallback** (Axiom 3). Each medium has its own rendering pipeline:
+
+### `'desktop'` and `'mobile'`
+- HTML output (Tailwind classes per `visual-rules.md`)
+- Same 369 palette, same spacing scale, same type scale
+- Mobile differs in responsive breakpoints (999px) and column-collapse rules (`CARD_RESPONSIVE_COLLAPSE`)
+
+### `'terminal'`
+- ANSI escape sequences + Unicode glyphs (no HTML)
+- Color tier detected at startup (truecolor / 256 / 16 / mono) — see `canon/terminal-capabilities.md`
+- Sub-cell precision via named algorithms (half-block, eighth-block, quadrant, braille, sextant) — see `canon/ascii-composition.md` and `canon/unicode-art-extended.md`
+- BSU/ESU wrapping (mode 2026) around every frame for sync output
+- Honors `NO_COLOR`; emits `\x1b[?1049l \x1b[?25h \x1b[0m` on exit
+- For images that can't be rendered as text: fall back to image-plane protocols (Sixel / Kitty graphics / iTerm2)
+
+### Algorithm contract per intent for `medium: 'terminal'`
+(see `canon/ascii-composition.md` for full algorithms)
+
+| Intent | Terminal algorithm |
+|--------|---------------------|
+| `comparison` | Horizontal bars: `█` + sub-cell partial from `▏▎▍▌▋▊▉` |
+| `ranking` | Sorted comparison + rank badges (`#1` `#2` …) |
+| `trend` | Sparkline: `▁▂▃▄▅▆▇█` per data point + range annotation |
+| `distribution` | Histogram: 10 bins × 8 rows, `█` if count ≥ threshold, `░` otherwise |
+| `correlation` | Scatter: `●` per point, `◉` on overlap |
+| `part-to-whole` | Segmented bar: distinct chars per rank (`█ ▒ ░ ▓ ╌`) |
+
+A 369 engine output for `medium: 'terminal'` is a **contract**, not a nice-to-have. Treat it as you would `'desktop'` or `'mobile'`. See `canon-axioms.md` Axiom 3 for the full case.
 
 ## Known recipe defects (2026-05-24)
 

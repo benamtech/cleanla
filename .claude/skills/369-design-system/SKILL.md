@@ -51,6 +51,11 @@ This skill is structured as a thin router plus on-demand references. **Read the 
 | "How do I handle CJK / RTL / emoji / complex scripts in a terminal?" | `references/canon/tui-i18n.md` — wcwidth, BiDi (TR9), East Asian Width (TR11), emoji ZWJ, IME, font matrix |
 | "Tell me about the demoscene / cracktros / 64K intros / demoparties" | `references/canon/demoscene.md` — groups (Future Crew, Farbrausch), parties (Assembly, Revision, Lovebyte), size-coding, trackers |
 | "How did WordStar / VisiCalc / WordPerfect / Norton Commander / lazygit / btop / etc. shape TUI conventions?" | `references/canon/historical-tuis.md` — 20 landmark TUIs with patterns invented + verdicts |
+| "Cite an academic source on demoscene / TUI / ASCII art (Reunanen, Botz, Tasajärvi, UNESCO)" | `references/canon/tui-academic.md` — peer-reviewed scholarship + BibTeX citations |
+| "Where can I find [ANSI artpack / BBS artifact / specific group's archives]?" | `references/canon/archives-deep.md` — 26+ archives, 50+ named artists, parallel traditions |
+| "What did Bill Joy / Knuth / Kernighan / McGugan say about TUI design? Museum catalog refs?" | `references/canon/museums-oral-history.md` — CHM, YUCoM, Bletchley, Smithsonian, Bitsavers + pull-quotes |
+| "What changed in TUI ecosystem 2024-2026? (Bubble Tea v2, Ratatui no-std, Toad, Ghostty)" | `references/canon/tui-modern-2026.md` — current versions, active maintainers, validations |
+| "What about NAPLPS / RIPscrip / PRESTEL / Minitel / Mode 7 / MouseText / Plan 9 Rio?" | `references/canon/niche-text-traditions.md` — 17 parallel text-art traditions |
 | "Tell me about the theory behind [teacher/concept]" (Tufte, Bauhaus, Rams, Vignelli, Swiss Style, sacred geometry) | `references/canon/<name>.md` |
 | "Is this 369-compliant?" (quick check, no deep audit) | The 9 rules above suffice |
 

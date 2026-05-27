@@ -39,6 +39,7 @@ This skill is structured as a thin router plus on-demand references. **Read the 
 | "Build a card with me / iterate on this card / audit this card" | `references/cards.md` (entering an iteration loop) |
 | "Design or critique a chart, dashboard, sparkline, table, or any data display" | `references/tufte.md`; for deep canon also `references/tufte-principles.md` and `references/analytical-design.md` |
 | "Build a TUI / terminal UI / CLI tool in 369 style" | `references/canon/tui-design.md`; for CLI conventions also `references/canon/unix-cli-principles.md` |
+| "Draw an ASCII chart / terminal data display / pick the right Unicode glyph" | `references/canon/ascii-composition.md` — full glyph vocabulary + exact bar/sparkline/histogram/scatter algorithms + layout templates |
 | "Tell me about the theory behind [teacher/concept]" (Tufte, Bauhaus, Rams, Vignelli, Swiss Style, sacred geometry) | `references/canon/<name>.md` |
 | "Is this 369-compliant?" (quick check, no deep audit) | The 9 rules above suffice |
 

@@ -1,6 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type PointerEvent as ReactPointerEvent,
+} from "react";
 import type { User } from "@supabase/supabase-js";
 import Map, {
   Layer,
@@ -116,6 +123,28 @@ type AuthNotice =
   | { kind: "sending" }
   | { kind: "sent" }
   | { kind: "error"; message: string };
+
+type MapDirection = "up" | "down" | "left" | "right";
+
+const DESKTOP_PAN_STEP_PX = 120;
+const MOBILE_PAN_STEP_PX = 72;
+const PITCH_STEP = 6;
+const BEARING_STEP = 12;
+const CAMERA_DURATION_MS = 120;
+const MIN_PITCH = 0;
+const MAX_PITCH = 75;
+
+function clamp(value: number, min: number, max: number) {
+  return Math.min(Math.max(value, min), max);
+}
+
+function isKeyboardInputTarget(target: EventTarget | null) {
+  if (!(target instanceof HTMLElement)) return false;
+  if (target.isContentEditable) return true;
+  return Boolean(
+    target.closest("input, textarea, select, button, a, [contenteditable]"),
+  );
+}
 
 function boundsToQuery(bounds: LngLatBounds): URLSearchParams {
   const params = new URLSearchParams();
@@ -461,6 +490,156 @@ function SpotDetailSheet({
   );
 }
 
+function CameraJoystick({
+  label,
+  caption = "SHIFT",
+  compact = false,
+  onAdjust,
+}: {
+  label: string;
+  caption?: string | null;
+  compact?: boolean;
+  onAdjust: (direction: MapDirection) => void;
+}) {
+  const originRef = useRef<{ x: number; y: number } | null>(null);
+  const lastActionRef = useRef(0);
+  const [offset, setOffset] = useState({ x: 0, y: 0 });
+
+  function resetJoystick() {
+    originRef.current = null;
+    setOffset({ x: 0, y: 0 });
+  }
+
+  function handlePointerDown(event: ReactPointerEvent<HTMLButtonElement>) {
+    event.currentTarget.setPointerCapture(event.pointerId);
+    originRef.current = { x: event.clientX, y: event.clientY };
+    lastActionRef.current = 0;
+  }
+
+  function handlePointerMove(event: ReactPointerEvent<HTMLButtonElement>) {
+    if (!originRef.current) return;
+
+    const dx = event.clientX - originRef.current.x;
+    const dy = event.clientY - originRef.current.y;
+    const limit = compact ? 18 : 14;
+    const visualX = clamp(dx, -limit, limit);
+    const visualY = clamp(dy, -limit, limit);
+    setOffset({ x: visualX, y: visualY });
+
+    const threshold = compact ? 18 : 12;
+    if (Math.abs(dx) < threshold && Math.abs(dy) < threshold) return;
+
+    const now = window.performance.now();
+    if (now - lastActionRef.current < 90) return;
+    lastActionRef.current = now;
+
+    if (Math.abs(dx) > Math.abs(dy)) {
+      onAdjust(dx > 0 ? "right" : "left");
+    } else {
+      onAdjust(dy > 0 ? "down" : "up");
+    }
+  }
+
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={resetJoystick}
+      onPointerCancel={resetJoystick}
+      className={`relative grid touch-none place-items-center border border-[#999999] bg-white font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7] ${
+        compact ? "h-[72px] w-[72px]" : "h-[45px] w-[45px]"
+      }`}
+    >
+      {caption ? (
+        <span className="absolute top-[6px] text-[9px] text-[#999999]">
+          {caption}
+        </span>
+      ) : null}
+      <span
+        className={`grid place-items-center border border-[#001089] bg-[#f8eac7] ${
+          compact ? "h-[27px] w-[27px]" : "h-[18px] w-[18px]"
+        }`}
+        style={{
+          transform: `translate(${offset.x}px, ${offset.y}px)`,
+        }}
+      >
+        <span className={compact ? "text-[12px]" : "text-[9px]"}>+</span>
+      </span>
+    </button>
+  );
+}
+
+function MapGameControls({
+  onPan,
+  onAdjust,
+}: {
+  onPan: (direction: MapDirection) => void;
+  onAdjust: (direction: MapDirection) => void;
+}) {
+  const moveButtonClass =
+    "h-[45px] w-[45px] border border-[#999999] bg-white text-[12px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]";
+
+  return (
+    <>
+      <div className="absolute right-[9px] bottom-[90px] z-10 hidden border border-[#999999] bg-white p-[6px] md:block">
+        <div className="mb-[6px] border-b border-[#999999] pb-[6px] text-center text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase">
+          WASD MOVE
+        </div>
+        <div className="grid grid-cols-3 gap-[3px]">
+          <div />
+          <button
+            type="button"
+            className={moveButtonClass}
+            onClick={() => onPan("up")}
+            aria-label="Move map up with W"
+          >
+            W
+          </button>
+          <div />
+          <button
+            type="button"
+            className={moveButtonClass}
+            onClick={() => onPan("left")}
+            aria-label="Move map left with A"
+          >
+            A
+          </button>
+          <CameraJoystick label="Drag joystick to pitch or rotate map" onAdjust={onAdjust} />
+          <button
+            type="button"
+            className={moveButtonClass}
+            onClick={() => onPan("right")}
+            aria-label="Move map right with D"
+          >
+            D
+          </button>
+          <div />
+          <button
+            type="button"
+            className={moveButtonClass}
+            onClick={() => onPan("down")}
+            aria-label="Move map down with S"
+          >
+            S
+          </button>
+          <div />
+        </div>
+      </div>
+
+      <div className="absolute right-[12px] bottom-[90px] z-10 md:hidden">
+        <CameraJoystick
+          compact
+          caption={null}
+          label="Drag joystick to explore map pitch and rotation"
+          onAdjust={onAdjust}
+        />
+      </div>
+    </>
+  );
+}
+
 function MapLegend() {
   const entries: Array<{ label: string; color: string }> = [
     { label: "ILLEGAL DUMPING", color: CATEGORY_COLORS.illegal_dumping },
@@ -689,6 +868,48 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
     void fetchSpots(bounds ? boundsToQuery(bounds) : defaultBoundsQuery());
   }
 
+  const panMap = useCallback((direction: MapDirection) => {
+    const map = mapRef.current?.getMap();
+    if (!map) return;
+
+    const center = map.getCenter();
+    const point = map.project(center);
+    const step =
+      window.innerWidth < 768 ? MOBILE_PAN_STEP_PX : DESKTOP_PAN_STEP_PX;
+    const dx = direction === "left" ? -step : direction === "right" ? step : 0;
+    const dy = direction === "up" ? -step : direction === "down" ? step : 0;
+    const nextCenter = map.unproject([point.x + dx, point.y + dy]);
+
+    mapRef.current?.easeTo({
+      center: [nextCenter.lng, nextCenter.lat],
+      duration: CAMERA_DURATION_MS,
+    });
+  }, []);
+
+  const adjustCamera = useCallback((direction: MapDirection) => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    const currentPitch = map.getPitch();
+    const currentBearing = map.getBearing();
+
+    map.easeTo({
+      pitch:
+        direction === "up"
+          ? clamp(currentPitch + PITCH_STEP, MIN_PITCH, MAX_PITCH)
+          : direction === "down"
+            ? clamp(currentPitch - PITCH_STEP, MIN_PITCH, MAX_PITCH)
+            : currentPitch,
+      bearing:
+        direction === "left"
+          ? currentBearing - BEARING_STEP
+          : direction === "right"
+            ? currentBearing + BEARING_STEP
+            : currentBearing,
+      duration: CAMERA_DURATION_MS,
+    });
+  }, []);
+
   async function sendMagicLink() {
     const trimmedEmail = email.trim();
     if (!trimmedEmail) return;
@@ -757,6 +978,43 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [selectedSpot, showCleanup, showSignIn, showLegend, showAbout]);
+
+  useEffect(() => {
+    const overlaysOpen =
+      Boolean(selectedSpot) || showReport || showCleanup || showSignIn || showAbout;
+
+    function onKey(e: KeyboardEvent) {
+      if (overlaysOpen || isKeyboardInputTarget(e.target)) return;
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+
+      const directionByKey: Record<string, MapDirection> = {
+        w: "up",
+        a: "left",
+        s: "down",
+        d: "right",
+      };
+      const direction = directionByKey[e.key.toLowerCase()];
+      if (!direction) return;
+
+      e.preventDefault();
+      if (e.shiftKey) {
+        adjustCamera(direction);
+      } else {
+        panMap(direction);
+      }
+    }
+
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [
+    adjustCamera,
+    panMap,
+    selectedSpot,
+    showAbout,
+    showCleanup,
+    showReport,
+    showSignIn,
+  ]);
 
   function handleMapClick(event: MapMouseEvent) {
     const feature = event.features?.[0];
@@ -1027,6 +1285,10 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
           [+] FILE A REPORT
         </button>
       </div>
+
+      {webglOk ? (
+        <MapGameControls onPan={panMap} onAdjust={adjustCamera} />
+      ) : null}
 
       <div className="absolute top-[141px] right-[9px] z-10 grid gap-[9px] md:top-[9px]">
         {showLegend ? <MapLegend /> : null}

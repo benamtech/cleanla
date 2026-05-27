@@ -1040,7 +1040,7 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
         <button
           type="button"
           onClick={openReport}
-          className="block w-full bg-[#a60315] px-[18px] py-[18px] text-[24px] font-bold tracking-[0.03em] text-white uppercase hover:bg-[#001089]"
+          className="block w-full bg-white px-[18px] py-[18px] text-[24px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
         >
           [+] FILE A REPORT
         </button>

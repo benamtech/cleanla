@@ -710,11 +710,13 @@ Design implications:
 
 ---
 
-## Phase 7: Scale + Launch
+## Phase 7: Points + Local Rewards
 
 ### Objective
 
-Prepare CleanLA for public usage: performance, observability, cost posture, iOS PWA hardening, SEO basics, custom domain, and launch readiness.
+Create a trusted points and local rewards system that encourages users to find and clean verified spots, lets approved local businesses publish redeemable offers, and records point movement between users and organizations through auditable server-side ledger entries.
+
+This phase turns verified cleanups into a lightweight incentive economy: users earn points after verified cleanups, local businesses can create rewards, and users can redeem points through claim codes once they have at least 200 points.
 
 ### Dependencies
 
@@ -722,9 +724,134 @@ Phases 1 through 6 complete.
 
 ### Locked Decisions
 
+- Points are awarded only after a verified cleanup is accepted by trusted server logic.
+- Points are category-based using the fixed MVP matrix:
+  - `trash`: 5 points
+  - `graffiti`: 10 points
+  - `overgrowth`: 15 points
+  - `encampment_debris`: 25 points
+  - `illegal_dumping`: 35 points
+  - `biohazard`: 50 points
+- Minimum reward redemption cost is 200 points.
+- Organizations require admin approval before publishing rewards or receiving redeemed points.
+- V1 redemption uses claim codes confirmed by the organization dashboard.
+- Point balances and transfers are server-controlled. Clients never write final ledger or balance values directly.
+- Use a points ledger, not a mutable balance-only system. Derived balances or trusted cached balances are acceptable, but the ledger is the source of auditability.
+- Prevent duplicate awards for the same verified cleanup media or contribution.
+- This is an incentive/rebate accounting system, not cash, stored value, or a user-to-user transfer feature.
+- Rebate calculation and actual payout operations are deferred to Phase 8 or later. Phase 7 records organization point totals needed to support that future process.
+
+### Work Items
+
+1. Add points schema:
+   - point ledger entries for earn, reserve, redeem, refund/cancel, and admin adjustment
+   - user balance view or cached balance
+   - organization balance view or cached balance
+   - unique guard tying cleanup awards to a single verified cleanup contribution
+2. Integrate cleanup awarding:
+   - award points inside the trusted cleanup success path after verification
+   - write a ledger entry linked to `spot_id`, cleanup media/contribution, actor, category, and awarded point amount
+   - return earned points in the cleanup API response
+3. Add rewards data model:
+   - organizations
+   - organization members/owners
+   - organization verification status
+   - rewards
+   - reward redemptions with claim code and status
+4. Add organization signup:
+   - public signup flow for businesses
+   - authenticated owner account creation/linking
+   - required fields: business name, contact name, email, phone, street address, website/social link, business category, and short description
+   - new organizations start as `pending_review`
+5. Add admin organization review:
+   - admin list of pending organizations
+   - approve/reject controls
+   - rejection reason/admin note
+   - approved organizations can publish rewards
+6. Add organization dashboard:
+   - organization profile status
+   - create/edit/deactivate rewards
+   - list pending claim codes
+   - confirm redemption code to complete transfer
+   - view total redeemed points
+7. Add organization rewards:
+   - each reward has organization, title, description, points required, active/inactive state, and optional redemption instructions
+   - enforce the 200-point minimum for active redeemable rewards
+   - allow approved organizations to create and manage their own rewards
+8. Add user rewards experience:
+   - points balance in profile and cleanup success UI
+   - available reward opportunities
+   - reward detail and claim flow
+   - claim code screen with expiration/status
+9. Add redemption by claim code:
+   - user chooses an active reward and claims it if they have enough available points
+   - app creates a redemption code with `pending` status and reserves/deducts user points through the ledger
+   - organization confirms the code in its dashboard, transferring the redeemed points to the organization ledger
+   - admin/support can cancel expired or mistaken pending redemptions and return points to the user
+10. Add cleanup encouragement UI:
+    - show points available on spot detail based on category
+    - show "clean this to earn X points" prompts for signed-out and signed-in users
+    - signed-out users see cleanup/reward prompts without seeing a fake balance
+    - signed-in users see current points, next redeemable threshold, and nearby reward opportunities
+    - map/home UI gets a compact rewards/opportunities surface, not a separate marketplace-first experience
+11. Add RLS and server protections:
+    - users can read their own ledger/redemptions
+    - organization owners can manage their organization rewards
+    - only admins can approve organizations
+    - only trusted server code can create ledger transfer entries
+12. Seed realistic local organization/reward data for development.
+13. Add docs explaining point rules, organization participation, redemption limitations, and the deferred rebate/payout model.
+
+### Expected Files
+
+- New migrations for points, organizations, rewards, redemptions, ledger constraints, and RLS policies
+- Server/API routes for organization signup, admin approval, rewards, reward claiming, and redemption confirmation
+- UI under rewards, organizations, profile, map/detail, cleanup success, and admin areas
+- Updated docs explaining point rules, organization participation, and redemption limitations
+
+### Acceptance Criteria
+
+- A verified cleanup awards the correct number of points exactly once.
+- Unverified, pending, rejected, or duplicate cleanup submissions do not award points.
+- A signed-in user can see their balance and available reward opportunities.
+- A user cannot redeem below 200 points or redeem a reward they cannot afford.
+- A pending claim code reserves/deducts user points.
+- Organization confirmation completes the transfer to the organization account.
+- Canceling or expiring a pending redemption returns points to the user.
+- Pending or rejected organizations cannot publish public rewards or receive redemptions.
+- Approved organizations can create active rewards.
+- Signed-out users are encouraged to clean spots and can see reward opportunities without accessing account-only actions.
+- RLS prevents users from editing balances, ledger entries, organization approval status, or other users' redemptions.
+
+### Verification
+
+- Run lint, typecheck, and production build.
+- Test cleanup-to-points flow for each spot category and verify matrix values.
+- Test duplicate cleanup award prevention.
+- Test signed-out map/detail prompts.
+- Test user reward claim with insufficient points, below-minimum reward, valid points, and expired/canceled claim.
+- Test organization signup, admin approval, reward creation, and code confirmation.
+- Test non-approved organization restrictions.
+- Test RLS as anonymous, normal user, organization owner, and admin.
+- Test mobile UI for cleanup success, points balance, reward browsing, and claim code presentation.
+
+---
+
+## Phase 8: Scale + Launch
+
+### Objective
+
+Prepare CleanLA for public usage: performance, observability, cost posture, iOS PWA hardening, SEO basics, custom domain, and launch readiness.
+
+### Dependencies
+
+Phases 1 through 7 complete.
+
+### Locked Decisions
+
 - Keep Mapbox unless cost or usage makes migration necessary.
 - Keep MapLibre as a documented cost lever, not a pre-launch rewrite.
-- Launch only after camera, geolocation, sharing, and moderation flows are tested on real devices.
+- Launch only after camera, geolocation, sharing, moderation, rewards, and redemption flows are tested on real devices.
 
 ### Work Items
 
@@ -757,6 +884,7 @@ Phases 1 through 6 complete.
    - Supabase database/storage/egress
    - Claude Haiku 4.5 vision moderation cost (~$0.001–0.002 per image; model the monthly cost at projected submission volume)
    - Vercel function/image generation cost
+   - rewards, redemption, and organization ledger storage/query cost
 6. Document MapLibre migration trigger:
    - monthly map cost threshold
    - expected engineering cost
@@ -780,8 +908,10 @@ Phases 1 through 6 complete.
    - public share flow
    - moderation flow
    - rejected content flow
+   - points award flow
+   - organization approval flow
+   - reward redemption and claim-code confirmation flow
 10. Optional launch enhancements:
-    - cleanup crew/org accounts
     - leaderboards
     - streaks
     - neighborhood filters
@@ -802,6 +932,7 @@ Phases 1 through 6 complete.
 - Errors are captured in Sentry.
 - Core product events are visible in analytics.
 - Camera and geolocation work in mobile browsers and installed iOS PWA mode.
+- Points, organization rewards, and claim-code redemption work correctly on mobile and desktop.
 - Public pages, policies, and takedown path are live.
 - Cost posture is documented.
 - Launch checklist is complete.
@@ -810,9 +941,10 @@ Phases 1 through 6 complete.
 
 - Run lint, typecheck, and production build.
 - Run mobile QA on iOS Safari, installed iOS PWA, Android Chrome, and desktop Chrome/Safari where available.
-- Run a complete report-to-cleanup-to-share scenario.
+- Run a complete report-to-cleanup-to-points-to-reward-to-share scenario.
 - Confirm no private service keys are exposed client-side.
 - Confirm hidden/rejected content cannot be accessed through public pages or OG endpoints.
+- Confirm pending/rejected organizations and inactive rewards cannot receive redemptions.
 
 ---
 
@@ -846,4 +978,3 @@ Before moving to the next phase, confirm:
 - Mobile UX was checked for any camera/geolocation phase.
 - Public content paths respect moderation and privacy rules.
 - The README or relevant docs were updated.
-

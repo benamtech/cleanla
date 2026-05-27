@@ -325,10 +325,10 @@ function SpotDetailSheet({
             <img
               src={spot.report_media_url ?? ""}
               alt={spot.description}
-              className="block aspect-[3/4] w-full object-cover"
+              className="block h-[180px] w-full object-cover sm:h-[240px]"
             />
           ) : (
-            <div className="flex aspect-[3/4] items-center justify-center bg-[#f8eac7] text-[12px] font-bold tracking-[0.03em] text-[#999999] uppercase">
+            <div className="flex h-[180px] items-center justify-center bg-[#f8eac7] text-[12px] font-bold tracking-[0.03em] text-[#999999] uppercase sm:h-[240px]">
               NO REPORT PHOTO
             </div>
           )}

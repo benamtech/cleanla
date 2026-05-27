@@ -708,6 +708,7 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
   // P2-5 username — fetched after user becomes available so we can
   // show a [SET USERNAME] nudge when one isn't set yet.
   const [username, setUsername] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   // P2-4 about modal
   const [showAbout, setShowAbout] = useState(false);
   // WebGL availability: null = checking, true = OK, false = unavailable.
@@ -736,6 +737,7 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
         void fetch("/api/profile", { method: "POST" });
       } else {
         setUsername(null);
+        setIsAdmin(false);
       }
     });
 
@@ -770,7 +772,10 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
       // check is satisfied (we never want a fresh setState during the
       // effect body's synchronous run; queueMicrotask runs after commit).
       queueMicrotask(() => {
-        if (active) setUsername(null);
+        if (active) {
+          setUsername(null);
+          setIsAdmin(false);
+        }
       });
       return () => {
         active = false;
@@ -778,12 +783,13 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
     }
     supabase
       .from("profiles")
-      .select("username")
+      .select("username, is_admin")
       .eq("id", user.id)
       .maybeSingle()
       .then(({ data }) => {
-        if (active && data?.username) {
-          setUsername(String(data.username));
+        if (active) {
+          setUsername(data?.username ? String(data.username) : null);
+          setIsAdmin(Boolean(data?.is_admin));
         }
       });
     return () => {
@@ -1211,6 +1217,14 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
                 className="flex min-h-[36px] items-center border-r border-[#999999] bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
               >
                 [PROFILE]
+              </a>
+            ) : null}
+            {user && isAdmin ? (
+              <a
+                href="/admin"
+                className="flex min-h-[36px] items-center border-r border-[#999999] bg-[#f8eac7] px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#b8dae8]"
+              >
+                [ADMIN]
               </a>
             ) : null}
             {user && !username ? (

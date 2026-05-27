@@ -177,8 +177,12 @@ export async function POST(request: Request) {
   let pointsAwarded = 0;
   let pointBalance: number | null = null;
 
-  // Only transition to cleaned when the after photo is fully verified on-site.
-  if (verification.status === "verified") {
+  // Manual review is the default. Final cleanup acceptance and points happen
+  // when an admin approves the verified after-photo in the moderation queue.
+  if (
+    process.env.CLEANLA_ALLOW_IMMEDIATE_CLEANUP_ACCEPTANCE === "true" &&
+    verification.status === "verified"
+  ) {
     const fromStatus = spot.status as string;
 
     const { error: updateError } = await admin
@@ -238,6 +242,12 @@ export async function POST(request: Request) {
     verification_status: verification.status,
     verification_reason: verification.reason,
     moderation_status: moderation.status,
+    cleanup_status:
+      verification.status === "verified" && moderation.status === "pending"
+        ? "pending_admin_review"
+        : pointsAwarded > 0
+          ? "accepted"
+          : "not_accepted",
     points_awarded: pointsAwarded,
     point_balance: pointBalance,
   });

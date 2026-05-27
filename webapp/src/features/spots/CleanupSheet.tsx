@@ -215,8 +215,16 @@ export function CleanupSheet({
         : "";
     const pointsAwarded =
       typeof body.points_awarded === "number" ? body.points_awarded : 0;
+    const cleanupStatus =
+      typeof body.cleanup_status === "string" ? body.cleanup_status : "";
+    const moderationStatus =
+      typeof body.moderation_status === "string"
+        ? body.moderation_status
+        : "pending";
 
-    if (vs === "verified") {
+    if (cleanupStatus === "pending_admin_review" || moderationStatus === "pending") {
+      setSubmitState({ kind: "pending", spotId: returnedSpotId });
+    } else if (vs === "verified") {
       setSubmitState({ kind: "verified", spotId: returnedSpotId, pointsAwarded });
     } else if (vs === "unverified") {
       setSubmitState({ kind: "unverified", spotId: returnedSpotId, reason: vr });
@@ -348,7 +356,7 @@ export function CleanupSheet({
 
         {submitState.kind === "pending" ? (
           <div className="border border-[#999999] bg-white p-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase">
-            AFTER PHOTO SUBMITTED — PENDING REVIEW.
+            AFTER PHOTO SUBMITTED — PENDING ADMIN REVIEW.
           </div>
         ) : null}
 

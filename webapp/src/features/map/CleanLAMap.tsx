@@ -161,7 +161,7 @@ function StatusPanel({
         : `${count} VISIBLE`;
 
   return (
-    <div className="border border-[#999999] bg-white px-[9px] py-[6px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase">
+    <div className="flex h-[27px] items-center border-l border-[#999999] bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase">
       {label}
     </div>
   );
@@ -493,7 +493,7 @@ function MapLegend() {
         ))}
         <div className="mt-[3px] flex items-center gap-[6px] border-t border-[#999999] pt-[6px]">
           <span
-            className="block h-[12px] w-[12px] shrink-0 border-[2px] border-[#228B22] bg-white"
+            className="block h-[12px] w-[12px] shrink-0 border border-[#228B22] bg-white"
             aria-hidden="true"
           />
           <span className="text-[9px] font-bold tracking-[0.03em] text-[#228B22] uppercase">
@@ -518,6 +518,7 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
   const [showSignIn, setShowSignIn] = useState(false);
   const [showReport, setShowReport] = useState(false);
   const [showCleanup, setShowCleanup] = useState(false);
+  const [showLegend, setShowLegend] = useState(false);
   // P2-2 cursor state
   const [hoverCursor, setHoverCursor] = useState<"grab" | "pointer">("grab");
   // P1-2 fallback location for GPS-denied case — kept in sync with
@@ -744,6 +745,10 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
         setShowSignIn(false);
         return;
       }
+      if (showLegend) {
+        setShowLegend(false);
+        return;
+      }
       if (showAbout) {
         setShowAbout(false);
         return;
@@ -751,7 +756,7 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [selectedSpot, showCleanup, showSignIn, showAbout]);
+  }, [selectedSpot, showCleanup, showSignIn, showLegend, showAbout]);
 
   function handleMapClick(event: MapMouseEvent) {
     const feature = event.features?.[0];
@@ -868,7 +873,7 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
         // P2-6: pad the bottom 81px so flyTo/fitBounds frames pins in the
         // area NOT occluded by the big FILE A REPORT CTA. Doesn't shrink
         // the map's drawing area; only affects auto-camera-positioning.
-        padding={{ top: 90, bottom: 144, left: 12, right: 12 }}
+        padding={{ top: 120, bottom: 120, left: 12, right: 12 }}
         // Full interaction: drag-pan, scroll-zoom, double-click-zoom,
         // drag-rotate, pitch-with-rotate, touch-pitch, touch-zoom-rotate.
         // react-map-gl defaults most of these on; touchPitch is the
@@ -899,7 +904,7 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
       </Map>
       )}
 
-      <header className="absolute top-[9px] right-[9px] left-[9px] z-10 border border-[#999999] bg-white">
+      <header className="absolute top-[9px] right-[9px] left-[9px] z-10 border border-[#999999] bg-white md:right-auto md:w-[420px]">
         <div className="flex h-[27px] items-center justify-between border-b border-[#999999] bg-[#94a3d6] px-[9px]">
           <h1 className="text-[15px] font-bold tracking-[0.03em] text-white uppercase">
             CLEANLA MAP
@@ -908,16 +913,44 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
             {user ? "SIGNED IN" : "PUBLIC"}
           </span>
         </div>
-        <div className="flex flex-wrap items-center justify-between gap-[9px] p-[9px]">
-          <p className="text-[12px] tracking-[0.03em] text-[#001089] uppercase">
-            LOS ANGELES PUBLIC SPOTS
-          </p>
-          <div className="flex flex-wrap items-center gap-[6px]">
-            <StatusPanel fetchState={fetchState} count={spots.length} />
+        <div className="flex h-[27px] items-stretch border-b border-[#999999]">
+          <div className="flex flex-1 items-center bg-[#f8eac7] px-[9px]">
+            <p className="text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase">
+              EXPLORE LA PUBLIC SPOTS
+            </p>
+          </div>
+          <StatusPanel fetchState={fetchState} count={spots.length} />
+        </div>
+        <div className="flex h-[27px] items-stretch border-b border-[#999999] bg-white">
+          <div className="flex flex-1 items-center px-[9px]">
+            <span className="text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase">
+              DRAG MAP
+            </span>
+          </div>
+          <div className="flex flex-1 items-center border-l border-[#999999] px-[9px]">
+            <span className="text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase">
+              TAP PINS
+            </span>
+          </div>
+          <div className="flex flex-1 items-center border-l border-[#999999] px-[9px]">
+            <span className="text-[9px] font-bold tracking-[0.03em] text-[#228B22] uppercase">
+              CLEAN SPOTS
+            </span>
+          </div>
+        </div>
+        <div className="flex min-h-[36px] flex-wrap items-stretch border-b border-[#999999] bg-white">
+          <button
+            type="button"
+            onClick={() => setShowLegend((current) => !current)}
+            className="min-h-[36px] border-r border-[#999999] bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
+          >
+            [LEGEND]
+          </button>
+          <div className="flex flex-1 flex-wrap items-stretch">
             {user ? (
               <a
                 href="/profile"
-                className="border border-[#999999] bg-white px-[9px] py-[6px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
+                className="flex min-h-[36px] items-center border-r border-[#999999] bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
               >
                 [PROFILE]
               </a>
@@ -925,7 +958,7 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
             {user && !username ? (
               <a
                 href="/profile"
-                className="border border-[#999999] bg-[#f8eac7] px-[9px] py-[6px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase no-underline hover:bg-[#b8dae8]"
+                className="flex min-h-[36px] items-center border-r border-[#999999] bg-[#f8eac7] px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase no-underline hover:bg-[#b8dae8]"
               >
                 [SET USERNAME]
               </a>
@@ -934,7 +967,7 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
               <button
                 type="button"
                 onClick={signOut}
-                className="border border-[#999999] bg-white px-[9px] py-[6px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
+                className="min-h-[36px] border-r border-[#999999] bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
               >
                 [SIGN OUT]
               </button>
@@ -942,7 +975,7 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
               <button
                 type="button"
                 onClick={() => setShowSignIn(true)}
-                className="border border-[#999999] bg-white px-[9px] py-[6px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
+                className="min-h-[36px] border-r border-[#999999] bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
               >
                 [SIGN IN]
               </button>
@@ -951,18 +984,23 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
               type="button"
               onClick={() => setShowAbout(true)}
               aria-label="About CleanLA"
-              className="border border-[#999999] bg-white px-[9px] py-[6px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
+              className="min-h-[36px] bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
             >
               [i]
             </button>
           </div>
+        </div>
+        <div className="flex min-h-[36px] items-center bg-[#b8dae8] px-[9px]">
+          <p className="text-[12px] font-bold leading-[18px] tracking-[0.03em] text-[#001089] uppercase">
+            FIND A SPOT NEAR YOU. TAP A PIN TO SEE THE STORY.
+          </p>
         </div>
       </header>
 
       {/* P1-4: empty-viewport encouragement. Renders above the CTA when
           a fetch resolved with zero spots in the current bounds. */}
       {fetchState.kind === "ok" && spots.length === 0 ? (
-        <div className="pointer-events-none absolute right-[12px] bottom-[174px] left-[12px] z-10">
+        <div className="pointer-events-none absolute right-[12px] bottom-[120px] left-[12px] z-10">
           <div className="border border-[#999999] bg-[#f8eac7] p-[9px] text-center text-[12px] font-bold tracking-[0.03em] text-[#001089] uppercase">
             NO REPORTS HERE YET · BE THE FIRST
           </div>
@@ -973,10 +1011,17 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
           so it doesn't get pushed off-screen by the bar's full-width
           dominance. mix-blend-difference keeps it legible over any
           underlying map tile color. */}
-      <div className="pointer-events-none absolute right-[12px] bottom-[150px] left-[12px] z-10">
-        <p className="text-center text-[9px] font-bold tracking-[0.03em] text-white uppercase mix-blend-difference">
-          OR TAP ANY PIN TO MARK IT CLEANED
-        </p>
+      <div className="pointer-events-none absolute right-[12px] bottom-[96px] left-[12px] z-10 md:left-auto md:w-[360px]">
+        <div className="border border-[#999999] bg-white">
+          <div className="flex h-[27px] items-center border-b border-[#999999] bg-[#f8eac7] px-[9px]">
+            <span className="text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase">
+              NEXT MOVE
+            </span>
+          </div>
+          <p className="px-[9px] py-[6px] text-[12px] font-bold leading-[18px] tracking-[0.03em] text-[#001089] uppercase">
+            PAN THE MAP. OPEN A PIN. ADD WHAT LA IS MISSING.
+          </p>
+        </div>
       </div>
 
       {/* Primary CTA — edge-to-edge bottom bar in warning red. Maximum
@@ -991,22 +1036,22 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
               bottom bar pattern (think iOS-app tab bar position)
             - 1px top border in grey reads as a "sticky footer" rather
               than a floating button, anchoring it to the screen edge */}
-      <div className="absolute inset-x-0 bottom-0 z-10 border-t border-[#999999]">
+      <div className="absolute inset-x-0 bottom-0 z-10 border-t border-[#999999] bg-white">
         <button
           type="button"
           onClick={openReport}
-          className="block w-full bg-[#a60315] px-[18px] py-[48px] text-[36px] font-bold tracking-[0.06em] text-white uppercase hover:bg-[#001089]"
+          className="block w-full bg-[#a60315] px-[18px] py-[18px] text-[24px] font-bold tracking-[0.03em] text-white uppercase hover:bg-[#001089]"
         >
           [+] FILE A REPORT
         </button>
       </div>
 
-      <div className="absolute top-[90px] right-[9px] z-10 grid gap-[9px]">
-        <MapLegend />
-        <div className="grid justify-items-end gap-[6px]">
+      <div className="absolute top-[177px] right-[9px] z-10 grid gap-[9px] md:top-[9px]">
+        {showLegend ? <MapLegend /> : null}
+        <div className="grid justify-items-end">
           <button
             type="button"
-            className="border border-[#999999] bg-white px-[9px] py-[6px] text-[12px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
+            className="h-[36px] w-[36px] border border-[#999999] bg-white text-[12px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
             onClick={() => mapRef.current?.zoomIn({ duration: 100 })}
             aria-label="Zoom in"
           >
@@ -1014,7 +1059,7 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
           </button>
           <button
             type="button"
-            className="border border-[#999999] bg-white px-[9px] py-[6px] text-[12px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
+            className="h-[36px] w-[36px] border-x border-b border-[#999999] bg-white text-[12px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
             onClick={() => mapRef.current?.zoomOut({ duration: 100 })}
             aria-label="Zoom out"
           >

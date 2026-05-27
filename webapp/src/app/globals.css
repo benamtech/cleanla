@@ -53,10 +53,8 @@ select,
 button {
   font-family: inherit;
   font-size: inherit;
-  color: inherit;
-  background: transparent;
-  border: 0;
   outline: 0;
+  appearance: none;
 }
 
 button {

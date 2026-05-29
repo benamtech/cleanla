@@ -256,62 +256,46 @@ export function JuanDemoSheet({ onClose }: { onClose: () => void }) {
                 aria-expanded={isOpen}
               >
                 <span className="w-[6px] shrink-0 bg-[#001089]" />
-                <span className="relative my-[6px] ml-[6px] block h-[48px] w-[48px] shrink-0 overflow-hidden border border-[#999999] bg-[#f8eac7]">
+                <span
+                  className={`relative my-[6px] ml-[6px] block shrink-0 overflow-hidden border border-[#999999] bg-[#f8eac7] ${
+                    isOpen ? "h-[120px] w-[120px]" : "h-[48px] w-[48px]"
+                  }`}
+                >
                   {row.photo ? (
                     <Image
                       src={row.photo}
                       alt={row.title}
                       fill
-                      sizes="48px"
+                      sizes={isOpen ? "120px" : "48px"}
                       className="object-cover"
                     />
                   ) : null}
                 </span>
-                <span className="flex-1 px-[9px] py-[6px]">
+                <span className="flex flex-1 flex-col px-[9px] py-[6px]">
                   <span className="block text-[12px] font-bold tracking-[0.03em] text-[#001089] uppercase">
                     {row.title}
                   </span>
                   <span className="block text-[9px] tracking-[0.03em] text-[#999999] uppercase">
                     {row.category} · {row.neighborhood}
                   </span>
+                  {isOpen ? (
+                    <>
+                      <span className="mt-[9px] block text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase">
+                        LOCATION · {row.location}
+                      </span>
+                      <span className="block text-[9px] font-bold tracking-[0.03em] text-[#999999] uppercase">
+                        {row.date} · REPORTED
+                      </span>
+                      <span className="mt-[6px] block text-[12px] leading-[18px] text-[#001089]">
+                        {row.status}
+                      </span>
+                    </>
+                  ) : null}
                 </span>
                 <span className="flex w-[36px] shrink-0 items-center justify-center border-l border-[#999999] text-[12px] font-bold text-[#001089]">
                   {isOpen ? "[−]" : "[+]"}
                 </span>
               </button>
-              {isOpen ? (
-                <div className="border-b border-[#999999] bg-[#f8eac7]">
-                  {row.photo ? (
-                    <div className="flex items-center justify-center border-b border-[#999999] bg-white py-[6px]">
-                      <Image
-                        src={row.photo}
-                        alt={row.title}
-                        width={640}
-                        height={420}
-                        sizes="(max-width: 420px) 100vw, 420px"
-                        className="block h-auto max-h-[108px] w-auto max-w-full"
-                      />
-                    </div>
-                  ) : (
-                    <div className="flex h-[120px] items-center justify-center border-b border-[#999999] bg-white">
-                      <span className="text-[9px] font-bold tracking-[0.03em] text-[#999999] uppercase">
-                        PHOTO · {row.category}
-                      </span>
-                    </div>
-                  )}
-                  <div className="px-[9px] py-[9px]">
-                    <p className="text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase">
-                      LOCATION · {row.location}
-                    </p>
-                    <p className="mt-[6px] text-[9px] font-bold tracking-[0.03em] text-[#999999] uppercase">
-                      {row.date} · REPORTED
-                    </p>
-                    <p className="mt-[6px] text-[12px] leading-[18px] text-[#001089]">
-                      {row.status}
-                    </p>
-                  </div>
-                </div>
-              ) : null}
             </div>
           );
         })}
@@ -333,24 +317,38 @@ export function JuanDemoSheet({ onClose }: { onClose: () => void }) {
                 aria-expanded={isOpen}
               >
                 <span className="w-[6px] shrink-0 bg-[#228B22]" />
-                <span className="relative my-[6px] ml-[6px] block h-[48px] w-[48px] shrink-0 overflow-hidden border border-[#999999] bg-[#f8eac7]">
+                <span
+                  className={`relative my-[6px] ml-[6px] block shrink-0 overflow-hidden border border-[#999999] bg-[#f8eac7] ${
+                    isOpen ? "h-[120px] w-[120px]" : "h-[48px] w-[48px]"
+                  }`}
+                >
                   {row.photo ? (
                     <Image
                       src={row.photo}
                       alt={row.title}
                       fill
-                      sizes="48px"
+                      sizes={isOpen ? "120px" : "48px"}
                       className="object-cover"
                     />
                   ) : null}
                 </span>
-                <span className="flex-1 px-[9px] py-[6px]">
+                <span className="flex flex-1 flex-col px-[9px] py-[6px]">
                   <span className="block text-[12px] font-bold tracking-[0.03em] text-[#001089] uppercase">
                     {row.title}
                   </span>
                   <span className="block text-[9px] tracking-[0.03em] text-[#999999] uppercase">
                     {row.category} · {row.neighborhood}
                   </span>
+                  {isOpen ? (
+                    <>
+                      <span className="mt-[9px] block text-[9px] font-bold tracking-[0.03em] text-[#228B22] uppercase">
+                        {row.date} · ✓ CLEANED
+                      </span>
+                      <span className="mt-[6px] block text-[12px] leading-[18px] text-[#001089]">
+                        {row.status}
+                      </span>
+                    </>
+                  ) : null}
                 </span>
                 <span className="flex shrink-0 items-center justify-center border-l border-[#999999] px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#228B22] uppercase">
                   +{row.points}
@@ -359,16 +357,6 @@ export function JuanDemoSheet({ onClose }: { onClose: () => void }) {
                   {isOpen ? "[−]" : "[+]"}
                 </span>
               </button>
-              {isOpen ? (
-                <div className="border-b border-[#999999] bg-[#f8eac7] px-[9px] py-[9px]">
-                  <p className="text-[9px] font-bold tracking-[0.03em] text-[#999999] uppercase">
-                    {row.date} · ✓ CLEANED · +{row.points} PTS
-                  </p>
-                  <p className="mt-[6px] text-[12px] leading-[18px] text-[#001089]">
-                    {row.status}
-                  </p>
-                </div>
-              ) : null}
             </div>
           );
         })}

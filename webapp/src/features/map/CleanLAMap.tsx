@@ -1523,10 +1523,10 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
         <button
           type="button"
           onClick={openReport}
-          className={`pointer-events-auto block w-full border border-[#999999] bg-[#a60315] font-bold tracking-[0.03em] text-white uppercase transition-all duration-[240ms] hover:bg-[#001089] ${
+          className={`pointer-events-auto w-full border border-[#999999] bg-[#a60315] font-bold tracking-[0.03em] text-white uppercase transition-all duration-[240ms] hover:bg-[#001089] ${
             isMinimized
-              ? "px-[9px] py-[3px] text-[12px]"
-              : "px-[18px] py-[18px] text-[24px]"
+              ? "block px-[9px] py-[3px] text-[12px]"
+              : "flex h-[54px] items-center justify-center px-[18px] text-[24px]"
           }`}
         >
           [+] FILE A REPORT

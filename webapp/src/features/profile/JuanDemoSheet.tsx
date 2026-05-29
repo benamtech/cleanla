@@ -271,13 +271,14 @@ export function JuanDemoSheet({ onClose }: { onClose: () => void }) {
               {isOpen ? (
                 <div className="border-b border-[#999999] bg-[#f8eac7]">
                   {row.photo ? (
-                    <div className="relative h-[150px] border-b border-[#999999] bg-white">
+                    <div className="flex items-center justify-center border-b border-[#999999] bg-white py-[6px]">
                       <Image
                         src={row.photo}
                         alt={row.title}
-                        fill
-                        sizes="420px"
-                        className="object-cover"
+                        width={640}
+                        height={420}
+                        sizes="(max-width: 420px) 100vw, 420px"
+                        className="block h-auto max-h-[108px] w-auto max-w-full"
                       />
                     </div>
                   ) : (

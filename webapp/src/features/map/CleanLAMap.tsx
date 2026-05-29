@@ -1320,17 +1320,15 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
 
       <header className="absolute top-[calc(9px_+_env(safe-area-inset-top))] right-[calc(9px_+_env(safe-area-inset-right))] left-[calc(9px_+_env(safe-area-inset-left))] z-10 border border-[#999999] bg-white md:right-auto md:w-[420px]">
         <div
-          className={`flex items-center border-b border-[#999999] bg-[#94a3d6] px-[9px] transition-[height] duration-[240ms] ${
-            isMinimized ? "h-[15px]" : "h-[27px]"
+          className={`flex items-center overflow-hidden border-b border-[#999999] bg-[#94a3d6] px-[9px] transition-[height] duration-[240ms] ${
+            isMinimized ? "h-[6px]" : "h-[27px]"
           }`}
         >
-          <h1
-            className={`font-bold tracking-[0.03em] text-white uppercase transition-[font-size] duration-[240ms] ${
-              isMinimized ? "text-[9px]" : "text-[15px]"
-            }`}
-          >
-            CLEANLA MAP
-          </h1>
+          {isMinimized ? null : (
+            <h1 className="text-[15px] font-bold tracking-[0.03em] text-white uppercase">
+              CLEANLA MAP
+            </h1>
+          )}
         </div>
         <div className="flex h-[27px] items-center justify-between gap-[9px] border-b border-[#999999] bg-[#f8eac7] px-[9px]">
           <p className="truncate text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase">

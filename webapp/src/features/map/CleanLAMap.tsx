@@ -1026,8 +1026,8 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
     // to MAX speed and partial deflection scales linearly. At ~60fps the
     // constants below mean ~72°/sec pitch and ~120°/sec bearing at max.
     const LIMIT = 18;
-    const MAX_PITCH_PER_FRAME = 1.2;
-    const MAX_BEARING_PER_FRAME = 2.0;
+    const MAX_PITCH_PER_FRAME = 0.6;
+    const MAX_BEARING_PER_FRAME = 1.0;
     const nx = clamp(dx / LIMIT, -1, 1);
     const ny = clamp(dy / LIMIT, -1, 1);
     const nextPitch = clamp(

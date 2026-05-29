@@ -755,6 +755,9 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
   const [showRewards, setShowRewards] = useState(false);
   // Rotating header tagline — cycles every TAGLINE_ROTATE_MS through TAGLINES.
   const [taglineIndex, setTaglineIndex] = useState(0);
+  // True while the map is being moved (pan/zoom/rotate); the action-row
+  // buttons compact from 45 -> 27px during interaction, then snap back.
+  const [isMapInteracting, setIsMapInteracting] = useState(false);
   useEffect(() => {
     const id = setInterval(
       () => setTaglineIndex((i) => (i + 1) % TAGLINES.length),
@@ -925,6 +928,10 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
     }
   }
 
+  function handleMoveStart() {
+    setIsMapInteracting(true);
+  }
+
   function handleMoveEnd(event: ViewStateChangeEvent) {
     const bounds = event.target.getBounds();
     if (bounds) {
@@ -936,6 +943,7 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
     if (center) {
       setCurrentMapCenter({ lat: center.lat, lng: center.lng });
     }
+    setIsMapInteracting(false);
   }
 
   function refetchCurrentBounds() {
@@ -1204,6 +1212,7 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
         minZoom={8}
         maxZoom={17}
         onLoad={handleLoad}
+        onMoveStart={handleMoveStart}
         onMoveEnd={handleMoveEnd}
         onClick={handleMapClick}
         interactiveLayerIds={["spot-clusters", "spot-pins"]}
@@ -1262,7 +1271,11 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
           </p>
           <StatusPanel fetchState={fetchState} count={spots.length} />
         </div>
-        <div className="flex min-h-[45px] flex-wrap items-stretch border-b border-[#999999] bg-white">
+        <div
+          className={`nav-row flex flex-wrap items-stretch border-b border-[#999999] bg-white ${
+            isMapInteracting ? "is-compact" : ""
+          }`}
+        >
           <button
             type="button"
             onClick={() => setShowLegend((current) => !current)}

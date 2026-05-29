@@ -110,3 +110,22 @@ button {
   min-height: 45px;
   transform: translate(-50%, -50%);
 }
+
+/* Compact-on-interact nav row: while the map is being panned/zoomed/rotated,
+   the action buttons collapse from 45px to 27px so more of the map shows; on
+   move-end they snap back to the full 45px touch target. Transitions stay
+   short so the row never feels laggy when the user wants to tap. */
+.nav-row {
+  min-height: 45px;
+  transition: min-height 240ms ease-out;
+}
+.nav-row > button,
+.nav-row > a {
+  min-height: 45px;
+  transition: min-height 240ms ease-out;
+}
+.nav-row.is-compact,
+.nav-row.is-compact > button,
+.nav-row.is-compact > a {
+  min-height: 27px;
+}

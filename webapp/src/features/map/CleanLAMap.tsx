@@ -1543,6 +1543,17 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
                   className="object-cover"
                 />
               </div>
+              <p className="border-b border-[#999999] bg-white px-[9px] py-[3px] text-[9px] tracking-[0.03em] text-[#999999] uppercase">
+                PHOTO: JOSH LIM (SKY HARBOR) ·{" "}
+                <a
+                  href="https://commons.wikimedia.org/wiki/File:Langer%27s_Deli_from_Langer%27s_Square_(cropped).jpg"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[#999999]"
+                >
+                  CC BY-SA 4.0
+                </a>
+              </p>
               <div className="grid gap-[6px] px-[9px] py-[9px]">
                 <p className="text-[9px] font-bold tracking-[0.03em] text-[#999999] uppercase">
                   LANGER&apos;S DELICATESSEN · DELI · MACARTHUR PARK

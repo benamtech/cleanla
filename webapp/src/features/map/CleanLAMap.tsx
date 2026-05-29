@@ -1241,7 +1241,7 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
           <button
             type="button"
             onClick={() => setShowLegend((current) => !current)}
-            className="min-h-[45px] border-r border-[#999999] bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
+            className="inline-flex min-h-[45px] items-center justify-center border-r border-[#999999] bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
           >
             [LEGEND]
           </button>
@@ -1249,14 +1249,14 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
             {user ? (
               <a
                 href="/profile"
-                className="flex min-h-[45px] items-center border-r border-[#999999] bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
+                className="inline-flex min-h-[45px] items-center justify-center border-r border-[#999999] bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase no-underline hover:bg-[#f8eac7]"
               >
                 [PROFILE]
               </a>
             ) : null}
             <a
               href="/rewards"
-              className="flex min-h-[45px] items-center border-r border-[#999999] bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#228B22] uppercase hover:bg-[#f8eac7]"
+              className="inline-flex min-h-[45px] items-center justify-center border-r border-[#999999] bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#228B22] uppercase no-underline hover:bg-[#f8eac7]"
             >
               {user && pointBalance !== null
                 ? `[REWARDS / ${formatPoints(pointBalance)}]`
@@ -1265,7 +1265,7 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
             {user && isAdmin ? (
               <a
                 href="/admin"
-                className="flex min-h-[45px] items-center border-r border-[#999999] bg-[#f8eac7] px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#b8dae8]"
+                className="inline-flex min-h-[45px] items-center justify-center border-r border-[#999999] bg-[#f8eac7] px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase no-underline hover:bg-[#b8dae8]"
               >
                 [ADMIN]
               </a>
@@ -1273,7 +1273,7 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
             {user && !username ? (
               <a
                 href="/profile"
-                className="flex min-h-[45px] items-center border-r border-[#999999] bg-[#f8eac7] px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase no-underline hover:bg-[#b8dae8]"
+                className="inline-flex min-h-[45px] items-center justify-center border-r border-[#999999] bg-[#f8eac7] px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase no-underline hover:bg-[#b8dae8]"
               >
                 [SET USERNAME]
               </a>
@@ -1282,7 +1282,7 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
               <button
                 type="button"
                 onClick={signOut}
-                className="min-h-[45px] border-r border-[#999999] bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
+                className="inline-flex min-h-[45px] items-center justify-center border-r border-[#999999] bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
               >
                 [SIGN OUT]
               </button>
@@ -1290,7 +1290,7 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
               <button
                 type="button"
                 onClick={() => setShowSignIn(true)}
-                className="min-h-[45px] border-r border-[#999999] bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
+                className="inline-flex min-h-[45px] items-center justify-center border-r border-[#999999] bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
               >
                 [SIGN IN]
               </button>
@@ -1299,7 +1299,7 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
               type="button"
               onClick={() => setShowAbout(true)}
               aria-label="About CleanLA"
-              className="min-h-[45px] bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
+              className="inline-flex min-h-[45px] items-center justify-center bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
             >
               [i]
             </button>

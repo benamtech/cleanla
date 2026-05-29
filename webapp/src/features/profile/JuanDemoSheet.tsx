@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 
 // Cosmetic demo profile for @Juan. All data here is mock — there is no real
@@ -83,13 +84,21 @@ const CLEANED: (ActivityRow & { points: number })[] = [
 const TOTAL_POINTS = CLEANED.reduce((sum, row) => sum + row.points, 0);
 
 const PROFILE = {
-  name: "JUAN",
+  name: "JUAN NAULA",
   handle: "@JUAN",
   location: "BOYLE HEIGHTS, LOS ANGELES",
   website: "cleanlawithme.org",
   socials: [
-    { label: "X", handle: "@juan_cleansla" },
-    { label: "INSTAGRAM", handle: "@juan.cleansla" },
+    {
+      label: "INSTAGRAM",
+      handle: "@cleanlawithme",
+      url: "https://www.instagram.com/cleanlawithme/",
+    },
+    {
+      label: "FACEBOOK",
+      handle: "/cleanlawithme",
+      url: "https://www.facebook.com/cleanlawithme/",
+    },
   ],
 };
 
@@ -153,14 +162,15 @@ export function JuanDemoSheet({ onClose }: { onClose: () => void }) {
           </div>
         </div>
 
-        {/* HERO — profile photo placeholder */}
-        <div className="flex h-[150px] flex-col items-center justify-center border-b border-[#999999] bg-[#f8eac7]">
-          <span className="text-[36px] font-bold tracking-[0.03em] text-[#001089] uppercase leading-[36px]">
-            J
-          </span>
-          <span className="mt-[6px] text-[9px] font-bold tracking-[0.03em] text-[#999999] uppercase">
-            PROFILE PHOTO
-          </span>
+        {/* HERO — profile photo (Clean LA With Me logo) */}
+        <div className="relative h-[150px] border-b border-[#999999] bg-[#f8eac7]">
+          <Image
+            src="/cleanlawithme-logo.png"
+            alt="Clean LA With Me logo"
+            fill
+            sizes="420px"
+            className="object-contain p-[18px]"
+          />
         </div>
 
         {/* IDENTITY */}
@@ -205,7 +215,14 @@ export function JuanDemoSheet({ onClose }: { onClose: () => void }) {
                   {social.label}
                 </td>
                 <td className="px-[9px] py-[6px] text-[12px] leading-[18px] text-[#001089]">
-                  {social.handle}
+                  <a
+                    href={social.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[#001089]"
+                  >
+                    {social.handle}
+                  </a>
                 </td>
               </tr>
             ))}

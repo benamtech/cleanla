@@ -197,8 +197,16 @@ function StatusPanel({
         : `${count} VISIBLE`;
 
   return (
-    <div className="flex h-[27px] items-center border-l border-[#999999] bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase">
-      {label}
+    <div className="flex h-[27px] items-center justify-center border-l border-[#999999] bg-white px-[9px]">
+      <span
+        className={`inline-flex items-center border px-[6px] py-[3px] text-[9px] font-bold tracking-[0.03em] uppercase ${
+          fetchState.kind === "error"
+            ? "border-[#a60315] text-[#a60315]"
+            : "border-[#001089] text-[#001089]"
+        }`}
+      >
+        {label}
+      </span>
     </div>
   );
 }
@@ -1222,7 +1230,7 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
           <h1 className="text-[15px] font-bold tracking-[0.03em] text-white uppercase">
             CLEANLA MAP
           </h1>
-          <span className="text-[9px] tracking-[0.03em] text-white uppercase">
+          <span className="inline-flex items-center border border-white px-[6px] py-[3px] text-[9px] font-bold tracking-[0.03em] text-white uppercase">
             {user ? "SIGNED IN" : "PUBLIC"}
           </span>
         </div>
@@ -1255,9 +1263,12 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
               onClick={() => setShowRewards(true)}
               className="inline-flex min-h-[45px] grow items-center justify-center border-r border-[#999999] bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#228B22] uppercase hover:bg-[#f8eac7]"
             >
-              {user && pointBalance !== null
-                ? `[REWARDS / ${formatPoints(pointBalance)}]`
-                : "[REWARDS]"}
+              <span>[REWARDS]</span>
+              {user && pointBalance !== null ? (
+                <span className="ml-[6px] inline-flex items-center border border-[#228B22] px-[6px] py-[3px] text-[9px] font-bold tracking-[0.03em] text-[#228B22] uppercase">
+                  {formatPoints(pointBalance)}
+                </span>
+              ) : null}
             </button>
             {user && isAdmin ? (
               <a
@@ -1564,8 +1575,10 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
                   Home of the world-famous #19 hot pastrami. Serving Westlake
                   since 1947 at 704 S Alvarado St.
                 </p>
-                <p className="text-[15px] font-bold tracking-[0.03em] text-[#228B22] uppercase">
-                  200 POINTS
+                <p>
+                  <span className="inline-flex items-center border border-[#228B22] px-[6px] py-[3px] text-[12px] font-bold tracking-[0.03em] text-[#228B22] uppercase">
+                    200 POINTS
+                  </span>
                 </p>
               </div>
               <button

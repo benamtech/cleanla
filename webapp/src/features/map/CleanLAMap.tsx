@@ -623,16 +623,19 @@ function CameraJoystick({
 function MapGameControls({
   onPan,
   onContinuous,
+  isMinimized,
 }: {
   onPan: (direction: MapDirection) => void;
   onContinuous: (dx: number, dy: number) => void;
+  isMinimized: boolean;
 }) {
+  const slideClass = isMinimized ? "translate-x-[150px]" : "";
   const moveButtonClass =
     "h-[45px] w-[45px] border border-[#999999] bg-white text-[12px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]";
 
   return (
     <>
-      <div className="absolute right-[9px] bottom-[90px] z-10 hidden border border-[#999999] bg-white p-[6px] md:block">
+      <div className={`absolute right-[9px] bottom-[90px] z-10 hidden border border-[#999999] bg-white p-[6px] transition-transform duration-[240ms] md:block ${slideClass}`}>
         <div className="mb-[6px] border-b border-[#999999] pb-[6px] text-center text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase">
           WASD MOVE
         </div>
@@ -677,7 +680,7 @@ function MapGameControls({
         </div>
       </div>
 
-      <div className="absolute right-[calc(12px_+_env(safe-area-inset-right))] bottom-[calc(90px_+_env(safe-area-inset-bottom))] z-10 md:hidden">
+      <div className={`absolute right-[calc(12px_+_env(safe-area-inset-right))] bottom-[calc(90px_+_env(safe-area-inset-bottom))] z-10 transition-transform duration-[240ms] md:hidden ${slideClass}`}>
         <CameraJoystick
           compact
           caption={null}
@@ -1209,6 +1212,19 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
     );
   }
 
+  // True whenever the map is being moved OR any modal/sheet is open. Drives
+  // the global "minimize chrome" state: title bar shrinks, nav row compacts,
+  // bottom CTA shrinks, zoom + joystick slide off-screen.
+  const isMinimized =
+    isMapInteracting ||
+    Boolean(selectedSpot) ||
+    showReport ||
+    showCleanup ||
+    showSignIn ||
+    showAbout ||
+    showRewards ||
+    showProfile;
+
   return (
     <main className="relative h-[100dvh] overflow-hidden bg-white text-[#001089] md:min-h-[540px]">
       {webglOk === false ? (
@@ -1303,13 +1319,18 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
       )}
 
       <header className="absolute top-[calc(9px_+_env(safe-area-inset-top))] right-[calc(9px_+_env(safe-area-inset-right))] left-[calc(9px_+_env(safe-area-inset-left))] z-10 border border-[#999999] bg-white md:right-auto md:w-[420px]">
-        <div className="flex h-[27px] items-center justify-between border-b border-[#999999] bg-[#94a3d6] px-[9px]">
-          <h1 className="text-[15px] font-bold tracking-[0.03em] text-white uppercase">
+        <div
+          className={`flex items-center border-b border-[#999999] bg-[#94a3d6] px-[9px] transition-[height] duration-[240ms] ${
+            isMinimized ? "h-[15px]" : "h-[27px]"
+          }`}
+        >
+          <h1
+            className={`font-bold tracking-[0.03em] text-white uppercase transition-[font-size] duration-[240ms] ${
+              isMinimized ? "text-[9px]" : "text-[15px]"
+            }`}
+          >
             CLEANLA MAP
           </h1>
-          <span className="inline-flex items-center border border-white px-[6px] py-[3px] text-[9px] font-bold tracking-[0.03em] text-white uppercase">
-            {user ? "SIGNED IN" : "PUBLIC"}
-          </span>
         </div>
         <div className="flex h-[27px] items-center justify-between gap-[9px] border-b border-[#999999] bg-[#f8eac7] px-[9px]">
           <p className="truncate text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase">
@@ -1319,7 +1340,7 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
         </div>
         <div
           className={`nav-row flex flex-wrap items-stretch border-b border-[#999999] bg-white ${
-            isMapInteracting ? "is-compact" : ""
+            isMinimized ? "is-compact" : ""
           }`}
         >
           <button
@@ -1439,21 +1460,33 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
         <button
           type="button"
           onClick={openReport}
-          className="pointer-events-auto block w-full border border-[#999999] bg-[#a60315] px-[18px] py-[18px] text-[24px] font-bold tracking-[0.03em] text-white uppercase hover:bg-[#001089]"
+          className={`pointer-events-auto block w-full border border-[#999999] bg-[#a60315] font-bold tracking-[0.03em] text-white uppercase transition-all duration-[240ms] hover:bg-[#001089] ${
+            isMinimized
+              ? "px-[9px] py-[3px] text-[12px]"
+              : "px-[18px] py-[18px] text-[24px]"
+          }`}
         >
           [+] FILE A REPORT
         </button>
       </div>
 
       {webglOk ? (
-        <MapGameControls onPan={panMap} onContinuous={adjustCameraContinuous} />
+        <MapGameControls
+          onPan={panMap}
+          onContinuous={adjustCameraContinuous}
+          isMinimized={isMinimized}
+        />
       ) : null}
 
       <div className="absolute top-[calc(141px_+_env(safe-area-inset-top))] right-[calc(9px_+_env(safe-area-inset-right))] z-10 grid gap-[9px] md:top-[9px]">
         {showLegend ? <MapLegend /> : null}
       </div>
 
-      <div className="absolute right-[calc(12px_+_env(safe-area-inset-right))] bottom-[calc(171px_+_env(safe-area-inset-bottom))] z-10 grid justify-items-end md:bottom-[calc(270px_+_env(safe-area-inset-bottom))] md:right-[calc(9px_+_env(safe-area-inset-right))]">
+      <div
+        className={`absolute right-[calc(12px_+_env(safe-area-inset-right))] bottom-[calc(171px_+_env(safe-area-inset-bottom))] z-10 grid justify-items-end transition-transform duration-[240ms] md:right-[calc(9px_+_env(safe-area-inset-right))] md:bottom-[calc(270px_+_env(safe-area-inset-bottom))] ${
+          isMinimized ? "translate-x-[150px]" : ""
+        }`}
+      >
         <button
           type="button"
           className="h-[45px] w-[45px] border border-[#999999] bg-white text-[12px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"

@@ -237,7 +237,7 @@ function SignInPrompt({
         <button
           type="button"
           onClick={onClose}
-          className="flex h-[27px] min-w-[44px] items-center justify-center border border-white bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
+          className="tap-44 flex h-[27px] min-w-[44px] items-center justify-center border border-white bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
           aria-label="Close sign in"
         >
           [x]
@@ -329,7 +329,7 @@ function SpotDetailSheet({
           <button
             type="button"
             onClick={onClose}
-            className="flex h-[27px] min-w-[44px] items-center justify-center border border-[#999999] bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
+            className="tap-44 flex h-[27px] min-w-[44px] items-center justify-center border border-[#999999] bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
             aria-label="Close spot detail"
           >
             [x]
@@ -1234,36 +1234,18 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
           </div>
           <StatusPanel fetchState={fetchState} count={spots.length} />
         </div>
-        <div className="flex h-[27px] items-stretch border-b border-[#999999] bg-white">
-          <div className="flex flex-1 items-center px-[9px]">
-            <span className="text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase">
-              DRAG MAP
-            </span>
-          </div>
-          <div className="flex flex-1 items-center border-l border-[#999999] px-[9px]">
-            <span className="text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase">
-              TAP PINS
-            </span>
-          </div>
-          <div className="flex flex-1 items-center border-l border-[#999999] px-[9px]">
-            <span className="text-[9px] font-bold tracking-[0.03em] text-[#228B22] uppercase">
-              CLEAN SPOTS
-            </span>
-          </div>
-        </div>
         <div className="flex min-h-[45px] flex-wrap items-stretch border-b border-[#999999] bg-white">
           <button
             type="button"
             onClick={() => setShowLegend((current) => !current)}
-            className="inline-flex min-h-[45px] items-center justify-center border-r border-[#999999] bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
+            className="inline-flex min-h-[45px] grow items-center justify-center border-r border-[#999999] bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
           >
             [LEGEND]
           </button>
-          <div className="flex flex-1 flex-wrap items-stretch">
             {user ? (
               <a
                 href="/profile"
-                className="inline-flex min-h-[45px] items-center justify-center border-r border-[#999999] bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase no-underline hover:bg-[#f8eac7]"
+                className="inline-flex min-h-[45px] grow items-center justify-center border-r border-[#999999] bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase no-underline hover:bg-[#f8eac7]"
               >
                 [PROFILE]
               </a>
@@ -1271,7 +1253,7 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
             <button
               type="button"
               onClick={() => setShowRewards(true)}
-              className="inline-flex min-h-[45px] items-center justify-center border-r border-[#999999] bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#228B22] uppercase hover:bg-[#f8eac7]"
+              className="inline-flex min-h-[45px] grow items-center justify-center border-r border-[#999999] bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#228B22] uppercase hover:bg-[#f8eac7]"
             >
               {user && pointBalance !== null
                 ? `[REWARDS / ${formatPoints(pointBalance)}]`
@@ -1280,7 +1262,7 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
             {user && isAdmin ? (
               <a
                 href="/admin"
-                className="inline-flex min-h-[45px] items-center justify-center border-r border-[#999999] bg-[#f8eac7] px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase no-underline hover:bg-[#b8dae8]"
+                className="inline-flex min-h-[45px] grow items-center justify-center border-r border-[#999999] bg-[#f8eac7] px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase no-underline hover:bg-[#b8dae8]"
               >
                 [ADMIN]
               </a>
@@ -1288,7 +1270,7 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
             {user && !username ? (
               <a
                 href="/profile"
-                className="inline-flex min-h-[45px] items-center justify-center border-r border-[#999999] bg-[#f8eac7] px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase no-underline hover:bg-[#b8dae8]"
+                className="inline-flex min-h-[45px] grow items-center justify-center border-r border-[#999999] bg-[#f8eac7] px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase no-underline hover:bg-[#b8dae8]"
               >
                 [SET USERNAME]
               </a>
@@ -1297,7 +1279,7 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
               <button
                 type="button"
                 onClick={signOut}
-                className="inline-flex min-h-[45px] items-center justify-center border-r border-[#999999] bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
+                className="inline-flex min-h-[45px] grow items-center justify-center border-r border-[#999999] bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
               >
                 [SIGN OUT]
               </button>
@@ -1305,7 +1287,7 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
               <button
                 type="button"
                 onClick={() => setShowProfile(true)}
-                className="inline-flex min-h-[45px] items-center justify-center border-r border-[#999999] bg-[#228B22] px-[9px] text-[9px] font-bold tracking-[0.03em] text-white uppercase hover:bg-[#001089]"
+                className="inline-flex min-h-[45px] grow items-center justify-center border-r border-[#999999] bg-[#228B22] px-[9px] text-[9px] font-bold tracking-[0.03em] text-white uppercase hover:bg-[#001089]"
               >
                 @JUAN
               </button>
@@ -1313,7 +1295,7 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
               <button
                 type="button"
                 onClick={() => setShowSignIn(true)}
-                className="inline-flex min-h-[45px] items-center justify-center border-r border-[#999999] bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
+                className="inline-flex min-h-[45px] grow items-center justify-center border-r border-[#999999] bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
               >
                 [SIGN IN]
               </button>
@@ -1322,11 +1304,10 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
               type="button"
               onClick={() => setShowAbout(true)}
               aria-label="About CleanLA"
-              className="inline-flex min-h-[45px] items-center justify-center bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
+              className="inline-flex min-h-[45px] grow items-center justify-center bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
             >
               [i]
             </button>
-          </div>
         </div>
       </header>
 
@@ -1469,7 +1450,7 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
               <button
                 type="button"
                 onClick={() => setShowAbout(false)}
-                className="flex h-[27px] min-w-[44px] items-center justify-center border border-[#999999] bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
+                className="tap-44 flex h-[27px] min-w-[44px] items-center justify-center border border-[#999999] bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
                 aria-label="Close about"
               >
                 [x]
@@ -1538,7 +1519,7 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
               <button
                 type="button"
                 onClick={() => setShowRewards(false)}
-                className="flex h-[27px] min-w-[44px] items-center justify-center border border-white bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#228B22] uppercase hover:bg-[#f8eac7]"
+                className="tap-44 flex h-[27px] min-w-[44px] items-center justify-center border border-white bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#228B22] uppercase hover:bg-[#f8eac7]"
                 aria-label="Close rewards"
               >
                 [x]

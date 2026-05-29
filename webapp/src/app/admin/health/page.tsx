@@ -78,7 +78,7 @@ export default async function HealthPage() {
         </span>
         <Link
           href="/"
-          className="text-[9px] uppercase tracking-[0.03em] text-white no-underline hover:bg-[#001089] hover:px-[3px]"
+          className="tap-44 text-[9px] uppercase tracking-[0.03em] text-white no-underline hover:bg-[#001089] hover:px-[3px]"
         >
           [← back to site]
         </Link>

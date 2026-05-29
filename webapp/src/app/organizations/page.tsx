@@ -42,7 +42,7 @@ export default async function OrganizationsPage() {
             </h1>
             <Link
               href="/"
-              className="border border-white bg-white px-[6px] py-[3px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
+              className="tap-44 border border-white bg-white px-[6px] py-[3px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
             >
               [MAP]
             </Link>

@@ -442,7 +442,7 @@ export function ReportSheet({
       <button
         type="button"
         onClick={onClose}
-        className="flex h-[27px] min-w-[44px] items-center justify-center border border-white bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
+        className="tap-44 flex h-[27px] min-w-[44px] items-center justify-center border border-white bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
         aria-label="Close report"
       >
         [x]

@@ -9,7 +9,9 @@
     "lint": "eslint . --max-warnings=0",
     "typecheck": "tsc --noEmit",
     "format": "prettier --write .",
-    "bootstrap-admin": "node scripts/bootstrap-admin.mjs"
+    "bootstrap-admin": "node scripts/bootstrap-admin.mjs",
+    "audit:369": "../scripts/audit-369/audit.sh",
+    "audit:contrast": "../scripts/audit-369/audit-contrast.sh"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.98.0",
@@ -23,6 +25,7 @@
     "react-map-gl": "^8.1.1"
   },
   "devDependencies": {
+    "@adn/369-design-system": "file:../369-design-system",
     "@eslint/eslintrc": "latest",
     "@tailwindcss/postcss": "latest",
     "@types/node": "latest",

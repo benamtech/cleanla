@@ -1,0 +1,89 @@
+{
+  "version": 1,
+  "name": "CleanLA 369 Overlay Manifest",
+  "description": "Layout audit manifest for CleanLA canvas + floating overlays composition",
+  "base": "http://localhost:3000",
+  "settleMs": 2000,
+  "viewports": [
+    {
+      "name": "portrait-mobile",
+      "width": 414,
+      "height": 900,
+      "isMobile": true,
+      "hasTouch": true,
+      "description": "iPhone 12/13 portrait"
+    },
+    {
+      "name": "landscape-mobile",
+      "width": 900,
+      "height": 414,
+      "isMobile": true,
+      "hasTouch": true,
+      "description": "iPhone 12/13 landscape"
+    },
+    {
+      "name": "portrait-tablet",
+      "width": 820,
+      "height": 1180,
+      "isMobile": false,
+      "hasTouch": true,
+      "description": "iPad portrait"
+    },
+    {
+      "name": "landscape-tablet",
+      "width": 1180,
+      "height": 820,
+      "isMobile": false,
+      "hasTouch": true,
+      "description": "iPad landscape"
+    }
+  ],
+  "overlays": [
+    {
+      "name": "header",
+      "description": "Top navigation/header bar",
+      "optional": true,
+      "css": "header",
+      "skipOverlays": []
+    },
+    {
+      "name": "cta-primary",
+      "description": "Primary call-to-action button",
+      "optional": true,
+      "role": "button",
+      "namePattern": "FILE A REPORT|REPORT|SUBMIT",
+      "skipOverlays": []
+    },
+    {
+      "name": "nav-floating",
+      "description": "Floating navigation or joystick",
+      "optional": true,
+      "role": "button",
+      "namePattern": "joystick|drag|navigate",
+      "skipOverlays": []
+    },
+    {
+      "name": "footer",
+      "description": "Bottom footer area",
+      "optional": true,
+      "css": "footer",
+      "skipOverlays": []
+    }
+  ],
+  "stackPairs": [
+    {
+      "name": "header-to-content",
+      "stackA": "header",
+      "stackB": "cta-primary",
+      "axis": "row",
+      "gap": {
+        "expectedValue": 12,
+        "description": "Vertical spacing between header and primary CTA"
+      },
+      "optional": true
+    }
+  ],
+  "checks": {
+    "contrast": false
+  }
+}

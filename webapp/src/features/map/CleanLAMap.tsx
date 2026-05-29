@@ -535,11 +535,15 @@ function CameraJoystick({
   caption = "SHIFT",
   compact = false,
   onContinuous,
+  onUsageStart,
+  onUsageEnd,
 }: {
   label: string;
   caption?: string | null;
   compact?: boolean;
   onContinuous: (dx: number, dy: number) => void;
+  onUsageStart?: () => void;
+  onUsageEnd?: () => void;
 }) {
   const originRef = useRef<{ x: number; y: number } | null>(null);
   // Raw (unclamped) pointer offset that the rAF loop reads each frame.
@@ -561,9 +565,11 @@ function CameraJoystick({
       cancelAnimationFrame(rafRef.current);
       rafRef.current = null;
     }
+    onUsageEnd?.();
   }
 
   function handlePointerDown(event: ReactPointerEvent<HTMLButtonElement>) {
+    onUsageStart?.();
     event.currentTarget.setPointerCapture(event.pointerId);
     originRef.current = { x: event.clientX, y: event.clientY };
     offsetRef.current = { x: 0, y: 0 };
@@ -668,7 +674,12 @@ function MapGameControls({
           >
             A
           </button>
-          <CameraJoystick label="Drag joystick to pitch or rotate map" onContinuous={onContinuous} />
+          <CameraJoystick
+            label="Drag joystick to pitch or rotate map"
+            onContinuous={onContinuous}
+            onUsageStart={onUsageStart}
+            onUsageEnd={onUsageEnd}
+          />
           <button
             type="button"
             className={moveButtonClass}
@@ -701,6 +712,8 @@ function MapGameControls({
           caption={null}
           label="Drag joystick to explore map pitch and rotation"
           onContinuous={onContinuous}
+          onUsageStart={onUsageStart}
+          onUsageEnd={onUsageEnd}
         />
       </div>
     </>
@@ -806,15 +819,26 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
   }, []);
   // True while the user is actively touching the joystick or a zoom button.
   // event.originalEvent on programmatic moves from those controls is
-  // unreliable across mapbox versions, so we explicitly flip this ref on
-  // pointer-down/up of each control's container and gate the hide timer.
+  // unreliable across mapbox versions, so we set this directly in the
+  // joystick's own handlePointerDown/resetJoystick (and on pointer-down/up
+  // of each control's container as belt+suspenders). Kept as both a ref
+  // (sync read inside event handlers — no React render race) AND state
+  // (so shouldHideMapControls re-evaluates and the joystick is never
+  // hidden via render while it's being touched).
   const isUsingControlsRef = useRef(false);
-  const onControlUsageStart = useCallback(() => {
-    isUsingControlsRef.current = true;
+  const [isUsingControls, setIsUsingControlsState] = useState(false);
+  const setIsUsingControls = useCallback((v: boolean) => {
+    isUsingControlsRef.current = v;
+    setIsUsingControlsState(v);
   }, []);
-  const onControlUsageEnd = useCallback(() => {
-    isUsingControlsRef.current = false;
-  }, []);
+  const onControlUsageStart = useCallback(
+    () => setIsUsingControls(true),
+    [setIsUsingControls],
+  );
+  const onControlUsageEnd = useCallback(
+    () => setIsUsingControls(false),
+    [setIsUsingControls],
+  );
   useEffect(() => {
     const id = setInterval(
       () => setTaglineIndex((i) => (i + 1) % TAGLINES.length),
@@ -1288,7 +1312,10 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
     showRewards ||
     showProfile;
   const isMinimized = isMapInteracting || anyModalOpen;
-  const shouldHideMapControls = shouldHideControls || anyModalOpen;
+  // Even if the 3s timer somehow fired, never visually hide controls while
+  // the user is currently touching one.
+  const shouldHideMapControls =
+    (shouldHideControls && !isUsingControls) || anyModalOpen;
 
   return (
     <main className="relative h-[100dvh] overflow-hidden bg-white text-[#001089] md:min-h-[540px]">

@@ -704,7 +704,7 @@ function MapGameControls({
       </div>
 
       <div
-        className="absolute right-[calc(12px_+_env(safe-area-inset-right))] bottom-[calc(90px_+_env(safe-area-inset-bottom))] z-10 md:hidden"
+        className="absolute right-[calc(12px_+_env(safe-area-inset-right))] bottom-[calc(75px_+_env(safe-area-inset-bottom))] z-10 md:hidden"
         onPointerDown={onUsageStart}
         onPointerUp={onUsageEnd}
         onPointerCancel={onUsageEnd}
@@ -1577,7 +1577,7 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
       </div>
 
       <div
-        className={`absolute right-[calc(12px_+_env(safe-area-inset-right))] bottom-[calc(171px_+_env(safe-area-inset-bottom))] z-10 grid justify-items-end transition-transform duration-[240ms] md:right-[calc(9px_+_env(safe-area-inset-right))] md:bottom-[calc(270px_+_env(safe-area-inset-bottom))] ${
+        className={`absolute right-[calc(12px_+_env(safe-area-inset-right))] bottom-[calc(156px_+_env(safe-area-inset-bottom))] z-10 grid gap-[9px] justify-items-end transition-transform duration-[240ms] md:right-[calc(9px_+_env(safe-area-inset-right))] md:bottom-[calc(270px_+_env(safe-area-inset-bottom))] ${
           shouldHideMapControls ? "translate-x-[150px]" : ""
         }`}
         onPointerDown={onControlUsageStart}
@@ -1594,7 +1594,7 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
         </button>
         <button
           type="button"
-          className="h-[45px] w-[45px] border-x border-b border-[#999999] bg-white text-[12px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
+          className="h-[45px] w-[45px] border border-[#999999] bg-white text-[12px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
           onClick={() => mapRef.current?.zoomOut({ duration: 100 })}
           aria-label="Zoom out"
         >

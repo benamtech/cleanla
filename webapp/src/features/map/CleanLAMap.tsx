@@ -970,7 +970,7 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
     // map surface (drag/pinch/wheel). Programmatic moves from the joystick
     // and zoom buttons have no originalEvent — those must NOT make the
     // very controls the user is touching slide off themselves.
-    if (event.originalEvent) {
+    if ((event as unknown as { originalEvent?: Event }).originalEvent) {
       if (hideControlsTimerRef.current) {
         clearTimeout(hideControlsTimerRef.current);
       }
@@ -995,7 +995,7 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
     // Mirror the start gate: only reset the controls-hide state on a real
     // user gesture ending. Programmatic move-end (joystick/zoom) shouldn't
     // touch state it didn't set.
-    if (event.originalEvent) {
+    if ((event as unknown as { originalEvent?: Event }).originalEvent) {
       if (hideControlsTimerRef.current) {
         clearTimeout(hideControlsTimerRef.current);
         hideControlsTimerRef.current = null;

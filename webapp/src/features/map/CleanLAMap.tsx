@@ -1127,6 +1127,11 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
 
     const spot = spots.find((item) => item.id === id);
     if (spot) {
+      mapRef.current?.easeTo({
+        center: [spot.lng, spot.lat],
+        zoom: Math.max(mapRef.current.getZoom() ?? LOS_ANGELES_VIEW.zoom, 17),
+        duration: 400,
+      });
       setShowCleanup(false);
       setShowReport(false);
       setSelectedSpot(spot);

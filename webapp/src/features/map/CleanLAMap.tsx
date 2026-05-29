@@ -135,8 +135,6 @@ type MapDirection = "up" | "down" | "left" | "right";
 
 const DESKTOP_PAN_STEP_PX = 120;
 const MOBILE_PAN_STEP_PX = 72;
-const PITCH_STEP = 3;
-const BEARING_STEP = 6;
 const CAMERA_DURATION_MS = 120;
 const MIN_PITCH = 0;
 const MAX_PITCH = 75;
@@ -533,26 +531,42 @@ function CameraJoystick({
   label,
   caption = "SHIFT",
   compact = false,
-  onAdjust,
+  onContinuous,
 }: {
   label: string;
   caption?: string | null;
   compact?: boolean;
-  onAdjust: (direction: MapDirection) => void;
+  onContinuous: (dx: number, dy: number) => void;
 }) {
   const originRef = useRef<{ x: number; y: number } | null>(null);
-  const lastActionRef = useRef(0);
+  // Raw (unclamped) pointer offset that the rAF loop reads each frame.
+  const offsetRef = useRef({ x: 0, y: 0 });
+  const rafRef = useRef<number | null>(null);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
+
+  function tick() {
+    if (!originRef.current) return;
+    onContinuous(offsetRef.current.x, offsetRef.current.y);
+    rafRef.current = requestAnimationFrame(tick);
+  }
 
   function resetJoystick() {
     originRef.current = null;
+    offsetRef.current = { x: 0, y: 0 };
     setOffset({ x: 0, y: 0 });
+    if (rafRef.current !== null) {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+    }
   }
 
   function handlePointerDown(event: ReactPointerEvent<HTMLButtonElement>) {
     event.currentTarget.setPointerCapture(event.pointerId);
     originRef.current = { x: event.clientX, y: event.clientY };
-    lastActionRef.current = 0;
+    offsetRef.current = { x: 0, y: 0 };
+    if (rafRef.current === null) {
+      rafRef.current = requestAnimationFrame(tick);
+    }
   }
 
   function handlePointerMove(event: ReactPointerEvent<HTMLButtonElement>) {
@@ -565,18 +579,12 @@ function CameraJoystick({
     const visualY = clamp(dy, -limit, limit);
     setOffset({ x: visualX, y: visualY });
 
-    const threshold = compact ? 18 : 12;
-    if (Math.abs(dx) < threshold && Math.abs(dy) < threshold) return;
-
-    const now = window.performance.now();
-    if (now - lastActionRef.current < 30) return;
-    lastActionRef.current = now;
-
-    if (Math.abs(dx) > Math.abs(dy)) {
-      onAdjust(dx > 0 ? "right" : "left");
-    } else {
-      onAdjust(dy > 0 ? "down" : "up");
-    }
+    // Dead-zone: inside threshold, the loop applies zero delta.
+    const threshold = compact ? 12 : 9;
+    offsetRef.current = {
+      x: Math.abs(dx) < threshold ? 0 : dx,
+      y: Math.abs(dy) < threshold ? 0 : dy,
+    };
   }
 
   return (
@@ -612,10 +620,10 @@ function CameraJoystick({
 
 function MapGameControls({
   onPan,
-  onAdjust,
+  onContinuous,
 }: {
   onPan: (direction: MapDirection) => void;
-  onAdjust: (direction: MapDirection) => void;
+  onContinuous: (dx: number, dy: number) => void;
 }) {
   const moveButtonClass =
     "h-[45px] w-[45px] border border-[#999999] bg-white text-[12px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]";
@@ -645,7 +653,7 @@ function MapGameControls({
           >
             A
           </button>
-          <CameraJoystick label="Drag joystick to pitch or rotate map" onAdjust={onAdjust} />
+          <CameraJoystick label="Drag joystick to pitch or rotate map" onContinuous={onContinuous} />
           <button
             type="button"
             className={moveButtonClass}
@@ -672,7 +680,7 @@ function MapGameControls({
           compact
           caption={null}
           label="Drag joystick to explore map pitch and rotation"
-          onAdjust={onAdjust}
+          onContinuous={onContinuous}
         />
       </div>
     </>
@@ -985,27 +993,27 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
     });
   }, []);
 
-  const adjustCamera = useCallback((direction: MapDirection) => {
+  const adjustCameraContinuous = useCallback((dx: number, dy: number) => {
     const map = mapRef.current;
     if (!map) return;
+    if (dx === 0 && dy === 0) return;
 
-    const currentPitch = map.getPitch();
-    const currentBearing = map.getBearing();
-
-    map.jumpTo({
-      pitch:
-        direction === "up"
-          ? clamp(currentPitch + PITCH_STEP, MIN_PITCH, MAX_PITCH)
-          : direction === "down"
-            ? clamp(currentPitch - PITCH_STEP, MIN_PITCH, MAX_PITCH)
-            : currentPitch,
-      bearing:
-        direction === "left"
-          ? currentBearing - BEARING_STEP
-          : direction === "right"
-            ? currentBearing + BEARING_STEP
-            : currentBearing,
-    });
+    // dx/dy are raw pointer offsets in pixels (with dead-zone applied).
+    // Normalize against the joystick visual limit so full deflection maps
+    // to MAX speed and partial deflection scales linearly. At ~60fps the
+    // constants below mean ~72°/sec pitch and ~120°/sec bearing at max.
+    const LIMIT = 18;
+    const MAX_PITCH_PER_FRAME = 1.2;
+    const MAX_BEARING_PER_FRAME = 2.0;
+    const nx = clamp(dx / LIMIT, -1, 1);
+    const ny = clamp(dy / LIMIT, -1, 1);
+    const nextPitch = clamp(
+      map.getPitch() + -ny * MAX_PITCH_PER_FRAME,
+      MIN_PITCH,
+      MAX_PITCH,
+    );
+    const nextBearing = map.getBearing() + nx * MAX_BEARING_PER_FRAME;
+    map.jumpTo({ pitch: nextPitch, bearing: nextBearing });
   }, []);
 
   async function sendMagicLink() {
@@ -1415,7 +1423,7 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
       </div>
 
       {webglOk ? (
-        <MapGameControls onPan={panMap} onAdjust={adjustCamera} />
+        <MapGameControls onPan={panMap} onContinuous={adjustCameraContinuous} />
       ) : null}
 
       <div className="absolute top-[calc(141px_+_env(safe-area-inset-top))] right-[calc(9px_+_env(safe-area-inset-right))] z-10 grid gap-[9px] md:top-[9px]">

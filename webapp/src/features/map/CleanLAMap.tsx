@@ -149,6 +149,7 @@ const TAGLINES = [
 ];
 const TAGLINE_ROTATE_MS = 6000;
 const NAV_EXPAND_DELAY_MS = 600;
+const CONTROLS_HIDE_DELAY_MS = 3000;
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max);
@@ -779,6 +780,16 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
       if (expandTimerRef.current) clearTimeout(expandTimerRef.current);
     };
   }, []);
+  // The zoom + joystick controls only slide off after CONTROLS_HIDE_DELAY_MS
+  // of continuous map use; cancelled and reset on move-end so quick taps
+  // and tiny pans never kick them off screen.
+  const [shouldHideControls, setShouldHideControls] = useState(false);
+  const hideControlsTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    return () => {
+      if (hideControlsTimerRef.current) clearTimeout(hideControlsTimerRef.current);
+    };
+  }, []);
   useEffect(() => {
     const id = setInterval(
       () => setTaglineIndex((i) => (i + 1) % TAGLINES.length),
@@ -955,6 +966,13 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
       expandTimerRef.current = null;
     }
     setIsMapInteracting(true);
+    if (hideControlsTimerRef.current) {
+      clearTimeout(hideControlsTimerRef.current);
+    }
+    hideControlsTimerRef.current = setTimeout(() => {
+      setShouldHideControls(true);
+      hideControlsTimerRef.current = null;
+    }, CONTROLS_HIDE_DELAY_MS);
   }
 
   function handleMoveEnd(event: ViewStateChangeEvent) {
@@ -968,6 +986,11 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
     if (center) {
       setCurrentMapCenter({ lat: center.lat, lng: center.lng });
     }
+    if (hideControlsTimerRef.current) {
+      clearTimeout(hideControlsTimerRef.current);
+      hideControlsTimerRef.current = null;
+    }
+    setShouldHideControls(false);
     if (expandTimerRef.current) clearTimeout(expandTimerRef.current);
     expandTimerRef.current = setTimeout(() => {
       setIsMapInteracting(false);
@@ -1212,11 +1235,12 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
     );
   }
 
-  // True whenever the map is being moved OR any modal/sheet is open. Drives
-  // the global "minimize chrome" state: title bar shrinks, nav row compacts,
-  // bottom CTA shrinks, zoom + joystick slide off-screen.
-  const isMinimized =
-    isMapInteracting ||
+  // Chrome "minimize" — title bar shrinks, nav row compacts, bottom CTA
+  // shrinks. Triggered instantly on map-move-start or modal-open. The
+  // zoom + joystick are intentionally NOT in this set: they hide only
+  // after 3s of continuous map use (or instantly when a modal opens) so
+  // tiny actions don't kick them off screen — see shouldHideMapControls.
+  const anyModalOpen =
     Boolean(selectedSpot) ||
     showReport ||
     showCleanup ||
@@ -1224,6 +1248,8 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
     showAbout ||
     showRewards ||
     showProfile;
+  const isMinimized = isMapInteracting || anyModalOpen;
+  const shouldHideMapControls = shouldHideControls || anyModalOpen;
 
   return (
     <main className="relative h-[100dvh] overflow-hidden bg-white text-[#001089] md:min-h-[540px]">
@@ -1472,7 +1498,7 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
         <MapGameControls
           onPan={panMap}
           onContinuous={adjustCameraContinuous}
-          isMinimized={isMinimized}
+          isMinimized={shouldHideMapControls}
         />
       ) : null}
 
@@ -1482,7 +1508,7 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
 
       <div
         className={`absolute right-[calc(12px_+_env(safe-area-inset-right))] bottom-[calc(171px_+_env(safe-area-inset-bottom))] z-10 grid justify-items-end transition-transform duration-[240ms] md:right-[calc(9px_+_env(safe-area-inset-right))] md:bottom-[calc(270px_+_env(safe-area-inset-bottom))] ${
-          isMinimized ? "translate-x-[150px]" : ""
+          shouldHideMapControls ? "translate-x-[150px]" : ""
         }`}
       >
         <button

@@ -256,6 +256,17 @@ export function JuanDemoSheet({ onClose }: { onClose: () => void }) {
                 aria-expanded={isOpen}
               >
                 <span className="w-[6px] shrink-0 bg-[#001089]" />
+                <span className="relative my-[6px] ml-[6px] block h-[48px] w-[48px] shrink-0 overflow-hidden border border-[#999999] bg-[#f8eac7]">
+                  {row.photo ? (
+                    <Image
+                      src={row.photo}
+                      alt={row.title}
+                      fill
+                      sizes="48px"
+                      className="object-cover"
+                    />
+                  ) : null}
+                </span>
                 <span className="flex-1 px-[9px] py-[6px]">
                   <span className="block text-[12px] font-bold tracking-[0.03em] text-[#001089] uppercase">
                     {row.title}
@@ -322,6 +333,17 @@ export function JuanDemoSheet({ onClose }: { onClose: () => void }) {
                 aria-expanded={isOpen}
               >
                 <span className="w-[6px] shrink-0 bg-[#228B22]" />
+                <span className="relative my-[6px] ml-[6px] block h-[48px] w-[48px] shrink-0 overflow-hidden border border-[#999999] bg-[#f8eac7]">
+                  {row.photo ? (
+                    <Image
+                      src={row.photo}
+                      alt={row.title}
+                      fill
+                      sizes="48px"
+                      className="object-cover"
+                    />
+                  ) : null}
+                </span>
                 <span className="flex-1 px-[9px] py-[6px]">
                   <span className="block text-[12px] font-bold tracking-[0.03em] text-[#001089] uppercase">
                     {row.title}

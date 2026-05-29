@@ -960,19 +960,25 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
     }
   }
 
-  function handleMoveStart() {
+  function handleMoveStart(event: ViewStateChangeEvent) {
     if (expandTimerRef.current) {
       clearTimeout(expandTimerRef.current);
       expandTimerRef.current = null;
     }
     setIsMapInteracting(true);
-    if (hideControlsTimerRef.current) {
-      clearTimeout(hideControlsTimerRef.current);
+    // Only start the controls-hide timer for direct user gestures on the
+    // map surface (drag/pinch/wheel). Programmatic moves from the joystick
+    // and zoom buttons have no originalEvent — those must NOT make the
+    // very controls the user is touching slide off themselves.
+    if (event.originalEvent) {
+      if (hideControlsTimerRef.current) {
+        clearTimeout(hideControlsTimerRef.current);
+      }
+      hideControlsTimerRef.current = setTimeout(() => {
+        setShouldHideControls(true);
+        hideControlsTimerRef.current = null;
+      }, CONTROLS_HIDE_DELAY_MS);
     }
-    hideControlsTimerRef.current = setTimeout(() => {
-      setShouldHideControls(true);
-      hideControlsTimerRef.current = null;
-    }, CONTROLS_HIDE_DELAY_MS);
   }
 
   function handleMoveEnd(event: ViewStateChangeEvent) {
@@ -986,11 +992,16 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
     if (center) {
       setCurrentMapCenter({ lat: center.lat, lng: center.lng });
     }
-    if (hideControlsTimerRef.current) {
-      clearTimeout(hideControlsTimerRef.current);
-      hideControlsTimerRef.current = null;
+    // Mirror the start gate: only reset the controls-hide state on a real
+    // user gesture ending. Programmatic move-end (joystick/zoom) shouldn't
+    // touch state it didn't set.
+    if (event.originalEvent) {
+      if (hideControlsTimerRef.current) {
+        clearTimeout(hideControlsTimerRef.current);
+        hideControlsTimerRef.current = null;
+      }
+      setShouldHideControls(false);
     }
-    setShouldHideControls(false);
     if (expandTimerRef.current) clearTimeout(expandTimerRef.current);
     expandTimerRef.current = setTimeout(() => {
       setIsMapInteracting(false);

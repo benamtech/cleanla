@@ -647,7 +647,7 @@ function MapGameControls({
   return (
     <>
       <div
-        className={`absolute right-[9px] bottom-[90px] z-10 hidden border border-[#999999] bg-white p-[6px] transition-transform duration-[240ms] md:block ${slideClass}`}
+        className="absolute right-[9px] bottom-[90px] z-10 hidden border border-[#999999] bg-white p-[6px] md:block"
         onPointerDown={onUsageStart}
         onPointerUp={onUsageEnd}
         onPointerCancel={onUsageEnd}
@@ -702,7 +702,7 @@ function MapGameControls({
       </div>
 
       <div
-        className={`absolute right-[calc(12px_+_env(safe-area-inset-right))] bottom-[calc(90px_+_env(safe-area-inset-bottom))] z-10 transition-transform duration-[240ms] md:hidden ${slideClass}`}
+        className="absolute right-[calc(12px_+_env(safe-area-inset-right))] bottom-[calc(90px_+_env(safe-area-inset-bottom))] z-10 md:hidden"
         onPointerDown={onUsageStart}
         onPointerUp={onUsageEnd}
         onPointerCancel={onUsageEnd}

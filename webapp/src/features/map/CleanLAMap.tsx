@@ -141,6 +141,14 @@ const CAMERA_DURATION_MS = 120;
 const MIN_PITCH = 0;
 const MAX_PITCH = 75;
 
+const TAGLINES = [
+  "REPORT AND CLEAN LA FOR POINTS",
+  "REDEEM POINTS AT LOCAL BUSINESSES",
+  "CLEAN LA AS A COMMUNITY",
+  "@JUAN IS THE CLEANER OF THE WEEK",
+];
+const TAGLINE_ROTATE_MS = 6000;
+
 function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max);
 }
@@ -197,17 +205,15 @@ function StatusPanel({
         : `${count} VISIBLE`;
 
   return (
-    <div className="flex h-[27px] items-center justify-center border-l border-[#999999] bg-white px-[9px]">
-      <span
-        className={`inline-flex items-center border px-[6px] py-[3px] text-[9px] font-bold tracking-[0.03em] uppercase ${
-          fetchState.kind === "error"
-            ? "border-[#a60315] text-[#a60315]"
-            : "border-[#001089] text-[#001089]"
-        }`}
-      >
-        {label}
-      </span>
-    </div>
+    <span
+      className={`inline-flex items-center border px-[6px] py-[3px] text-[9px] font-bold tracking-[0.03em] uppercase ${
+        fetchState.kind === "error"
+          ? "border-[#a60315] bg-[#a60315] text-white"
+          : "border-[#001089] bg-[#001089] text-white"
+      }`}
+    >
+      {label}
+    </span>
   );
 }
 
@@ -745,6 +751,15 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
   const [showAbout, setShowAbout] = useState(false);
   // Rewards preview — opens an in-app modal instead of navigating to /rewards.
   const [showRewards, setShowRewards] = useState(false);
+  // Rotating header tagline — cycles every TAGLINE_ROTATE_MS through TAGLINES.
+  const [taglineIndex, setTaglineIndex] = useState(0);
+  useEffect(() => {
+    const id = setInterval(
+      () => setTaglineIndex((i) => (i + 1) % TAGLINES.length),
+      TAGLINE_ROTATE_MS,
+    );
+    return () => clearInterval(id);
+  }, []);
   // WebGL availability: null = checking, true = OK, false = unavailable.
   // Mapbox-GL 3.x requires WebGL; without it, the map can't render and
   // mapbox-gl logs "Failed to initialize WebGL" to console. We catch
@@ -1234,12 +1249,10 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
             {user ? "SIGNED IN" : "PUBLIC"}
           </span>
         </div>
-        <div className="flex h-[27px] items-stretch border-b border-[#999999]">
-          <div className="flex flex-1 items-center bg-[#f8eac7] px-[9px]">
-            <p className="text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase">
-              EXPLORE LA PUBLIC SPOTS
-            </p>
-          </div>
+        <div className="flex h-[27px] items-center justify-between gap-[9px] border-b border-[#999999] bg-[#f8eac7] px-[9px]">
+          <p className="truncate text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase">
+            {TAGLINES[taglineIndex]}
+          </p>
           <StatusPanel fetchState={fetchState} count={spots.length} />
         </div>
         <div className="flex min-h-[45px] flex-wrap items-stretch border-b border-[#999999] bg-white">

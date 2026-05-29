@@ -1363,11 +1363,19 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
               bottom bar pattern (think iOS-app tab bar position)
             - 1px top border in grey reads as a "sticky footer" rather
               than a floating button, anchoring it to the screen edge */}
-      <div className="safe-bottom safe-x fixed inset-x-0 bottom-0 z-10 border-t border-[#999999] bg-[#a60315]">
+      <div
+        className="pointer-events-none fixed inset-x-0 bottom-0 z-10"
+        style={{
+          paddingLeft: "calc(12px + env(safe-area-inset-left))",
+          paddingRight: "calc(12px + env(safe-area-inset-right))",
+          paddingTop: "12px",
+          paddingBottom: "calc(12px + env(safe-area-inset-bottom))",
+        }}
+      >
         <button
           type="button"
           onClick={openReport}
-          className="block w-full bg-[#a60315] px-[18px] py-[18px] text-[24px] font-bold tracking-[0.03em] text-white uppercase hover:bg-[#001089]"
+          className="pointer-events-auto block w-full border border-[#999999] bg-[#a60315] px-[18px] py-[18px] text-[24px] font-bold tracking-[0.03em] text-white uppercase hover:bg-[#001089]"
         >
           [+] FILE A REPORT
         </button>

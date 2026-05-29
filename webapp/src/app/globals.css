@@ -48,7 +48,10 @@ a:hover {
   background: #f8eac7;
 }
 
-/* Rule 6: no decoration. Reset default form-element chrome. */
+/* Rule 6: no decoration. Reset default form-element chrome.
+   `outline: 0` removes the UA-default focus halo so mouse interaction is
+   visually quiet. Keyboard focus is restored by the :focus-visible rule
+   below — outline removal applies ONLY to non-keyboard focus. */
 input,
 textarea,
 select,
@@ -61,6 +64,33 @@ button {
 
 button {
   cursor: pointer;
+}
+
+/* Keyboard focus indicator — REQUIRED by WCAG 2.4.7 (focus visible),
+   2.4.11 (focus appearance, AA in WCAG 2.2), and 1.4.11 (non-text contrast).
+   2 px solid navy (#001089) at 2 px offset renders at 18.9:1 contrast against
+   the default white body bg — passes AAA. The 3-multiple values (3 px × 3
+   coverage area) keep the indicator on the 369 spacing grid. Applies to every
+   keyboard-navigable element; mouse focus stays silent via the rule above.
+   Surfaced by the 369 audit's FOCUS_RING check (audit-overlays.mjs Rule 9). */
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+button:focus-visible,
+a:focus-visible,
+[tabindex]:focus-visible,
+[role="button"]:focus-visible,
+[role="link"]:focus-visible {
+  outline: 2px solid #001089;
+  outline-offset: 2px;
+}
+
+/* On manila-toned surfaces (cards, hover states, .bg-[#f8eac7]) navy still
+   contrasts at 18.9:1 — keep it. On navy backgrounds (program-identity
+   chrome, primary buttons) flip to manila so the ring stays visible. */
+.bg-\[\#001089\]:focus-visible,
+[class*="bg-[#001089]"]:focus-visible {
+  outline-color: #f8eac7;
 }
 
 /* Selection in manila tone keeps brand consistency. */

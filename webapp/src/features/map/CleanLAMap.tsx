@@ -8,6 +8,7 @@ import {
   useState,
   type PointerEvent as ReactPointerEvent,
 } from "react";
+import Image from "next/image";
 import type { User } from "@supabase/supabase-js";
 import Map, {
   Layer,
@@ -1533,19 +1534,14 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
             </div>
 
             <article className="border-b border-[#999999]">
-              <div className="border-b border-[#999999] bg-[#f8eac7]">
-                {mapboxToken ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={`https://api.mapbox.com/styles/v1/mapbox/satellite-streets-v12/static/pin-l+228B22(-118.2755,34.0576)/-118.2755,34.0576,15.4,0/600x300@2x?access_token=${mapboxToken}`}
-                    alt="Langer's Delicatessen at MacArthur Park, Los Angeles"
-                    className="block h-[180px] w-full object-cover"
-                  />
-                ) : (
-                  <div className="flex h-[180px] items-center justify-center text-[12px] font-bold tracking-[0.03em] text-[#999999] uppercase">
-                    LANGER&apos;S · MACARTHUR PARK
-                  </div>
-                )}
+              <div className="relative h-[180px] border-b border-[#999999] bg-[#f8eac7]">
+                <Image
+                  src="/langers.jpg"
+                  alt="Langer's Delicatessen storefront, MacArthur Park, Los Angeles"
+                  fill
+                  sizes="420px"
+                  className="object-cover"
+                />
               </div>
               <div className="grid gap-[6px] px-[9px] py-[9px]">
                 <p className="text-[9px] font-bold tracking-[0.03em] text-[#999999] uppercase">

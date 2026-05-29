@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint . --max-warnings=0",
     "typecheck": "tsc --noEmit",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "bootstrap-admin": "node scripts/bootstrap-admin.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.98.0",

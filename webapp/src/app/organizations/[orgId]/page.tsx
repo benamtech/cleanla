@@ -58,7 +58,7 @@ export default async function OrganizationDashboardPage({ params }: Props) {
   const balance = Number(balanceResult.data ?? 0);
 
   return (
-    <main className="min-h-screen bg-white p-[18px]">
+    <main className="min-h-[100dvh] bg-white pt-[calc(18px_+_env(safe-area-inset-top))] pr-[calc(18px_+_env(safe-area-inset-right))] pb-[calc(18px_+_env(safe-area-inset-bottom))] pl-[calc(18px_+_env(safe-area-inset-left))]">
       <section className="mx-auto grid max-w-[960px] gap-[18px]">
         <div className="border border-[#999999]">
           <div className="flex h-[27px] items-center justify-between border-b border-[#999999] bg-[#94a3d6] px-[9px]">

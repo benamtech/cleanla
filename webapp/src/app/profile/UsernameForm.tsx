@@ -76,14 +76,14 @@ export function UsernameForm({ initial }: { initial: string | null }) {
             }}
             maxLength={24}
             placeholder="YOURNAME"
-            className="flex-1 border border-[#999999] bg-white p-[6px] text-[12px] tracking-[0.03em] text-[#001089] uppercase placeholder:text-[#999999]"
+            className="min-h-[45px] flex-1 border border-[#999999] bg-white p-[6px] text-[12px] tracking-[0.03em] text-[#001089] uppercase placeholder:text-[#999999]"
             aria-label="Username"
           />
           <button
             type="button"
             onClick={save}
             disabled={!canSave}
-            className="border border-[#999999] bg-[#001089] px-[12px] py-[6px] text-[12px] font-bold tracking-[0.03em] text-white uppercase enabled:hover:bg-[#94a3d6] disabled:bg-white disabled:text-[#999999]"
+            className="min-h-[45px] border border-[#999999] bg-[#001089] px-[12px] py-[6px] text-[12px] font-bold tracking-[0.03em] text-white uppercase enabled:hover:bg-[#94a3d6] disabled:bg-white disabled:text-[#999999]"
           >
             {status.kind === "saving" ? "[SAVING]" : "[SAVE]"}
           </button>

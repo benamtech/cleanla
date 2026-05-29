@@ -71,7 +71,7 @@ export default async function HealthPage() {
   const deploymentLabel = process.env.VERCEL ? "Vercel" : "Local";
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-[100dvh] bg-white safe-top safe-x">
       <header className="flex h-[27px] items-center justify-between border-b border-[#999999] bg-[#94a3d6] px-[9px]">
         <span className="text-[15px] font-bold uppercase tracking-[0.03em] text-white">
           [CLEANLA] · [ADMIN] · [HEALTH]

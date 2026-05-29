@@ -47,7 +47,7 @@ export default async function AdminOrganizationsPage() {
   const rows = data ?? [];
 
   return (
-    <main className="min-h-screen bg-white">
+    <main className="min-h-[100dvh] bg-white safe-top safe-x">
       <div className="flex h-[27px] items-center border-b border-[#999999] bg-[#94a3d6] px-[9px]">
         <h1 className="text-[15px] font-bold tracking-[0.03em] text-white uppercase">
           ORGANIZATION REVIEW

@@ -52,7 +52,7 @@ export default async function AdminDashboardPage() {
   ];
 
   return (
-    <main className="min-h-screen bg-white">
+    <main className="min-h-[100dvh] bg-white safe-top safe-x">
       <header className="flex h-[27px] items-center justify-between border-b border-[#999999] bg-[#94a3d6] px-[9px]">
         <h1 className="text-[15px] font-bold tracking-[0.03em] text-white uppercase">
           CLEANLA ADMIN

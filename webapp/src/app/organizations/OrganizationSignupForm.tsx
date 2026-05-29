@@ -70,14 +70,14 @@ export function OrganizationSignupForm() {
             value={values[field]}
             onChange={(event) => setField(field, event.target.value)}
             placeholder={field.replaceAll("_", " ").toUpperCase()}
-            className="border border-[#999999] p-[6px] text-[12px] tracking-[0.03em] text-[#001089] uppercase placeholder:text-[#999999]"
+            className="min-h-[45px] border border-[#999999] p-[6px] text-[12px] tracking-[0.03em] text-[#001089] uppercase placeholder:text-[#999999]"
           />
         ))}
         <button
           type="button"
           onClick={submit}
           disabled={status.kind === "saving"}
-          className="border border-[#999999] bg-[#001089] px-[9px] py-[6px] text-[12px] font-bold tracking-[0.03em] text-white uppercase disabled:bg-white disabled:text-[#999999]"
+          className="min-h-[45px] border border-[#999999] bg-[#001089] px-[9px] py-[6px] text-[12px] font-bold tracking-[0.03em] text-white uppercase disabled:bg-white disabled:text-[#999999]"
         >
           {status.kind === "saving" ? "[SUBMITTING]" : "[SUBMIT FOR REVIEW]"}
         </button>

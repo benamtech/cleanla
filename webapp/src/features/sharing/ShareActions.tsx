@@ -46,7 +46,7 @@ export function ShareActions({ spotId, category, neighborhood, status }: Props) 
   }
 
   const btnClass =
-    "border border-[#999999] bg-white py-[6px] px-[12px] text-[12px] font-bold uppercase tracking-[0.03em] text-[#001089] hover:bg-[#f8eac7] cursor-pointer";
+    "inline-flex min-h-[45px] items-center justify-center border border-[#999999] bg-white py-[6px] px-[12px] text-[12px] font-bold uppercase tracking-[0.03em] text-[#001089] hover:bg-[#f8eac7] cursor-pointer";
 
   return (
     <div className="flex flex-wrap gap-[6px]">

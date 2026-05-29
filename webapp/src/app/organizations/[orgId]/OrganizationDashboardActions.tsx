@@ -59,7 +59,7 @@ export function RewardCreateForm({ orgId }: { orgId: string }) {
         value={values.title}
         onChange={(event) => setValues({ ...values, title: event.target.value })}
         placeholder="TITLE"
-        className="border border-[#999999] p-[6px] text-[12px] uppercase"
+        className="min-h-[45px] border border-[#999999] p-[6px] text-[12px] uppercase"
       />
       <input
         value={values.description}
@@ -67,7 +67,7 @@ export function RewardCreateForm({ orgId }: { orgId: string }) {
           setValues({ ...values, description: event.target.value })
         }
         placeholder="DESCRIPTION"
-        className="border border-[#999999] p-[6px] text-[12px] uppercase"
+        className="min-h-[45px] border border-[#999999] p-[6px] text-[12px] uppercase"
       />
       <input
         value={values.points_required}
@@ -77,7 +77,7 @@ export function RewardCreateForm({ orgId }: { orgId: string }) {
         placeholder="POINTS"
         type="number"
         min={200}
-        className="border border-[#999999] p-[6px] text-[12px] uppercase"
+        className="min-h-[45px] border border-[#999999] p-[6px] text-[12px] uppercase"
       />
       <input
         value={values.redemption_instructions}
@@ -85,7 +85,7 @@ export function RewardCreateForm({ orgId }: { orgId: string }) {
           setValues({ ...values, redemption_instructions: event.target.value })
         }
         placeholder="REDEMPTION INSTRUCTIONS"
-        className="border border-[#999999] p-[6px] text-[12px] uppercase"
+        className="min-h-[45px] border border-[#999999] p-[6px] text-[12px] uppercase"
       />
       <label className="flex items-center gap-[6px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase">
         <input
@@ -100,7 +100,7 @@ export function RewardCreateForm({ orgId }: { orgId: string }) {
       <button
         type="button"
         onClick={submit}
-        className="border border-[#999999] bg-[#001089] px-[9px] py-[6px] text-[12px] font-bold text-white uppercase"
+        className="border border-[#999999] bg-[#001089] min-h-[45px] px-[9px] py-[6px] text-[12px] font-bold text-white uppercase"
       >
         [CREATE]
       </button>
@@ -153,12 +153,12 @@ export function ConfirmRedemptionForm({ orgId }: { orgId: string }) {
         value={claimCode}
         onChange={(event) => setClaimCode(event.target.value.toUpperCase())}
         placeholder="CLAIM CODE"
-        className="border border-[#999999] p-[6px] text-[18px] font-bold tracking-[0.12em] uppercase"
+        className="min-h-[45px] border border-[#999999] p-[6px] text-[18px] font-bold tracking-[0.12em] uppercase"
       />
       <button
         type="button"
         onClick={confirm}
-        className="border border-[#999999] bg-[#228B22] px-[9px] py-[6px] text-[12px] font-bold text-white uppercase"
+        className="border border-[#999999] bg-[#228B22] min-h-[45px] px-[9px] py-[6px] text-[12px] font-bold text-white uppercase"
       >
         [CONFIRM]
       </button>
@@ -210,7 +210,7 @@ export function RewardStatusButton({
       type="button"
       onClick={toggle}
       disabled={busy}
-      className="border border-[#999999] bg-white px-[9px] py-[6px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7] disabled:opacity-50"
+      className="border border-[#999999] bg-white min-h-[45px] px-[9px] py-[6px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7] disabled:opacity-50"
     >
       {reward.is_active ? "[DEACTIVATE]" : "[ACTIVATE]"}
     </button>
@@ -241,7 +241,7 @@ export function CancelRedemptionButton({
       type="button"
       onClick={cancel}
       disabled={busy}
-      className="border border-[#999999] bg-white px-[9px] py-[6px] text-[9px] font-bold tracking-[0.03em] text-[#a60315] uppercase hover:bg-[#f8eac7] disabled:opacity-50"
+      className="border border-[#999999] bg-white min-h-[45px] px-[9px] py-[6px] text-[9px] font-bold tracking-[0.03em] text-[#a60315] uppercase hover:bg-[#f8eac7] disabled:opacity-50"
     >
       [CANCEL / REFUND]
     </button>

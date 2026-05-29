@@ -223,7 +223,7 @@ function SignInPrompt({
   onClose: () => void;
 }) {
   return (
-    <aside className="absolute right-[9px] bottom-[9px] left-[9px] z-20 border border-[#999999] bg-white md:left-auto md:w-[360px]">
+    <aside className="absolute right-[calc(9px_+_env(safe-area-inset-right))] bottom-[calc(9px_+_env(safe-area-inset-bottom))] left-[calc(9px_+_env(safe-area-inset-left))] z-20 border border-[#999999] bg-white md:left-auto md:w-[360px]">
       <div className="flex h-[27px] items-center justify-between border-b border-[#999999] bg-[#001089] px-[9px]">
         <h2 className="text-[15px] font-bold tracking-[0.03em] text-white uppercase">
           SIGN IN TO CLEANLA
@@ -231,7 +231,7 @@ function SignInPrompt({
         <button
           type="button"
           onClick={onClose}
-          className="border border-white bg-white px-[6px] py-[3px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
+          className="flex h-[27px] min-w-[44px] items-center justify-center border border-white bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
           aria-label="Close sign in"
         >
           [x]
@@ -299,14 +299,20 @@ function SpotDetailSheet({
 
   return (
     <div
-      className="fixed inset-0 z-10 flex items-center justify-center p-[18px]"
+      className="fixed inset-0 z-10 flex items-center justify-center"
+      style={{
+        paddingTop: "calc(18px + env(safe-area-inset-top))",
+        paddingBottom: "calc(18px + env(safe-area-inset-bottom))",
+        paddingLeft: "calc(18px + env(safe-area-inset-left))",
+        paddingRight: "calc(18px + env(safe-area-inset-right))",
+      }}
       onClick={onClose}
       role="dialog"
       aria-modal="true"
       aria-label="Spot detail"
     >
       <aside
-        className="flex h-[calc(100vh-36px)] w-full max-w-[420px] flex-col overflow-hidden border border-[#999999] bg-white"
+        className="flex max-h-full w-full max-w-[420px] flex-col overflow-hidden border border-[#999999] bg-white"
         onClick={(e) => e.stopPropagation()}
       >
         {/* 1. WINDOW BAR */}
@@ -317,7 +323,7 @@ function SpotDetailSheet({
           <button
             type="button"
             onClick={onClose}
-            className="border border-[#999999] bg-white px-[6px] py-[3px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
+            className="flex h-[27px] min-w-[44px] items-center justify-center border border-[#999999] bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
             aria-label="Close spot detail"
           >
             [x]
@@ -638,7 +644,7 @@ function MapGameControls({
         </div>
       </div>
 
-      <div className="absolute right-[12px] bottom-[90px] z-10 md:hidden">
+      <div className="absolute right-[calc(12px_+_env(safe-area-inset-right))] bottom-[calc(90px_+_env(safe-area-inset-bottom))] z-10 md:hidden">
         <CameraJoystick
           compact
           caption={null}
@@ -1090,7 +1096,7 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
 
   if (!mapboxToken) {
     return (
-      <main className="min-h-screen bg-white p-[18px]">
+      <main className="min-h-[100dvh] bg-white p-[18px]">
         <section className="mx-auto max-w-[720px] border border-[#a60315] bg-white p-[18px]">
           <div className="mb-[9px] border-b border-[#999999] pb-[9px]">
             <h1 className="text-[24px] font-bold tracking-[0.03em] text-[#a60315] uppercase">
@@ -1197,7 +1203,7 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
       </Map>
       )}
 
-      <header className="absolute top-[9px] right-[9px] left-[9px] z-10 border border-[#999999] bg-white md:right-auto md:w-[420px]">
+      <header className="absolute top-[calc(9px_+_env(safe-area-inset-top))] right-[calc(9px_+_env(safe-area-inset-right))] left-[calc(9px_+_env(safe-area-inset-left))] z-10 border border-[#999999] bg-white md:right-auto md:w-[420px]">
         <div className="flex h-[27px] items-center justify-between border-b border-[#999999] bg-[#94a3d6] px-[9px]">
           <h1 className="text-[15px] font-bold tracking-[0.03em] text-white uppercase">
             CLEANLA MAP
@@ -1231,11 +1237,11 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
             </span>
           </div>
         </div>
-        <div className="flex min-h-[36px] flex-wrap items-stretch border-b border-[#999999] bg-white">
+        <div className="flex min-h-[45px] flex-wrap items-stretch border-b border-[#999999] bg-white">
           <button
             type="button"
             onClick={() => setShowLegend((current) => !current)}
-            className="min-h-[36px] border-r border-[#999999] bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
+            className="min-h-[45px] border-r border-[#999999] bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
           >
             [LEGEND]
           </button>
@@ -1243,14 +1249,14 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
             {user ? (
               <a
                 href="/profile"
-                className="flex min-h-[36px] items-center border-r border-[#999999] bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
+                className="flex min-h-[45px] items-center border-r border-[#999999] bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
               >
                 [PROFILE]
               </a>
             ) : null}
             <a
               href="/rewards"
-              className="flex min-h-[36px] items-center border-r border-[#999999] bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#228B22] uppercase hover:bg-[#f8eac7]"
+              className="flex min-h-[45px] items-center border-r border-[#999999] bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#228B22] uppercase hover:bg-[#f8eac7]"
             >
               {user && pointBalance !== null
                 ? `[REWARDS / ${formatPoints(pointBalance)}]`
@@ -1259,7 +1265,7 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
             {user && isAdmin ? (
               <a
                 href="/admin"
-                className="flex min-h-[36px] items-center border-r border-[#999999] bg-[#f8eac7] px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#b8dae8]"
+                className="flex min-h-[45px] items-center border-r border-[#999999] bg-[#f8eac7] px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#b8dae8]"
               >
                 [ADMIN]
               </a>
@@ -1267,7 +1273,7 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
             {user && !username ? (
               <a
                 href="/profile"
-                className="flex min-h-[36px] items-center border-r border-[#999999] bg-[#f8eac7] px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase no-underline hover:bg-[#b8dae8]"
+                className="flex min-h-[45px] items-center border-r border-[#999999] bg-[#f8eac7] px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase no-underline hover:bg-[#b8dae8]"
               >
                 [SET USERNAME]
               </a>
@@ -1276,7 +1282,7 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
               <button
                 type="button"
                 onClick={signOut}
-                className="min-h-[36px] border-r border-[#999999] bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
+                className="min-h-[45px] border-r border-[#999999] bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
               >
                 [SIGN OUT]
               </button>
@@ -1284,7 +1290,7 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
               <button
                 type="button"
                 onClick={() => setShowSignIn(true)}
-                className="min-h-[36px] border-r border-[#999999] bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
+                className="min-h-[45px] border-r border-[#999999] bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
               >
                 [SIGN IN]
               </button>
@@ -1293,7 +1299,7 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
               type="button"
               onClick={() => setShowAbout(true)}
               aria-label="About CleanLA"
-              className="min-h-[36px] bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
+              className="min-h-[45px] bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
             >
               [i]
             </button>
@@ -1304,7 +1310,7 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
       {/* P1-4: empty-viewport encouragement. Renders above the CTA when
           a fetch resolved with zero spots in the current bounds. */}
       {fetchState.kind === "ok" && spots.length === 0 ? (
-        <div className="pointer-events-none fixed right-[12px] bottom-[84px] left-[12px] z-10">
+        <div className="pointer-events-none fixed right-[12px] bottom-[calc(84px_+_env(safe-area-inset-bottom))] left-[12px] z-10">
           <div className="border border-[#999999] bg-[#f8eac7] p-[9px] text-center text-[12px] font-bold tracking-[0.03em] text-[#001089] uppercase">
             NO REPORTS HERE YET · BE THE FIRST
           </div>
@@ -1327,7 +1333,7 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
               bottom bar pattern (think iOS-app tab bar position)
             - 1px top border in grey reads as a "sticky footer" rather
               than a floating button, anchoring it to the screen edge */}
-      <div className="fixed inset-x-0 bottom-0 z-10 border-t border-[#999999] bg-white">
+      <div className="safe-bottom safe-x fixed inset-x-0 bottom-0 z-10 border-t border-[#999999] bg-white">
         <button
           type="button"
           onClick={openReport}
@@ -1341,12 +1347,12 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
         <MapGameControls onPan={panMap} onAdjust={adjustCamera} />
       ) : null}
 
-      <div className="absolute top-[141px] right-[9px] z-10 grid gap-[9px] md:top-[9px]">
+      <div className="absolute top-[calc(141px_+_env(safe-area-inset-top))] right-[calc(9px_+_env(safe-area-inset-right))] z-10 grid gap-[9px] md:top-[9px]">
         {showLegend ? <MapLegend /> : null}
         <div className="grid justify-items-end">
           <button
             type="button"
-            className="h-[36px] w-[36px] border border-[#999999] bg-white text-[12px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
+            className="h-[45px] w-[45px] border border-[#999999] bg-white text-[12px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
             onClick={() => mapRef.current?.zoomIn({ duration: 100 })}
             aria-label="Zoom in"
           >
@@ -1354,7 +1360,7 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
           </button>
           <button
             type="button"
-            className="h-[36px] w-[36px] border-x border-b border-[#999999] bg-white text-[12px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
+            className="h-[45px] w-[45px] border-x border-b border-[#999999] bg-white text-[12px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
             onClick={() => mapRef.current?.zoomOut({ duration: 100 })}
             aria-label="Zoom out"
           >
@@ -1413,14 +1419,20 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
           unofficial status visible to first-time visitors. */}
       {showAbout ? (
         <div
-          className="fixed inset-0 z-20 grid place-items-center p-[9px]"
+          className="fixed inset-0 z-20 grid place-items-center"
+          style={{
+            paddingTop: "calc(9px + env(safe-area-inset-top))",
+            paddingBottom: "calc(9px + env(safe-area-inset-bottom))",
+            paddingLeft: "calc(9px + env(safe-area-inset-left))",
+            paddingRight: "calc(9px + env(safe-area-inset-right))",
+          }}
           onClick={() => setShowAbout(false)}
           role="dialog"
           aria-modal="true"
           aria-label="About CleanLA"
         >
           <aside
-            className="max-h-[calc(100vh-18px)] w-full max-w-[420px] overflow-auto border border-[#999999] bg-white"
+            className="max-h-full w-full max-w-[420px] overflow-auto border border-[#999999] bg-white"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex h-[27px] items-center justify-between border-b border-[#999999] bg-[#94a3d6] px-[9px]">
@@ -1430,7 +1442,7 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
               <button
                 type="button"
                 onClick={() => setShowAbout(false)}
-                className="border border-[#999999] bg-white px-[6px] py-[3px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
+                className="flex h-[27px] min-w-[44px] items-center justify-center border border-[#999999] bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
                 aria-label="Close about"
               >
                 [x]

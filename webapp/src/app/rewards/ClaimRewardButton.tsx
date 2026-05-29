@@ -70,7 +70,7 @@ export function ClaimRewardButton({
         type="button"
         onClick={claim}
         disabled={!canClaim || status.kind === "claiming"}
-        className="border border-[#999999] bg-[#228B22] px-[9px] py-[6px] text-[12px] font-bold tracking-[0.03em] text-white uppercase enabled:hover:opacity-90 disabled:bg-white disabled:text-[#999999]"
+        className="min-h-[45px] border border-[#999999] bg-[#228B22] px-[9px] py-[6px] text-[12px] font-bold tracking-[0.03em] text-white uppercase enabled:hover:opacity-90 disabled:bg-white disabled:text-[#999999]"
       >
         {status.kind === "claiming" ? "[CLAIMING]" : "[CLAIM REWARD]"}
       </button>

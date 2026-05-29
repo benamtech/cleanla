@@ -1,6 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+  type PointerEvent as ReactPointerEvent,
+} from "react";
 import {
   MAX_GPS_ACCURACY_M,
   REPORT_DEFAULT_CATEGORY,
@@ -122,6 +129,31 @@ export function ReportSheet({
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [submitState, setSubmitState] = useState<SubmitState>({ kind: "idle" });
   const [phase, setPhase] = useState<Phase>("capture");
+
+  // Swipe-down-to-dismiss (HIG sheet gesture). Drag the title bar down past
+  // the threshold to close; the live translateY gives the drag a real feel.
+  const dragStartYRef = useRef<number | null>(null);
+  const [dragY, setDragY] = useState(0);
+  const dragStyle: CSSProperties = dragY
+    ? { transform: `translateY(${dragY}px)`, transition: "none" }
+    : { transition: "transform 120ms" };
+
+  function onGrabPointerDown(event: ReactPointerEvent<HTMLDivElement>) {
+    dragStartYRef.current = event.clientY;
+    event.currentTarget.setPointerCapture(event.pointerId);
+  }
+  function onGrabPointerMove(event: ReactPointerEvent<HTMLDivElement>) {
+    if (dragStartYRef.current === null) return;
+    const dy = event.clientY - dragStartYRef.current;
+    setDragY(dy > 0 ? dy : 0);
+  }
+  function onGrabPointerEnd() {
+    if (dragStartYRef.current === null) return;
+    const shouldClose = dragY > 90;
+    dragStartYRef.current = null;
+    setDragY(0);
+    if (shouldClose) onClose();
+  }
 
   const canSubmit =
     phase === "confirm" &&
@@ -381,22 +413,36 @@ export function ReportSheet({
   }
 
   const containerCls =
-    "absolute inset-[9px] z-20 flex flex-col overflow-hidden border border-[#999999] bg-white md:left-auto md:top-[9px] md:right-[9px] md:bottom-[9px] md:w-[420px]";
+    "absolute top-[calc(9px_+_env(safe-area-inset-top))] right-[calc(9px_+_env(safe-area-inset-right))] bottom-[calc(9px_+_env(safe-area-inset-bottom))] left-[calc(9px_+_env(safe-area-inset-left))] flex flex-col overflow-hidden border border-[#999999] bg-white md:left-auto md:top-[9px] md:right-[9px] md:bottom-[9px] md:w-[420px]";
 
   // ─── HEADER (same across all phases) ──────────────────────────────────
+  // The title region is the drag handle (swipe down to dismiss); the close
+  // button is a sibling so its tap is never swallowed by pointer capture.
   const header = (
-    <div className="flex h-[27px] flex-none items-center justify-between border-b border-[#999999] bg-[#001089] px-[9px]">
-      <h2 className="text-[15px] font-bold tracking-[0.03em] text-white uppercase">
-        {phase === "capture"
-          ? "REPORT SPOT · 1 OF 2"
-          : phase === "confirm"
-            ? "REPORT SPOT · 2 OF 2"
-            : "REPORT SPOT · SENT"}
-      </h2>
+    <div className="relative flex h-[27px] flex-none items-center justify-between border-b border-[#999999] bg-[#001089] px-[9px]">
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute top-[3px] left-1/2 h-[3px] w-[36px] -translate-x-1/2 bg-white/40"
+      />
+      <div
+        className="flex flex-1 cursor-grab touch-none items-center select-none"
+        onPointerDown={onGrabPointerDown}
+        onPointerMove={onGrabPointerMove}
+        onPointerUp={onGrabPointerEnd}
+        onPointerCancel={onGrabPointerEnd}
+      >
+        <h2 className="text-[15px] font-bold tracking-[0.03em] text-white uppercase">
+          {phase === "capture"
+            ? "REPORT SPOT · 1 OF 2"
+            : phase === "confirm"
+              ? "REPORT SPOT · 2 OF 2"
+              : "REPORT SPOT · SENT"}
+        </h2>
+      </div>
       <button
         type="button"
         onClick={onClose}
-        className="border border-white bg-white px-[6px] py-[3px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
+        className="flex h-[27px] min-w-[44px] items-center justify-center border border-white bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
         aria-label="Close report"
       >
         [x]
@@ -407,7 +453,12 @@ export function ReportSheet({
   // ─── PHASE: CAPTURE ───────────────────────────────────────────────────
   if (phase === "capture") {
     return (
-      <aside className={containerCls}>
+      <div className="fixed inset-0 z-20" onClick={onClose}>
+        <aside
+          className={containerCls}
+          style={dragStyle}
+          onClick={(event) => event.stopPropagation()}
+        >
         {header}
         <div className="flex flex-1 flex-col">
           <div className="relative flex-1 bg-[#001089]">
@@ -429,7 +480,7 @@ export function ReportSheet({
                   </p>
                   {cameraState.kind === "error" ? (
                     <>
-                      <label className="mt-[18px] inline-block cursor-pointer border border-[#999999] bg-white px-[12px] py-[9px] text-[12px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]">
+                      <label className="mt-[18px] inline-flex min-h-[45px] cursor-pointer items-center justify-center border border-[#999999] bg-white px-[12px] py-[9px] text-[12px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]">
                         [USE PHOTO FROM LIBRARY]
                         <input
                           type="file"
@@ -467,7 +518,7 @@ export function ReportSheet({
                   <button
                     type="button"
                     onClick={captureGps}
-                    className="border border-[#999999] bg-white px-[6px] py-[3px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
+                    className="border border-[#999999] bg-white inline-flex min-h-[45px] items-center justify-center px-[6px] py-[3px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
                   >
                     [RETRY GPS]
                   </button>
@@ -484,7 +535,7 @@ export function ReportSheet({
                         });
                         setGpsState({ kind: "ready" });
                       }}
-                      className="border border-[#999999] bg-[#f8eac7] px-[6px] py-[3px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#b8dae8]"
+                      className="border border-[#999999] bg-[#f8eac7] inline-flex min-h-[45px] items-center justify-center px-[6px] py-[3px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#b8dae8]"
                     >
                       [USE MAP CENTER]
                     </button>
@@ -502,7 +553,8 @@ export function ReportSheet({
             </button>
           </div>
         </div>
-      </aside>
+        </aside>
+      </div>
     );
   }
 
@@ -511,7 +563,12 @@ export function ReportSheet({
     const gpsPoor = gpsCapture && gpsCapture.accuracy > MAX_GPS_ACCURACY_M;
 
     return (
-      <aside className={containerCls}>
+      <div className="fixed inset-0 z-20" onClick={onClose}>
+        <aside
+          className={containerCls}
+          style={dragStyle}
+          onClick={(event) => event.stopPropagation()}
+        >
         {header}
         <div className="flex-1 overflow-auto">
           {/* Photo preview */}
@@ -534,7 +591,7 @@ export function ReportSheet({
             <button
               type="button"
               onClick={retakePhoto}
-              className="border border-[#999999] bg-white px-[6px] py-[3px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
+              className="border border-[#999999] bg-white inline-flex min-h-[45px] items-center justify-center px-[6px] py-[3px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
             >
               [RETAKE]
             </button>
@@ -559,10 +616,11 @@ export function ReportSheet({
                     key={item}
                     type="button"
                     onClick={() => setCategory(item)}
+                    aria-pressed={selected}
                     className={
                       selected
-                        ? "border-l-[6px] border-y border-r border-[#999999] bg-[#f8eac7] px-[9px] py-[9px] text-left text-[12px] font-bold tracking-[0.03em] text-[#001089] uppercase"
-                        : "border border-[#999999] bg-white px-[9px] py-[9px] text-left text-[12px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
+                        ? "min-h-[45px] border-l-[6px] border-y border-r border-[#999999] bg-[#f8eac7] px-[9px] py-[9px] text-left text-[12px] font-bold tracking-[0.03em] text-[#001089] uppercase"
+                        : "min-h-[45px] border border-[#999999] bg-white px-[9px] py-[9px] text-left text-[12px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
                     }
                     style={
                       selected
@@ -582,7 +640,8 @@ export function ReportSheet({
             <button
               type="button"
               onClick={() => setShowAdvanced((v) => !v)}
-              className="text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
+              aria-expanded={showAdvanced}
+              className="inline-flex min-h-[45px] items-center px-[6px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
             >
               {showAdvanced ? "[−] HIDE EXTRA DETAILS" : "[+] ADD MORE DETAIL (OPTIONAL)"}
             </button>
@@ -598,10 +657,11 @@ export function ReportSheet({
                         key={item}
                         type="button"
                         onClick={() => setSeverity(item)}
+                        aria-pressed={severity === item}
                         className={
                           severity === item
-                            ? "border border-[#999999] bg-[#001089] px-[6px] py-[6px] text-[12px] font-bold text-white"
-                            : "border border-[#999999] bg-white px-[6px] py-[6px] text-[12px] font-bold text-[#001089] hover:bg-[#f8eac7]"
+                            ? "min-h-[45px] border border-[#999999] bg-[#001089] px-[6px] py-[6px] text-[12px] font-bold text-white"
+                            : "min-h-[45px] border border-[#999999] bg-white px-[6px] py-[6px] text-[12px] font-bold text-[#001089] hover:bg-[#f8eac7]"
                         }
                       >
                         {item}
@@ -645,15 +705,25 @@ export function ReportSheet({
             </p>
           ) : null}
         </div>
-      </aside>
+        </aside>
+      </div>
     );
   }
 
   // ─── PHASE: DONE ──────────────────────────────────────────────────────
   return (
-    <aside className={containerCls}>
+    <div className="fixed inset-0 z-20" onClick={onClose}>
+      <aside
+        className={containerCls}
+        style={dragStyle}
+        onClick={(event) => event.stopPropagation()}
+      >
       {header}
-      <div className="flex flex-1 flex-col gap-[9px] overflow-auto p-[9px]">
+      <div
+        className="flex flex-1 flex-col gap-[9px] overflow-auto p-[9px]"
+        role="status"
+        aria-live="polite"
+      >
         {submitState.kind === "verified" ? (
           <div className="border border-[#228B22] bg-white p-[9px] text-[12px] font-bold tracking-[0.03em] text-[#228B22] uppercase">
             LOCATION VERIFIED. SPOT {submitState.spotId} IS APPROVED.
@@ -696,7 +766,7 @@ export function ReportSheet({
                 type="email"
                 placeholder="EMAIL"
                 disabled={claimNotice.kind === "sending" || claimNotice.kind === "sent"}
-                className="flex-1 border border-[#999999] bg-white p-[6px] text-[12px] tracking-[0.03em] uppercase placeholder:text-[#999999] disabled:bg-[#f8eac7]"
+                className="min-h-[45px] flex-1 border border-[#999999] bg-white p-[6px] text-[12px] tracking-[0.03em] uppercase placeholder:text-[#999999] disabled:bg-[#f8eac7]"
               />
               <button
                 type="button"
@@ -706,7 +776,7 @@ export function ReportSheet({
                   claimNotice.kind === "sending" ||
                   claimNotice.kind === "sent"
                 }
-                className="border border-[#999999] bg-[#001089] px-[9px] py-[6px] text-[9px] font-bold tracking-[0.03em] text-white uppercase enabled:hover:bg-[#94a3d6] disabled:bg-white disabled:text-[#999999]"
+                className="min-h-[45px] border border-[#999999] bg-[#001089] px-[9px] py-[6px] text-[9px] font-bold tracking-[0.03em] text-white uppercase enabled:hover:bg-[#94a3d6] disabled:bg-white disabled:text-[#999999]"
               >
                 {claimNotice.kind === "sending"
                   ? "[SENDING]"
@@ -736,11 +806,12 @@ export function ReportSheet({
         <button
           type="button"
           onClick={onClose}
-          className="block w-full border border-[#999999] bg-[#001089] px-[9px] py-[12px] text-[12px] font-bold tracking-[0.03em] text-white uppercase hover:bg-[#94a3d6]"
+          className="block min-h-[45px] w-full border border-[#999999] bg-[#001089] px-[9px] py-[12px] text-[12px] font-bold tracking-[0.03em] text-white uppercase hover:bg-[#94a3d6]"
         >
           [DONE]
         </button>
       </div>
-    </aside>
+      </aside>
+    </div>
   );
 }

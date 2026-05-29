@@ -47,7 +47,7 @@ export default async function RewardsPage() {
   const balance = Number(balanceResult.data ?? 0);
 
   return (
-    <main className="min-h-screen bg-white p-[18px]">
+    <main className="min-h-[100dvh] bg-white pt-[calc(18px_+_env(safe-area-inset-top))] pr-[calc(18px_+_env(safe-area-inset-right))] pb-[calc(18px_+_env(safe-area-inset-bottom))] pl-[calc(18px_+_env(safe-area-inset-left))]">
       <section className="mx-auto grid max-w-[900px] gap-[18px]">
         <div className="border border-[#999999]">
           <div className="flex h-[27px] items-center justify-between border-b border-[#999999] bg-[#228B22] px-[9px]">
@@ -112,7 +112,7 @@ export default async function RewardsPage() {
               ) : (
                 <Link
                   href="/"
-                  className="border border-[#999999] bg-white px-[9px] py-[6px] text-center text-[12px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
+                  className="inline-flex min-h-[45px] items-center justify-center border border-[#999999] bg-white px-[9px] py-[6px] text-center text-[12px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
                 >
                   [SIGN IN ON MAP]
                 </Link>

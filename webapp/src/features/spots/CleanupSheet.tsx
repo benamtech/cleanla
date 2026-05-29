@@ -1,6 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type PointerEvent as ReactPointerEvent,
+} from "react";
 import { MAX_GPS_ACCURACY_M } from "@/features/reports/constants";
 
 type GpsCapture = {
@@ -72,6 +78,30 @@ export function CleanupSheet({
   const [photoCapturedAt, setPhotoCapturedAt] = useState<string | null>(null);
   const [gpsCapture, setGpsCapture] = useState<GpsCapture | null>(null);
   const [submitState, setSubmitState] = useState<SubmitState>({ kind: "idle" });
+
+  // Swipe-down-to-dismiss (HIG sheet gesture) on the title bar.
+  const dragStartYRef = useRef<number | null>(null);
+  const [dragY, setDragY] = useState(0);
+  const dragStyle: CSSProperties = dragY
+    ? { transform: `translateY(${dragY}px)`, transition: "none" }
+    : { transition: "transform 120ms" };
+
+  function onGrabPointerDown(event: ReactPointerEvent<HTMLDivElement>) {
+    dragStartYRef.current = event.clientY;
+    event.currentTarget.setPointerCapture(event.pointerId);
+  }
+  function onGrabPointerMove(event: ReactPointerEvent<HTMLDivElement>) {
+    if (dragStartYRef.current === null) return;
+    const dy = event.clientY - dragStartYRef.current;
+    setDragY(dy > 0 ? dy : 0);
+  }
+  function onGrabPointerEnd() {
+    if (dragStartYRef.current === null) return;
+    const shouldClose = dragY > 90;
+    dragStartYRef.current = null;
+    setDragY(0);
+    if (shouldClose) onClose();
+  }
 
   const gpsLabel = gpsCapture
     ? `${gpsCapture.lat.toFixed(5)}, ${gpsCapture.lng.toFixed(5)} +/- ${Math.round(gpsCapture.accuracy)}M`
@@ -237,15 +267,32 @@ export function CleanupSheet({
   }
 
   return (
-    <aside className="absolute right-[9px] bottom-[9px] left-[9px] z-20 max-h-[calc(100vh-108px)] overflow-auto border border-[#999999] bg-white md:left-auto md:w-[420px]">
-      <div className="flex h-[27px] items-center justify-between border-b border-[#999999] bg-[#228B22] px-[9px]">
-        <h2 className="text-[15px] font-bold tracking-[0.03em] text-white uppercase">
-          MARK CLEANED
-        </h2>
+    <div className="fixed inset-0 z-20" onClick={onClose}>
+    <aside
+      className="absolute right-[calc(9px_+_env(safe-area-inset-right))] bottom-[calc(9px_+_env(safe-area-inset-bottom))] left-[calc(9px_+_env(safe-area-inset-left))] max-h-[calc(100dvh_-_108px_-_env(safe-area-inset-top)_-_env(safe-area-inset-bottom))] overflow-auto border border-[#999999] bg-white md:left-auto md:w-[420px]"
+      style={dragStyle}
+      onClick={(event) => event.stopPropagation()}
+    >
+      <div className="relative flex h-[27px] items-center justify-between border-b border-[#999999] bg-[#228B22] px-[9px]">
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute top-[3px] left-1/2 h-[3px] w-[36px] -translate-x-1/2 bg-white/40"
+        />
+        <div
+          className="flex flex-1 cursor-grab touch-none items-center select-none"
+          onPointerDown={onGrabPointerDown}
+          onPointerMove={onGrabPointerMove}
+          onPointerUp={onGrabPointerEnd}
+          onPointerCancel={onGrabPointerEnd}
+        >
+          <h2 className="text-[15px] font-bold tracking-[0.03em] text-white uppercase">
+            MARK CLEANED
+          </h2>
+        </div>
         <button
           type="button"
           onClick={onClose}
-          className="border border-white bg-white px-[6px] py-[3px] text-[9px] font-bold tracking-[0.03em] text-[#228B22] uppercase hover:bg-[#f8eac7]"
+          className="flex h-[27px] min-w-[44px] items-center justify-center border border-white bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#228B22] uppercase hover:bg-[#f8eac7]"
           aria-label="Close cleanup"
         >
           [x]
@@ -267,7 +314,7 @@ export function CleanupSheet({
             <button
               type="button"
               onClick={startCamera}
-              className="border border-[#999999] bg-white px-[6px] py-[3px] text-[9px] font-bold tracking-[0.03em] uppercase hover:bg-[#f8eac7]"
+              className="border border-[#999999] bg-white inline-flex min-h-[45px] items-center justify-center px-[6px] py-[3px] text-[9px] font-bold tracking-[0.03em] uppercase hover:bg-[#f8eac7]"
             >
               {cameraState.kind === "ready" ? "[RESTART]" : "[CAMERA]"}
             </button>
@@ -303,7 +350,7 @@ export function CleanupSheet({
               type="button"
               onClick={capturePhoto}
               disabled={cameraState.kind !== "ready"}
-              className="border border-[#999999] bg-white px-[6px] py-[3px] text-[9px] font-bold tracking-[0.03em] uppercase enabled:hover:bg-[#f8eac7] disabled:text-[#999999]"
+              className="border border-[#999999] bg-white inline-flex min-h-[45px] items-center justify-center px-[6px] py-[3px] text-[9px] font-bold tracking-[0.03em] uppercase enabled:hover:bg-[#f8eac7] disabled:text-[#999999]"
             >
               [CAPTURE]
             </button>
@@ -318,7 +365,7 @@ export function CleanupSheet({
             <button
               type="button"
               onClick={captureGps}
-              className="border border-[#999999] bg-white px-[6px] py-[3px] text-[9px] font-bold tracking-[0.03em] uppercase hover:bg-[#f8eac7]"
+              className="border border-[#999999] bg-white inline-flex min-h-[45px] items-center justify-center px-[6px] py-[3px] text-[9px] font-bold tracking-[0.03em] uppercase hover:bg-[#f8eac7]"
             >
               {gpsState.kind === "loading" ? "[WAIT]" : "[CAPTURE]"}
             </button>
@@ -333,6 +380,7 @@ export function CleanupSheet({
           ) : null}
         </section>
 
+        <div className="contents" role="status" aria-live="polite">
         {submitState.kind === "verified" ? (
           <div className="border border-[#228B22] bg-white p-[9px] text-[9px] font-bold tracking-[0.03em] text-[#228B22] uppercase">
             LOCATION VERIFIED — SPOT MARKED CLEANED.
@@ -365,12 +413,13 @@ export function CleanupSheet({
             {submitState.message}
           </div>
         ) : null}
+        </div>
 
         <button
           type="button"
           onClick={submitCleanup}
           disabled={!canSubmit}
-          className="border border-[#999999] bg-[#228B22] px-[9px] py-[9px] text-[12px] font-bold tracking-[0.03em] text-white uppercase enabled:hover:opacity-90 disabled:bg-white disabled:text-[#999999]"
+          className="min-h-[45px] border border-[#999999] bg-[#228B22] px-[9px] py-[9px] text-[12px] font-bold tracking-[0.03em] text-white uppercase enabled:hover:opacity-90 disabled:bg-white disabled:text-[#999999]"
         >
           {submitState.kind === "submitting"
             ? "[SUBMITTING]"
@@ -378,5 +427,6 @@ export function CleanupSheet({
         </button>
       </div>
     </aside>
+    </div>
   );
 }

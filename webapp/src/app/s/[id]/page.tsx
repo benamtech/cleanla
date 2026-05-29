@@ -115,7 +115,7 @@ export default async function SpotPublicPage({
   });
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-[100dvh] bg-white safe-top safe-x">
       {/* Window bar */}
       <div
         className={`h-[27px] flex items-center justify-between px-[9px] border-b border-[#999999] ${headerBg}`}

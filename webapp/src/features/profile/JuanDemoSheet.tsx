@@ -16,12 +16,14 @@ type ActivityRow = {
   photo?: string;
   date: string;
   status: string;
+  aspect?: "portrait" | "landscape" | "square";
 };
 
 const REPORTS: ActivityRow[] = [
   {
     id: "r1",
     title: "MATTRESS + CONSTRUCTION DEBRIS",
+    aspect: "landscape",
     category: "ILLEGAL DUMPING",
     neighborhood: "BOYLE HEIGHTS",
     location: "E 1ST ST & N SOTO ST",
@@ -32,6 +34,7 @@ const REPORTS: ActivityRow[] = [
   {
     id: "r2",
     title: "ALLEY-WALL GRAFFITI",
+    aspect: "portrait",
     category: "GRAFFITI",
     neighborhood: "HISTORIC FILIPINOTOWN",
     location: "TEMPLE ST & N HOOVER ST",
@@ -42,6 +45,7 @@ const REPORTS: ActivityRow[] = [
   {
     id: "r3",
     title: "BUS-STOP TRASH OVERFLOW",
+    aspect: "landscape",
     category: "TRASH",
     neighborhood: "KOREATOWN",
     location: "WILSHIRE BLVD & S WESTERN AVE",
@@ -52,6 +56,7 @@ const REPORTS: ActivityRow[] = [
   {
     id: "r4",
     title: "FREEWAY-ADJACENT DEBRIS PILE",
+    aspect: "portrait",
     category: "ENCAMPMENT DEBRIS",
     neighborhood: "WESTLAKE",
     location: "S ALVARADO ST & W 7TH ST",
@@ -258,7 +263,13 @@ export function JuanDemoSheet({ onClose }: { onClose: () => void }) {
                 <span className="w-[6px] shrink-0 bg-[#001089]" />
                 <span
                   className={`relative my-[6px] ml-[6px] block shrink-0 overflow-hidden border border-[#999999] bg-[#f8eac7] ${
-                    isOpen ? "h-[120px] w-[120px]" : "h-[48px] w-[48px]"
+                    isOpen
+                      ? row.aspect === "portrait"
+                        ? "h-[180px] w-[120px]"
+                        : row.aspect === "landscape"
+                          ? "h-[120px] w-[180px]"
+                          : "h-[120px] w-[120px]"
+                      : "h-[48px] w-[48px]"
                   }`}
                 >
                   {row.photo ? (
@@ -266,7 +277,9 @@ export function JuanDemoSheet({ onClose }: { onClose: () => void }) {
                       src={row.photo}
                       alt={row.title}
                       fill
-                      sizes={isOpen ? "120px" : "48px"}
+                      sizes={
+                        isOpen ? (row.aspect === "landscape" ? "180px" : "120px") : "48px"
+                      }
                       className="object-cover"
                     />
                   ) : null}

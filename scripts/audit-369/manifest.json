@@ -1,9 +1,10 @@
 {
+  "$schema": "../../node_modules/@adn/369-design-system/references/manifests/schema.json",
   "version": 1,
-  "name": "CleanLA 369 Overlay Manifest",
-  "description": "Layout audit manifest for CleanLA canvas + floating overlays composition",
-  "base": "http://localhost:3000",
+  "name": "cleanla-369-audit",
+  "description": "CleanLA layout audit manifest. Probes Rule 9a (overlap) + 9b (3-multiple gaps) + touch-target + decoration + focus-ring across four viewports against the deployed Vercel preview.",
   "settleMs": 2000,
+  "touchTargetMin": 45,
   "viewports": [
     {
       "name": "portrait-mobile",
@@ -25,7 +26,7 @@
       "name": "portrait-tablet",
       "width": 820,
       "height": 1180,
-      "isMobile": false,
+      "isMobile": true,
       "hasTouch": true,
       "description": "iPad portrait"
     },
@@ -33,7 +34,7 @@
       "name": "landscape-tablet",
       "width": 1180,
       "height": 820,
-      "isMobile": false,
+      "isMobile": true,
       "hasTouch": true,
       "description": "iPad landscape"
     }
@@ -41,47 +42,66 @@
   "overlays": [
     {
       "name": "header",
-      "description": "Top navigation/header bar",
+      "selector": {
+        "css": "header"
+      },
       "optional": true,
-      "css": "header",
-      "skipOverlays": []
+      "description": "Top navigation / header bar"
     },
     {
       "name": "cta-primary",
-      "description": "Primary call-to-action button",
+      "selector": {
+        "role": "button",
+        "namePattern": "FILE A REPORT|REPORT|SUBMIT"
+      },
       "optional": true,
-      "role": "button",
-      "namePattern": "FILE A REPORT|REPORT|SUBMIT",
-      "skipOverlays": []
+      "description": "Primary call-to-action button"
     },
     {
-      "name": "nav-floating",
-      "description": "Floating navigation or joystick",
+      "name": "joystick",
+      "selector": {
+        "role": "button",
+        "namePattern": "joystick|drag|navigate"
+      },
       "optional": true,
-      "role": "button",
-      "namePattern": "joystick|drag|navigate",
-      "skipOverlays": []
+      "description": "Map drag-joystick control"
+    },
+    {
+      "name": "zoom-in",
+      "selector": {
+        "role": "button",
+        "name": "Zoom in"
+      },
+      "optional": true
+    },
+    {
+      "name": "zoom-out",
+      "selector": {
+        "role": "button",
+        "name": "Zoom out"
+      },
+      "optional": true
     },
     {
       "name": "footer",
-      "description": "Bottom footer area",
+      "selector": {
+        "css": "footer"
+      },
       "optional": true,
-      "css": "footer",
-      "skipOverlays": []
+      "description": "Bottom footer area"
     }
   ],
   "stackPairs": [
-    {
-      "name": "header-to-content",
-      "stackA": "header",
-      "stackB": "cta-primary",
-      "axis": "row",
-      "gap": {
-        "expectedValue": 12,
-        "description": "Vertical spacing between header and primary CTA"
-      },
-      "optional": true
-    }
+    [
+      "zoom-in",
+      "zoom-out",
+      9
+    ],
+    [
+      "zoom-out",
+      "joystick",
+      9
+    ]
   ],
   "checks": {
     "contrast": false

@@ -1656,7 +1656,7 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
           unofficial status visible to first-time visitors. */}
       {showAbout ? (
         <div
-          className="fixed inset-0 z-20 grid place-items-center"
+          className="fixed inset-0 z-20 grid place-items-center bg-[#001089]/50"
           style={{
             paddingTop: "calc(9px + env(safe-area-inset-top))",
             paddingBottom: "calc(9px + env(safe-area-inset-bottom))",
@@ -1725,7 +1725,7 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
 
       {showRewards ? (
         <div
-          className="fixed inset-0 z-20 grid place-items-center"
+          className="fixed inset-0 z-20 grid place-items-center bg-[#001089]/50"
           style={{
             paddingTop: "calc(9px + env(safe-area-inset-top))",
             paddingBottom: "calc(9px + env(safe-area-inset-bottom))",

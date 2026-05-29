@@ -136,7 +136,7 @@ export function JuanDemoSheet({ onClose }: { onClose: () => void }) {
 
   return (
     <div
-      className="fixed inset-0 z-20 grid place-items-center"
+      className="fixed inset-0 z-20 grid place-items-center bg-[#001089]/50"
       style={{
         paddingTop: "calc(9px + env(safe-area-inset-top))",
         paddingBottom: "calc(9px + env(safe-area-inset-bottom))",
@@ -205,18 +205,18 @@ export function JuanDemoSheet({ onClose }: { onClose: () => void }) {
         <table className="w-full border-collapse">
           <tbody>
             <tr className="border-b border-[#999999]">
-              <td className="w-[120px] border-r border-[#999999] bg-[#f8eac7] px-[9px] py-[6px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase align-top">
+              <td className="w-[120px] border-r border-[#999999] bg-[#f8eac7] px-[9px] py-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase align-top">
                 LOCATION
               </td>
-              <td className="px-[9px] py-[6px] text-[12px] leading-[18px] text-[#001089]">
+              <td className="px-[9px] py-[9px] text-[12px] leading-[18px] text-[#001089]">
                 {PROFILE.location}
               </td>
             </tr>
             <tr className="border-b border-[#999999]">
-              <td className="w-[120px] border-r border-[#999999] bg-[#f8eac7] px-[9px] py-[6px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase align-top">
+              <td className="w-[120px] border-r border-[#999999] bg-[#f8eac7] px-[9px] py-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase align-top">
                 WEBSITE
               </td>
-              <td className="px-[9px] py-[6px] text-[12px] leading-[18px] text-[#001089]">
+              <td className="px-[9px] py-[9px] text-[12px] leading-[18px] text-[#001089]">
                 <a
                   href={`https://${PROFILE.website}`}
                   target="_blank"
@@ -229,10 +229,10 @@ export function JuanDemoSheet({ onClose }: { onClose: () => void }) {
             </tr>
             {PROFILE.socials.map((social) => (
               <tr key={social.label} className="border-b border-[#999999]">
-                <td className="w-[120px] border-r border-[#999999] bg-[#f8eac7] px-[9px] py-[6px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase align-top">
+                <td className="w-[120px] border-r border-[#999999] bg-[#f8eac7] px-[9px] py-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase align-top">
                   {social.label}
                 </td>
-                <td className="px-[9px] py-[6px] text-[12px] leading-[18px] text-[#001089]">
+                <td className="px-[9px] py-[9px] text-[12px] leading-[18px] text-[#001089]">
                   <a
                     href={social.url}
                     target="_blank"
@@ -275,7 +275,7 @@ export function JuanDemoSheet({ onClose }: { onClose: () => void }) {
                     />
                   ) : null}
                 </span>
-                <span className="flex flex-1 flex-col px-[9px] py-[6px]">
+                <span className="flex flex-1 flex-col px-[9px] py-[9px]">
                   <span className="block text-[12px] font-bold tracking-[0.03em] text-[#001089] uppercase">
                     {row.title}
                   </span>
@@ -331,7 +331,7 @@ export function JuanDemoSheet({ onClose }: { onClose: () => void }) {
                     />
                   ) : null}
                 </span>
-                <span className="flex flex-1 flex-col px-[9px] py-[6px]">
+                <span className="flex flex-1 flex-col px-[9px] py-[9px]">
                   <span className="block text-[12px] font-bold tracking-[0.03em] text-[#001089] uppercase">
                     {row.title}
                   </span>

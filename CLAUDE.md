@@ -67,6 +67,12 @@ This applies to: new components, existing component edits, charts, dashboards, t
 6. Decoration — NONE (no shadows, no gradients, no blur, no icon libraries; text glyphs only `★ ✓ ✕ → ← • [+] [−] [×] i`)
 7. Run engines, don't guess — for data use `presentation()`; for entities use `resolveAny()`; hand-picking a chart defeats the system
 8. Same input → same output — the system is deterministic; if the HTML differs across runs, something is wrong
+9. **Composition / overlay contract (HARD RULE).** Every floating UI element (any `fixed` or `absolute` overlay — header, controls, modals, banners, sheets, scrims) must:
+   - **9a — never overlap another floating element** at any target breakpoint (mobile 414×900 and tablet 820×1180); the only allowed "overlap" is one element being a strict child of the other.
+   - **9b — separate from its column / row neighbours by a measured 9 px** (default) on the rendered bounding boxes, not on the CSS tokens. If line-height drift makes a box land off a 3-multiple, fix it with an explicit `h-[Npx]` plus `flex items-center justify-center`. Do not chase it with padding.
+   - **9c — modals must include a full-viewport scrim** (`bg-[#001089]/50` is the project default) on the dialog wrapper so the screen behind is visually covered. No "centered floating card with map showing on both sides" — that's an overlap, not a layout.
+   - **9d — internal padding defaults to 9 px** across the webapp. Use `px-[9px] py-[9px]` (or `gap-[9px]` for flex/grid wrappers) unless the design system reference explicitly says otherwise for that container.
+   - **Enforcement.** Before pushing any UI change, run `cd webapp && BASE=<deploy-url> node scripts/audit-overlays.mjs`. Exit code 1 = bug. Add new floating elements to the audit's PROBES list as you introduce them.
 
 **Enforcement workflow:**
 - Before any UI/data-visualization task: invoke the skill, even if you "remember" the rules

@@ -401,11 +401,13 @@ function SpotDetailSheet({
           </div>
 
           {!isCleaned && spot.status !== "hidden" ? (
-            <div className="border-b border-[#228B22] bg-white px-[9px] py-[9px]">
-              <p className="text-[12px] font-bold tracking-[0.03em] text-[#228B22] uppercase">
-                CLEAN THIS TO EARN {formatPoints(cleanupPoints)}
-              </p>
-            </div>
+            <button
+              type="button"
+              onClick={onMarkCleaned}
+              className="block w-full border-b border-[#999999] bg-[#228B22] px-[18px] py-[15px] text-[18px] font-bold tracking-[0.03em] text-white uppercase hover:bg-[#001089]"
+            >
+              CLEAN THIS TO EARN {formatPoints(cleanupPoints)}
+            </button>
           ) : null}
 
           {/* CLEAN section — only when relevant */}
@@ -1361,11 +1363,19 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
               bottom bar pattern (think iOS-app tab bar position)
             - 1px top border in grey reads as a "sticky footer" rather
               than a floating button, anchoring it to the screen edge */}
-      <div className="safe-bottom safe-x fixed inset-x-0 bottom-0 z-10 border-t border-[#999999] bg-white">
+      <div
+        className="fixed inset-x-0 bottom-0 z-10 border-t border-[#999999] bg-white"
+        style={{
+          paddingLeft: "calc(12px + env(safe-area-inset-left))",
+          paddingRight: "calc(12px + env(safe-area-inset-right))",
+          paddingTop: "9px",
+          paddingBottom: "calc(9px + env(safe-area-inset-bottom))",
+        }}
+      >
         <button
           type="button"
           onClick={openReport}
-          className="block w-full bg-white px-[18px] py-[18px] text-[24px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
+          className="block w-full bg-[#a60315] px-[18px] py-[15px] text-[24px] font-bold tracking-[0.03em] text-white uppercase hover:bg-[#001089]"
         >
           [+] FILE A REPORT
         </button>

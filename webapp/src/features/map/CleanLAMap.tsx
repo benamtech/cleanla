@@ -1460,7 +1460,7 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
       {/* P1-4: empty-viewport encouragement. Renders above the CTA when
           a fetch resolved with zero spots in the current bounds. */}
       {fetchState.kind === "ok" && spots.length === 0 ? (
-        <div className="pointer-events-none fixed right-[12px] bottom-[calc(84px_+_env(safe-area-inset-bottom))] left-[12px] z-10">
+        <div className="pointer-events-none fixed right-[calc(96px_+_env(safe-area-inset-right))] bottom-[calc(84px_+_env(safe-area-inset-bottom))] left-[calc(12px_+_env(safe-area-inset-left))] z-10 md:right-[calc(180px_+_env(safe-area-inset-right))]">
           <div className="border border-[#999999] bg-[#f8eac7] p-[9px] text-center text-[12px] font-bold tracking-[0.03em] text-[#001089] uppercase">
             NO REPORTS HERE YET · BE THE FIRST
           </div>

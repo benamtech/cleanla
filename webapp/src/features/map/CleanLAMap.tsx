@@ -22,6 +22,7 @@ import Map, {
 import type { LngLatBounds } from "mapbox-gl";
 import { CleanupSheet } from "@/features/spots/CleanupSheet";
 import { ReportSheet } from "@/features/reports/ReportSheet";
+import { JuanDemoSheet } from "@/features/profile/JuanDemoSheet";
 import { formatPoints, pointsForCategory } from "@/features/points/constants";
 import {
   CATEGORY_COLORS,
@@ -33,6 +34,10 @@ import {
 import { spotsToGeoJson } from "@/features/spots/geojson";
 import type { SpotSummary } from "@/features/spots/types";
 import { createClient } from "@/lib/supabase/client";
+
+// Cosmetic demo mode (NEXT_PUBLIC_DEMO_MODE=true): the [SIGN IN] button
+// becomes an @JUAN chip that opens a mock profile. No real session.
+const DEMO_MODE = process.env.NEXT_PUBLIC_DEMO_MODE === "true";
 
 const LOS_ANGELES_VIEW = {
   longitude: -118.2437,
@@ -712,6 +717,7 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
   const [authNotice, setAuthNotice] = useState<AuthNotice>({ kind: "idle" });
   const [email, setEmail] = useState("");
   const [showSignIn, setShowSignIn] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
   const [showReport, setShowReport] = useState(false);
   const [showCleanup, setShowCleanup] = useState(false);
   const [showLegend, setShowLegend] = useState(false);
@@ -1295,6 +1301,14 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
               >
                 [SIGN OUT]
               </button>
+            ) : DEMO_MODE ? (
+              <button
+                type="button"
+                onClick={() => setShowProfile(true)}
+                className="inline-flex min-h-[45px] items-center justify-center border-r border-[#999999] bg-[#228B22] px-[9px] text-[9px] font-bold tracking-[0.03em] text-white uppercase hover:bg-[#001089]"
+              >
+                @JUAN
+              </button>
             ) : (
               <button
                 type="button"
@@ -1401,6 +1415,10 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
           onSubmit={sendMagicLink}
           onClose={() => setShowSignIn(false)}
         />
+      ) : null}
+
+      {showProfile ? (
+        <JuanDemoSheet onClose={() => setShowProfile(false)} />
       ) : null}
 
       {showReport ? (

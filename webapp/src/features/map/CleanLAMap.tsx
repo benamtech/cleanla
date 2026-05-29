@@ -728,6 +728,8 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
   const [pointBalance, setPointBalance] = useState<number | null>(null);
   // P2-4 about modal
   const [showAbout, setShowAbout] = useState(false);
+  // Rewards preview — opens an in-app modal instead of navigating to /rewards.
+  const [showRewards, setShowRewards] = useState(false);
   // WebGL availability: null = checking, true = OK, false = unavailable.
   // Mapbox-GL 3.x requires WebGL; without it, the map can't render and
   // mapbox-gl logs "Failed to initialize WebGL" to console. We catch
@@ -1015,14 +1017,18 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
         setShowAbout(false);
         return;
       }
+      if (showRewards) {
+        setShowRewards(false);
+        return;
+      }
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [selectedSpot, showCleanup, showSignIn, showLegend, showAbout]);
+  }, [selectedSpot, showCleanup, showSignIn, showLegend, showAbout, showRewards]);
 
   useEffect(() => {
     const overlaysOpen =
-      Boolean(selectedSpot) || showReport || showCleanup || showSignIn || showAbout;
+      Boolean(selectedSpot) || showReport || showCleanup || showSignIn || showAbout || showRewards;
 
     function onKey(e: KeyboardEvent) {
       if (overlaysOpen || isKeyboardInputTarget(e.target)) return;
@@ -1054,6 +1060,7 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
     showAbout,
     showCleanup,
     showReport,
+    showRewards,
     showSignIn,
   ]);
 
@@ -1254,14 +1261,15 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
                 [PROFILE]
               </a>
             ) : null}
-            <a
-              href="/rewards"
-              className="inline-flex min-h-[45px] items-center justify-center border-r border-[#999999] bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#228B22] uppercase no-underline hover:bg-[#f8eac7]"
+            <button
+              type="button"
+              onClick={() => setShowRewards(true)}
+              className="inline-flex min-h-[45px] items-center justify-center border-r border-[#999999] bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#228B22] uppercase hover:bg-[#f8eac7]"
             >
               {user && pointBalance !== null
                 ? `[REWARDS / ${formatPoints(pointBalance)}]`
                 : "[REWARDS]"}
-            </a>
+            </button>
             {user && isAdmin ? (
               <a
                 href="/admin"
@@ -1481,6 +1489,93 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
                   GITHUB.COM/BENAMTECH/CLEANLA
                 </a>
               </p>
+            </div>
+          </aside>
+        </div>
+      ) : null}
+
+      {showRewards ? (
+        <div
+          className="fixed inset-0 z-20 grid place-items-center"
+          style={{
+            paddingTop: "calc(9px + env(safe-area-inset-top))",
+            paddingBottom: "calc(9px + env(safe-area-inset-bottom))",
+            paddingLeft: "calc(9px + env(safe-area-inset-left))",
+            paddingRight: "calc(9px + env(safe-area-inset-right))",
+          }}
+          onClick={() => setShowRewards(false)}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Local rewards"
+        >
+          <aside
+            className="max-h-full w-full max-w-[420px] overflow-auto border border-[#999999] bg-white"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex h-[27px] items-center justify-between border-b border-[#999999] bg-[#228B22] px-[9px]">
+              <h2 className="text-[15px] font-bold tracking-[0.03em] text-white uppercase">
+                LOCAL REWARDS
+              </h2>
+              <button
+                type="button"
+                onClick={() => setShowRewards(false)}
+                className="flex h-[27px] min-w-[44px] items-center justify-center border border-white bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#228B22] uppercase hover:bg-[#f8eac7]"
+                aria-label="Close rewards"
+              >
+                [x]
+              </button>
+            </div>
+
+            <div className="border-b border-[#999999] bg-[#f8eac7] px-[9px] py-[6px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase">
+              {user && pointBalance !== null
+                ? `YOUR BALANCE · ${formatPoints(pointBalance)}`
+                : "CLEAN VERIFIED SPOTS TO EARN POINTS · REDEEM AT LA BUSINESSES"}
+            </div>
+
+            <article className="border-b border-[#999999]">
+              <div className="border-b border-[#999999] bg-[#f8eac7]">
+                {mapboxToken ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={`https://api.mapbox.com/styles/v1/mapbox/satellite-streets-v12/static/pin-l+228B22(-118.2755,34.0576)/-118.2755,34.0576,15.4,0/600x300@2x?access_token=${mapboxToken}`}
+                    alt="Langer's Delicatessen at MacArthur Park, Los Angeles"
+                    className="block h-[180px] w-full object-cover"
+                  />
+                ) : (
+                  <div className="flex h-[180px] items-center justify-center text-[12px] font-bold tracking-[0.03em] text-[#999999] uppercase">
+                    LANGER&apos;S · MACARTHUR PARK
+                  </div>
+                )}
+              </div>
+              <div className="grid gap-[6px] px-[9px] py-[9px]">
+                <p className="text-[9px] font-bold tracking-[0.03em] text-[#999999] uppercase">
+                  LANGER&apos;S DELICATESSEN · DELI · MACARTHUR PARK
+                </p>
+                <h3 className="text-[18px] font-bold tracking-[0.03em] text-[#001089] uppercase">
+                  FREE FOUNTAIN DRINK WITH ANY SANDWICH
+                </h3>
+                <p className="text-[12px] leading-[18px] text-[#001089]">
+                  Home of the world-famous #19 hot pastrami. Serving Westlake
+                  since 1947 at 704 S Alvarado St.
+                </p>
+                <p className="text-[15px] font-bold tracking-[0.03em] text-[#228B22] uppercase">
+                  200 POINTS
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowRewards(false);
+                  if (!user) setShowSignIn(true);
+                }}
+                className="block min-h-[45px] w-full border-t border-[#228B22] bg-white px-[9px] py-[12px] text-[12px] font-bold tracking-[0.03em] text-[#228B22] uppercase hover:bg-[#f8eac7]"
+              >
+                {user ? "[CLAIM REWARD]" : "[SIGN IN TO CLAIM]"}
+              </button>
+            </article>
+
+            <div className="px-[9px] py-[6px] text-[9px] font-bold tracking-[0.03em] text-[#999999] uppercase">
+              PREVIEW · MORE LA BUSINESSES COMING SOON
             </div>
           </aside>
         </div>

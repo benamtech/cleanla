@@ -640,7 +640,9 @@ function MapGameControls({
   onUsageStart: () => void;
   onUsageEnd: () => void;
 }) {
-  const slideClass = isMinimized ? "translate-x-[150px]" : "";
+  // isMinimized is no longer used to slide the joystick/WASD panel — kept
+  // in the API in case we re-introduce a hide behavior later.
+  void isMinimized;
   const moveButtonClass =
     "h-[45px] w-[45px] border border-[#999999] bg-white text-[12px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]";
 

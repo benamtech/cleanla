@@ -625,10 +625,14 @@ function MapGameControls({
   onPan,
   onContinuous,
   isMinimized,
+  onUsageStart,
+  onUsageEnd,
 }: {
   onPan: (direction: MapDirection) => void;
   onContinuous: (dx: number, dy: number) => void;
   isMinimized: boolean;
+  onUsageStart: () => void;
+  onUsageEnd: () => void;
 }) {
   const slideClass = isMinimized ? "translate-x-[150px]" : "";
   const moveButtonClass =
@@ -636,7 +640,12 @@ function MapGameControls({
 
   return (
     <>
-      <div className={`absolute right-[9px] bottom-[90px] z-10 hidden border border-[#999999] bg-white p-[6px] transition-transform duration-[240ms] md:block ${slideClass}`}>
+      <div
+        className={`absolute right-[9px] bottom-[90px] z-10 hidden border border-[#999999] bg-white p-[6px] transition-transform duration-[240ms] md:block ${slideClass}`}
+        onPointerDown={onUsageStart}
+        onPointerUp={onUsageEnd}
+        onPointerCancel={onUsageEnd}
+      >
         <div className="mb-[6px] border-b border-[#999999] pb-[6px] text-center text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase">
           WASD MOVE
         </div>
@@ -681,7 +690,12 @@ function MapGameControls({
         </div>
       </div>
 
-      <div className={`absolute right-[calc(12px_+_env(safe-area-inset-right))] bottom-[calc(90px_+_env(safe-area-inset-bottom))] z-10 transition-transform duration-[240ms] md:hidden ${slideClass}`}>
+      <div
+        className={`absolute right-[calc(12px_+_env(safe-area-inset-right))] bottom-[calc(90px_+_env(safe-area-inset-bottom))] z-10 transition-transform duration-[240ms] md:hidden ${slideClass}`}
+        onPointerDown={onUsageStart}
+        onPointerUp={onUsageEnd}
+        onPointerCancel={onUsageEnd}
+      >
         <CameraJoystick
           compact
           caption={null}
@@ -789,6 +803,17 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
     return () => {
       if (hideControlsTimerRef.current) clearTimeout(hideControlsTimerRef.current);
     };
+  }, []);
+  // True while the user is actively touching the joystick or a zoom button.
+  // event.originalEvent on programmatic moves from those controls is
+  // unreliable across mapbox versions, so we explicitly flip this ref on
+  // pointer-down/up of each control's container and gate the hide timer.
+  const isUsingControlsRef = useRef(false);
+  const onControlUsageStart = useCallback(() => {
+    isUsingControlsRef.current = true;
+  }, []);
+  const onControlUsageEnd = useCallback(() => {
+    isUsingControlsRef.current = false;
   }, []);
   useEffect(() => {
     const id = setInterval(
@@ -970,7 +995,10 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
     // map surface (drag/pinch/wheel). Programmatic moves from the joystick
     // and zoom buttons have no originalEvent — those must NOT make the
     // very controls the user is touching slide off themselves.
-    if ((event as unknown as { originalEvent?: Event }).originalEvent) {
+    if (
+      !isUsingControlsRef.current &&
+      (event as unknown as { originalEvent?: Event }).originalEvent
+    ) {
       if (hideControlsTimerRef.current) {
         clearTimeout(hideControlsTimerRef.current);
       }
@@ -1510,6 +1538,8 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
           onPan={panMap}
           onContinuous={adjustCameraContinuous}
           isMinimized={shouldHideMapControls}
+          onUsageStart={onControlUsageStart}
+          onUsageEnd={onControlUsageEnd}
         />
       ) : null}
 
@@ -1521,6 +1551,9 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
         className={`absolute right-[calc(12px_+_env(safe-area-inset-right))] bottom-[calc(171px_+_env(safe-area-inset-bottom))] z-10 grid justify-items-end transition-transform duration-[240ms] md:right-[calc(9px_+_env(safe-area-inset-right))] md:bottom-[calc(270px_+_env(safe-area-inset-bottom))] ${
           shouldHideMapControls ? "translate-x-[150px]" : ""
         }`}
+        onPointerDown={onControlUsageStart}
+        onPointerUp={onControlUsageEnd}
+        onPointerCancel={onControlUsageEnd}
       >
         <button
           type="button"

@@ -148,6 +148,7 @@ const TAGLINES = [
   "@JUAN IS THE TOP CLEANER OF THE MONTH!!!",
 ];
 const TAGLINE_ROTATE_MS = 6000;
+const NAV_EXPAND_DELAY_MS = 600;
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max);
@@ -756,8 +757,15 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
   // Rotating header tagline — cycles every TAGLINE_ROTATE_MS through TAGLINES.
   const [taglineIndex, setTaglineIndex] = useState(0);
   // True while the map is being moved (pan/zoom/rotate); the action-row
-  // buttons compact from 45 -> 27px during interaction, then snap back.
+  // buttons compact from 45 -> 27px during interaction, then snap back after
+  // a short delay so quick successive pans don't flicker the height.
   const [isMapInteracting, setIsMapInteracting] = useState(false);
+  const expandTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    return () => {
+      if (expandTimerRef.current) clearTimeout(expandTimerRef.current);
+    };
+  }, []);
   useEffect(() => {
     const id = setInterval(
       () => setTaglineIndex((i) => (i + 1) % TAGLINES.length),
@@ -929,6 +937,10 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
   }
 
   function handleMoveStart() {
+    if (expandTimerRef.current) {
+      clearTimeout(expandTimerRef.current);
+      expandTimerRef.current = null;
+    }
     setIsMapInteracting(true);
   }
 
@@ -943,7 +955,11 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
     if (center) {
       setCurrentMapCenter({ lat: center.lat, lng: center.lng });
     }
-    setIsMapInteracting(false);
+    if (expandTimerRef.current) clearTimeout(expandTimerRef.current);
+    expandTimerRef.current = setTimeout(() => {
+      setIsMapInteracting(false);
+      expandTimerRef.current = null;
+    }, NAV_EXPAND_DELAY_MS);
   }
 
   function refetchCurrentBounds() {

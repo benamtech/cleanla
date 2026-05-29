@@ -135,15 +135,15 @@ type MapDirection = "up" | "down" | "left" | "right";
 
 const DESKTOP_PAN_STEP_PX = 120;
 const MOBILE_PAN_STEP_PX = 72;
-const PITCH_STEP = 6;
-const BEARING_STEP = 12;
+const PITCH_STEP = 3;
+const BEARING_STEP = 6;
 const CAMERA_DURATION_MS = 120;
 const MIN_PITCH = 0;
 const MAX_PITCH = 75;
 
 const TAGLINES = [
   "CLEAN VERIFIED SPOTS TO EARN POINTS",
-  "REDEEM AT LA BUSINESSES",
+  "REDEEM POINTS AT LOS ANGELES BUSINESSES",
   "CLEAN LOS ANGELES AS A COMMUNITY",
   "@JUAN IS THE TOP CLEANER OF THE MONTH!!!",
 ];
@@ -568,7 +568,7 @@ function CameraJoystick({
     if (Math.abs(dx) < threshold && Math.abs(dy) < threshold) return;
 
     const now = window.performance.now();
-    if (now - lastActionRef.current < 90) return;
+    if (now - lastActionRef.current < 30) return;
     lastActionRef.current = now;
 
     if (Math.abs(dx) > Math.abs(dy)) {
@@ -976,7 +976,7 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
     const currentPitch = map.getPitch();
     const currentBearing = map.getBearing();
 
-    map.easeTo({
+    map.jumpTo({
       pitch:
         direction === "up"
           ? clamp(currentPitch + PITCH_STEP, MIN_PITCH, MAX_PITCH)
@@ -989,7 +989,6 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
           : direction === "right"
             ? currentBearing + BEARING_STEP
             : currentBearing,
-      duration: CAMERA_DURATION_MS,
     });
   }, []);
 
@@ -1405,24 +1404,25 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
 
       <div className="absolute top-[calc(141px_+_env(safe-area-inset-top))] right-[calc(9px_+_env(safe-area-inset-right))] z-10 grid gap-[9px] md:top-[9px]">
         {showLegend ? <MapLegend /> : null}
-        <div className="grid justify-items-end">
-          <button
-            type="button"
-            className="h-[45px] w-[45px] border border-[#999999] bg-white text-[12px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
-            onClick={() => mapRef.current?.zoomIn({ duration: 100 })}
-            aria-label="Zoom in"
-          >
-            [+]
-          </button>
-          <button
-            type="button"
-            className="h-[45px] w-[45px] border-x border-b border-[#999999] bg-white text-[12px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
-            onClick={() => mapRef.current?.zoomOut({ duration: 100 })}
-            aria-label="Zoom out"
-          >
-            [-]
-          </button>
-        </div>
+      </div>
+
+      <div className="absolute right-[calc(12px_+_env(safe-area-inset-right))] bottom-[calc(171px_+_env(safe-area-inset-bottom))] z-10 grid justify-items-end md:bottom-[calc(270px_+_env(safe-area-inset-bottom))] md:right-[calc(9px_+_env(safe-area-inset-right))]">
+        <button
+          type="button"
+          className="h-[45px] w-[45px] border border-[#999999] bg-white text-[12px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
+          onClick={() => mapRef.current?.zoomIn({ duration: 100 })}
+          aria-label="Zoom in"
+        >
+          [+]
+        </button>
+        <button
+          type="button"
+          className="h-[45px] w-[45px] border-x border-b border-[#999999] bg-white text-[12px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
+          onClick={() => mapRef.current?.zoomOut({ duration: 100 })}
+          aria-label="Zoom out"
+        >
+          [-]
+        </button>
       </div>
 
       {fetchState.kind === "error" ? (
@@ -1581,7 +1581,7 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
             <div className="border-b border-[#999999] bg-[#f8eac7] px-[9px] py-[6px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase">
               {user && pointBalance !== null
                 ? `YOUR BALANCE · ${formatPoints(pointBalance)}`
-                : "CLEAN VERIFIED SPOTS TO EARN POINTS · REDEEM AT LA BUSINESSES"}
+                : "CLEAN VERIFIED SPOTS TO EARN POINTS · REDEEM POINTS AT LOS ANGELES BUSINESSES"}
             </div>
 
             <article className="border-b border-[#999999]">

@@ -67,7 +67,7 @@ export default async function OrganizationDashboardPage({ params }: Props) {
             </h1>
             <Link
               href="/organizations"
-              className="tap-44 border border-white bg-white px-[6px] py-[3px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase"
+              className="tap-45 border border-white bg-white px-[6px] py-[3px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase"
             >
               [ORGS]
             </Link>

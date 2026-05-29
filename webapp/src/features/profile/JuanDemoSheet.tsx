@@ -12,6 +12,8 @@ type ActivityRow = {
   title: string;
   category: string;
   neighborhood: string;
+  location?: string;
+  photo?: string;
   date: string;
   status: string;
 };
@@ -22,6 +24,7 @@ const REPORTS: ActivityRow[] = [
     title: "MATTRESS + CONSTRUCTION DEBRIS",
     category: "ILLEGAL DUMPING",
     neighborhood: "BOYLE HEIGHTS",
+    location: "E 1ST ST & N SOTO ST",
     date: "2026-05-20",
     status: "Reported a mattress and construction debris blocking the curb lane on E 1st St. Flagged for city pickup; soft-held 5 minutes before going public.",
   },
@@ -30,6 +33,7 @@ const REPORTS: ActivityRow[] = [
     title: "ALLEY-WALL GRAFFITI",
     category: "GRAFFITI",
     neighborhood: "HISTORIC FILIPINOTOWN",
+    location: "TEMPLE ST & N HOOVER ST",
     date: "2026-05-22",
     status: "Fresh tagging on an alley-facing wall near the commercial strip. Photo verified, GPS within range.",
   },
@@ -38,6 +42,7 @@ const REPORTS: ActivityRow[] = [
     title: "BUS-STOP TRASH OVERFLOW",
     category: "TRASH",
     neighborhood: "KOREATOWN",
+    location: "WILSHIRE BLVD & S WESTERN AVE",
     date: "2026-05-25",
     status: "Overflowing bags around the bus stop and sidewalk tree well on Wilshire. Awaiting cleanup volunteer.",
   },
@@ -46,6 +51,7 @@ const REPORTS: ActivityRow[] = [
     title: "FREEWAY-ADJACENT DEBRIS PILE",
     category: "ENCAMPMENT DEBRIS",
     neighborhood: "WESTLAKE",
+    location: "S ALVARADO ST & W 7TH ST",
     date: "2026-05-27",
     status: "Abandoned debris pile along a freeway-adjacent sidewalk. Reported with location and photo.",
   },
@@ -142,7 +148,7 @@ export function JuanDemoSheet({ onClose }: { onClose: () => void }) {
           <button
             type="button"
             onClick={onClose}
-            className="flex h-[27px] min-w-[44px] items-center justify-center border border-white bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
+            className="tap-45 flex h-[27px] min-w-[45px] items-center justify-center border border-white bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
             aria-label="Close profile"
           >
             [x]
@@ -162,25 +168,25 @@ export function JuanDemoSheet({ onClose }: { onClose: () => void }) {
           </div>
         </div>
 
-        {/* HERO — profile photo (Clean LA With Me logo) */}
-        <div className="relative h-[150px] border-b border-[#999999] bg-[#f8eac7]">
-          <Image
-            src="/cleanlawithme-logo.png"
-            alt="Clean LA With Me logo"
-            fill
-            sizes="420px"
-            className="object-contain p-[18px]"
-          />
-        </div>
-
-        {/* IDENTITY */}
-        <div className="border-b border-[#999999] px-[9px] py-[9px]">
-          <h3 className="text-[18px] font-bold tracking-[0.03em] text-[#001089] uppercase">
-            {PROFILE.name}
-          </h3>
-          <p className="text-[9px] font-bold tracking-[0.03em] text-[#999999] uppercase">
-            {PROFILE.handle} · DEMO ACCOUNT
-          </p>
+        {/* IDENTITY — small avatar left of the name */}
+        <div className="flex items-center gap-[9px] border-b border-[#999999] px-[9px] py-[9px]">
+          <div className="relative h-[60px] w-[60px] shrink-0 border border-[#999999] bg-[#f8eac7]">
+            <Image
+              src="/cleanlawithme-logo.png"
+              alt="Clean LA With Me logo"
+              fill
+              sizes="60px"
+              className="object-contain p-[6px]"
+            />
+          </div>
+          <div className="min-w-0">
+            <h3 className="text-[18px] font-bold tracking-[0.03em] text-[#001089] uppercase">
+              {PROFILE.name}
+            </h3>
+            <p className="text-[9px] font-bold tracking-[0.03em] text-[#999999] uppercase">
+              {PROFILE.handle} · DEMO ACCOUNT
+            </p>
+          </div>
         </div>
 
         {/* ACCOUNT DATA */}
@@ -259,13 +265,35 @@ export function JuanDemoSheet({ onClose }: { onClose: () => void }) {
                 </span>
               </button>
               {isOpen ? (
-                <div className="border-b border-[#999999] bg-[#f8eac7] px-[9px] py-[9px]">
-                  <p className="text-[9px] font-bold tracking-[0.03em] text-[#999999] uppercase">
-                    {row.date} · REPORTED
-                  </p>
-                  <p className="mt-[6px] text-[12px] leading-[18px] text-[#001089]">
-                    {row.status}
-                  </p>
+                <div className="border-b border-[#999999] bg-[#f8eac7]">
+                  {row.photo ? (
+                    <div className="relative h-[150px] border-b border-[#999999] bg-white">
+                      <Image
+                        src={row.photo}
+                        alt={row.title}
+                        fill
+                        sizes="420px"
+                        className="object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <div className="flex h-[120px] items-center justify-center border-b border-[#999999] bg-white">
+                      <span className="text-[9px] font-bold tracking-[0.03em] text-[#999999] uppercase">
+                        PHOTO · {row.category}
+                      </span>
+                    </div>
+                  )}
+                  <div className="px-[9px] py-[9px]">
+                    <p className="text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase">
+                      LOCATION · {row.location}
+                    </p>
+                    <p className="mt-[6px] text-[9px] font-bold tracking-[0.03em] text-[#999999] uppercase">
+                      {row.date} · REPORTED
+                    </p>
+                    <p className="mt-[6px] text-[12px] leading-[18px] text-[#001089]">
+                      {row.status}
+                    </p>
+                  </div>
                 </div>
               ) : null}
             </div>

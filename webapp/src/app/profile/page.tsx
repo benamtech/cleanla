@@ -65,7 +65,7 @@ export default async function ProfilePage() {
             </h1>
             <Link
               href="/"
-              className="tap-44 border border-white bg-white px-[6px] py-[3px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
+              className="tap-45 border border-white bg-white px-[6px] py-[3px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
             >
               [BACK TO MAP]
             </Link>
@@ -125,7 +125,7 @@ export default async function ProfilePage() {
             </h2>
             <Link
               href="/rewards"
-              className="tap-44 border border-white bg-white px-[6px] py-[3px] text-[9px] font-bold tracking-[0.03em] text-[#228B22] uppercase hover:bg-[#f8eac7]"
+              className="tap-45 border border-white bg-white px-[6px] py-[3px] text-[9px] font-bold tracking-[0.03em] text-[#228B22] uppercase hover:bg-[#f8eac7]"
             >
               [REWARDS]
             </Link>

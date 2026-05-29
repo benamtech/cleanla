@@ -237,7 +237,7 @@ function SignInPrompt({
         <button
           type="button"
           onClick={onClose}
-          className="tap-44 flex h-[27px] min-w-[44px] items-center justify-center border border-white bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
+          className="tap-45 flex h-[27px] min-w-[45px] items-center justify-center border border-white bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
           aria-label="Close sign in"
         >
           [x]
@@ -329,7 +329,7 @@ function SpotDetailSheet({
           <button
             type="button"
             onClick={onClose}
-            className="tap-44 flex h-[27px] min-w-[44px] items-center justify-center border border-[#999999] bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
+            className="tap-45 flex h-[27px] min-w-[45px] items-center justify-center border border-[#999999] bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
             aria-label="Close spot detail"
           >
             [x]
@@ -1450,7 +1450,7 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
               <button
                 type="button"
                 onClick={() => setShowAbout(false)}
-                className="tap-44 flex h-[27px] min-w-[44px] items-center justify-center border border-[#999999] bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
+                className="tap-45 flex h-[27px] min-w-[45px] items-center justify-center border border-[#999999] bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#001089] uppercase hover:bg-[#f8eac7]"
                 aria-label="Close about"
               >
                 [x]
@@ -1519,7 +1519,7 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
               <button
                 type="button"
                 onClick={() => setShowRewards(false)}
-                className="tap-44 flex h-[27px] min-w-[44px] items-center justify-center border border-white bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#228B22] uppercase hover:bg-[#f8eac7]"
+                className="tap-45 flex h-[27px] min-w-[45px] items-center justify-center border border-white bg-white px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#228B22] uppercase hover:bg-[#f8eac7]"
                 aria-label="Close rewards"
               >
                 [x]

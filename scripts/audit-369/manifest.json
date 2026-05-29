@@ -1,87 +1,33 @@
 {
+  "$schema": "../../node_modules/@adn/369-design-system/references/manifests/schema.json",
   "version": 1,
-  "name": "CleanLA 369 Overlay Manifest",
-  "description": "Layout audit manifest for CleanLA canvas + floating overlays composition",
-  "base": "http://localhost:3000",
+  "name": "cleanla-369-audit",
+  "description": "CleanLA layout audit manifest. Probes Rule 9a (overlap) + 9b (3-multiple gaps) + touch-target across four viewports against the deployed Vercel preview. touchTargetMin: 45 aligns with CleanLA's .tap-45 convention (45 = 3x15, smallest 3-multiple >= HIG 44 pt). touchTargetExcludeSelectors silences Mapbox third-party attribution chrome the consumer can't size up.",
   "settleMs": 2000,
+  "touchTargetMin": 45,
+  "touchTargetExcludeSelectors": [
+    ".mapboxgl-ctrl-attrib a",
+    ".mapboxgl-ctrl-attrib-button",
+    ".mapboxgl-ctrl a[href*=\"mapbox.com\"]",
+    ".mapboxgl-ctrl-logo"
+  ],
   "viewports": [
-    {
-      "name": "portrait-mobile",
-      "width": 414,
-      "height": 900,
-      "isMobile": true,
-      "hasTouch": true,
-      "description": "iPhone 12/13 portrait"
-    },
-    {
-      "name": "landscape-mobile",
-      "width": 900,
-      "height": 414,
-      "isMobile": true,
-      "hasTouch": true,
-      "description": "iPhone 12/13 landscape"
-    },
-    {
-      "name": "portrait-tablet",
-      "width": 820,
-      "height": 1180,
-      "isMobile": false,
-      "hasTouch": true,
-      "description": "iPad portrait"
-    },
-    {
-      "name": "landscape-tablet",
-      "width": 1180,
-      "height": 820,
-      "isMobile": false,
-      "hasTouch": true,
-      "description": "iPad landscape"
-    }
+    { "name": "portrait-mobile",  "width": 414,  "height": 900,  "isMobile": true, "hasTouch": true, "description": "iPhone 12/13 portrait" },
+    { "name": "landscape-mobile", "width": 900,  "height": 414,  "isMobile": true, "hasTouch": true, "description": "iPhone 12/13 landscape" },
+    { "name": "portrait-tablet",  "width": 820,  "height": 1180, "isMobile": true, "hasTouch": true, "description": "iPad portrait" },
+    { "name": "landscape-tablet", "width": 1180, "height": 820,  "isMobile": true, "hasTouch": true, "description": "iPad landscape" }
   ],
   "overlays": [
-    {
-      "name": "header",
-      "description": "Top navigation/header bar",
-      "optional": true,
-      "css": "header",
-      "skipOverlays": []
-    },
-    {
-      "name": "cta-primary",
-      "description": "Primary call-to-action button",
-      "optional": true,
-      "role": "button",
-      "namePattern": "FILE A REPORT|REPORT|SUBMIT",
-      "skipOverlays": []
-    },
-    {
-      "name": "nav-floating",
-      "description": "Floating navigation or joystick",
-      "optional": true,
-      "role": "button",
-      "namePattern": "joystick|drag|navigate",
-      "skipOverlays": []
-    },
-    {
-      "name": "footer",
-      "description": "Bottom footer area",
-      "optional": true,
-      "css": "footer",
-      "skipOverlays": []
-    }
+    { "name": "header",       "selector": { "css": "header" },                                                "optional": true, "description": "Top navigation / header bar" },
+    { "name": "cta-primary",  "selector": { "role": "button", "namePattern": "FILE A REPORT|REPORT|SUBMIT" }, "optional": true, "description": "Primary call-to-action button" },
+    { "name": "joystick",     "selector": { "role": "button", "namePattern": "joystick|drag|navigate" },      "optional": true, "description": "Map drag-joystick control" },
+    { "name": "zoom-in",      "selector": { "role": "button", "name": "Zoom in" },                            "optional": true },
+    { "name": "zoom-out",     "selector": { "role": "button", "name": "Zoom out" },                           "optional": true },
+    { "name": "footer",       "selector": { "css": "footer" },                                                "optional": true, "description": "Bottom footer area" }
   ],
   "stackPairs": [
-    {
-      "name": "header-to-content",
-      "stackA": "header",
-      "stackB": "cta-primary",
-      "axis": "row",
-      "gap": {
-        "expectedValue": 12,
-        "description": "Vertical spacing between header and primary CTA"
-      },
-      "optional": true
-    }
+    ["zoom-in", "zoom-out", 9],
+    ["zoom-out", "joystick", 9]
   ],
   "checks": {
     "contrast": false

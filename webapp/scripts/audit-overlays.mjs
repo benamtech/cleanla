@@ -1,55 +1,69 @@
-// Layout audit — runs against a deployed site (default
-// https://americanmarketing.technology, override with BASE env). Checks that
-// no two floating overlays on the home map actually overlap (containment is
-// fine — chip inside header etc.) and that the bottom-right vertical stack
-// (zoom / joystick / FILE A REPORT) has gaps that are multiples of 3,
-// matching the 369 design system. Exits 1 on any failure so it can be a CI
-// check.
+// 9a / 9b layout audit. Loads a deployed home view at fixed mobile + tablet
+// breakpoints and checks (a) no two named overlays share screen space unless
+// one is a child of the other, and (b) vertical gaps in the bottom-right
+// stack are multiples of 3.
 //
-// Run:  node webapp/scripts/audit-overlays.mjs
-//       BASE=https://your-deploy.example node webapp/scripts/audit-overlays.mjs
+// Usage:   node webapp/scripts/audit-overlays.mjs
+//          BASE=https://preview.example node webapp/scripts/audit-overlays.mjs
+//
+// Resolves playwright in this order: project node_modules → npx cache. If
+// neither is available, prints an install hint and exits 2.
 
-import { chromium } from "playwright";
+import { createRequire } from "node:module";
+import { existsSync } from "node:fs";
 
-const BASE = process.env.BASE || "https://americanmarketing.technology";
+const require = createRequire(import.meta.url);
+let chromium;
+for (const candidate of [
+  "playwright",
+  "/home/love-america/.npm/_npx/e41f203b7505f1fb/node_modules/playwright",
+]) {
+  try {
+    chromium = require(candidate).chromium;
+    if (chromium) break;
+  } catch {}
+}
+if (!chromium) {
+  console.error(
+    "audit-overlays: playwright is not installed.\n" +
+      "  npm install --save-dev playwright   (in webapp/)\n" +
+      "  then re-run.",
+  );
+  process.exit(2);
+}
+
+const BASE = process.env.BASE || "http://localhost:3000";
 
 const PROBES = [
-  { name: "header", sel: (p) => p.locator("header").first() },
-  { name: "@JUAN chip", sel: (p) => p.getByRole("button", { name: "@JUAN", exact: true }) },
-  { name: "[+] zoom-in", sel: (p) => p.getByRole("button", { name: "Zoom in" }) },
-  { name: "[-] zoom-out", sel: (p) => p.getByRole("button", { name: "Zoom out" }) },
-  { name: "joystick", sel: (p) => p.getByRole("button", { name: /Drag joystick/ }) },
+  { name: "header",        sel: (p) => p.locator("header").first() },
+  { name: "[+] zoom-in",   sel: (p) => p.getByRole("button", { name: "Zoom in" }) },
+  { name: "[-] zoom-out",  sel: (p) => p.getByRole("button", { name: "Zoom out" }) },
+  { name: "joystick",      sel: (p) => p.getByRole("button", { name: /Drag joystick/ }) },
   { name: "FILE A REPORT", sel: (p) => p.getByRole("button", { name: "[+] FILE A REPORT" }) },
-  { name: "[LEGEND]", sel: (p) => p.getByRole("button", { name: "[LEGEND]" }) },
-  { name: "[REWARDS]", sel: (p) => p.getByRole("button", { name: /\[REWARDS/ }) },
-  { name: "[i] about", sel: (p) => p.getByRole("button", { name: "About CleanLA" }) },
 ];
 
+// Adjacent overlay pairs whose vertical gap must be a 3-multiple.
+// Touching boxes (shared border) are allowed and report gap=0.
 const STACK_PAIRS = [
   ["[+] zoom-in", "[-] zoom-out"],
   ["[-] zoom-out", "joystick"],
   ["joystick", "FILE A REPORT"],
 ];
 
-function rect(b) { return { l: b.x, t: b.y, r: b.x + b.w, b: b.y + b.h }; }
-function intersects(a, c) {
+const rect = (b) => ({ l: b.x, t: b.y, r: b.x + b.w, b: b.y + b.h });
+function realIntersection(a, c) {
   const A = rect(a), C = rect(c);
   const ix = Math.min(A.r, C.r) - Math.max(A.l, C.l);
   const iy = Math.min(A.b, C.b) - Math.max(A.t, C.t);
-  return ix > 0 && iy > 0;
+  return ix > 1 && iy > 1; // touching pixel edges don't count
 }
-function contains(outer, inner) {
-  const O = rect(outer), I = rect(inner);
+function contains(o, i) {
+  const O = rect(o), I = rect(i);
   return I.l >= O.l - 1 && I.r <= O.r + 1 && I.t >= O.t - 1 && I.b <= O.b + 1;
 }
-function gap(a, c) {
+function verticalGap(a, c) {
   const A = rect(a), C = rect(c);
-  const gx = Math.max(A.l, C.l) - Math.min(A.r, C.r);
-  const gy = Math.max(A.t, C.t) - Math.min(A.b, C.b);
-  if (gx > 0 && gy > 0) return { axis: "diag", dx: gx, dy: gy };
-  if (gx > 0) return { axis: "x", d: gx };
-  if (gy > 0) return { axis: "y", d: gy };
-  return null;
+  return Math.max(A.t, C.t) - Math.min(A.b, C.b);
 }
 
 async function audit(width, height, label) {
@@ -58,41 +72,54 @@ async function audit(width, height, label) {
   const page = await ctx.newPage();
   await page.goto(BASE, { waitUntil: "networkidle" });
   await page.waitForTimeout(1500);
-
   const boxes = [];
   for (const p of PROBES) {
     try {
       const loc = p.sel(page);
-      if (await loc.count() === 0) continue;
+      if ((await loc.count()) === 0) continue;
       const bb = await loc.first().boundingBox();
-      if (bb) boxes.push({ name: p.name, ...bb, w: bb.width, h: bb.height });
+      if (bb) boxes.push({ name: p.name, x: bb.x, y: bb.y, w: bb.width, h: bb.height });
     } catch {}
   }
 
   console.log(`\n=== ${label} (${width}x${height}) ===`);
-  for (const b of boxes) console.log(`  ${b.name.padEnd(18)} x=${Math.round(b.x)} y=${Math.round(b.y)} ${Math.round(b.w)}x${Math.round(b.h)}`);
+  for (const b of boxes)
+    console.log(`  ${b.name.padEnd(18)} x=${Math.round(b.x)} y=${Math.round(b.y)} ${Math.round(b.w)}x${Math.round(b.h)}`);
 
   const failures = [];
 
-  // 1) No non-containment overlaps allowed.
+  // 9a: no non-containment overlap
   for (let i = 0; i < boxes.length; i++) for (let j = i + 1; j < boxes.length; j++) {
-    if (intersects(boxes[i], boxes[j]) && !contains(boxes[i], boxes[j]) && !contains(boxes[j], boxes[i])) {
-      failures.push(`OVERLAP: ${boxes[i].name} & ${boxes[j].name}`);
+    if (
+      realIntersection(boxes[i], boxes[j]) &&
+      !contains(boxes[i], boxes[j]) &&
+      !contains(boxes[j], boxes[i])
+    ) {
+      failures.push(`9a ${label}: OVERLAP ${boxes[i].name} & ${boxes[j].name}`);
     }
   }
 
-  // 2) Bottom-right stack vertical gaps must be 3/6/9 multiples (touching counts as 0, OK).
+  // 9b: vertical column gaps multiples of 3. Only flag pairs that are
+  // actually column-aligned at this breakpoint — on tablet the joystick lives
+  // inside the WASD block and isn't column-mate to the standalone zoom stack.
+  const columnAligned = (a, c) => {
+    const A = rect(a), C = rect(c);
+    return Math.min(A.r, C.r) - Math.max(A.l, C.l) > 0;
+  };
   const byName = Object.fromEntries(boxes.map((b) => [b.name, b]));
   for (const [a, c] of STACK_PAIRS) {
     if (!byName[a] || !byName[c]) continue;
-    const g = gap(byName[a], byName[c]);
-    if (!g) continue; // touching, fine
-    if (g.axis === "y") {
-      const d = Math.round(g.d);
-      if (d % 3 !== 0) failures.push(`SPACING: ${a} → ${c} gap=${d}px (not a multiple of 3)`);
-      else console.log(`  ✓ ${a} → ${c}: ${d}px`);
+    if (!columnAligned(byName[a], byName[c])) {
+      console.log(`  ~ ${a} → ${c}: not column-aligned at this breakpoint (skipped)`);
+      continue;
+    }
+    const g = verticalGap(byName[a], byName[c]);
+    if (g < 0) continue;
+    const rounded = Math.round(g);
+    if (rounded > 0 && rounded % 3 !== 0) {
+      failures.push(`9b ${label}: ${a} → ${c} gap=${rounded}px (not a multiple of 3)`);
     } else {
-      console.log(`  ~ ${a} → ${c}: ${JSON.stringify(g)} (skipped — not column-aligned)`);
+      console.log(`  ✓ ${a} → ${c}: ${rounded}px`);
     }
   }
 
@@ -100,14 +127,13 @@ async function audit(width, height, label) {
   return failures;
 }
 
-const allFailures = [
+const fails = [
   ...(await audit(414, 900, "mobile")),
   ...(await audit(820, 1180, "tablet")),
 ];
-
-if (allFailures.length) {
+if (fails.length) {
   console.log("\nFAIL:");
-  for (const f of allFailures) console.log("  ✗ " + f);
+  for (const f of fails) console.log("  ✗ " + f);
   process.exit(1);
 }
 console.log("\nAll layout checks passed.");

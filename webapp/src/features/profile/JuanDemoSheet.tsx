@@ -244,6 +244,62 @@ export function JuanDemoSheet({ onClose }: { onClose: () => void }) {
           </tbody>
         </table>
 
+        {/* CLEANED — green */}
+        <div className="flex h-[27px] items-center border-b border-[#999999] bg-[#228B22] px-[9px]">
+          <span className="text-[12px] font-bold tracking-[0.03em] text-white uppercase">
+            CLEANED · {CLEANED.length}
+          </span>
+        </div>
+        {CLEANED.map((row) => {
+          const isOpen = expanded.has(row.id);
+          return (
+            <div key={row.id}>
+              <button
+                type="button"
+                onClick={() => toggle(row.id)}
+                className="flex w-full items-stretch border-b border-[#999999] bg-white text-left hover:bg-[#f8eac7]"
+                aria-expanded={isOpen}
+              >
+                <span className="w-[6px] shrink-0 bg-[#228B22]" />
+                <span className="relative my-[6px] ml-[6px] block aspect-[3/2] w-[120px] shrink-0 overflow-hidden border border-[#999999] bg-[#f8eac7]">
+                  {row.photo ? (
+                    <Image
+                      src={row.photo}
+                      alt={row.title}
+                      fill
+                      sizes="120px"
+                      className="object-cover"
+                    />
+                  ) : null}
+                </span>
+                <span className="flex flex-1 flex-col px-[9px] py-[6px]">
+                  <span className="block text-[12px] font-bold tracking-[0.03em] text-[#001089] uppercase">
+                    {row.title}
+                  </span>
+                  <span className="block text-[9px] tracking-[0.03em] text-[#999999] uppercase">
+                    {row.category} · {row.neighborhood}
+                  </span>
+                  {isOpen ? (
+                    <>
+                      <span className="mt-[9px] block text-[9px] font-bold tracking-[0.03em] text-[#228B22] uppercase">
+                        {row.date} · ✓ CLEANED
+                      </span>
+                      <span className="mt-[6px] block text-[12px] leading-[18px] text-[#001089]">
+                        {row.status}
+                      </span>
+                    </>
+                  ) : null}
+                </span>
+                <span className="flex shrink-0 items-center justify-center border-l border-[#999999] px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#228B22] uppercase">
+                  +{row.points}
+                </span>
+                <span className="flex w-[36px] shrink-0 items-center justify-center border-l border-[#999999] text-[12px] font-bold text-[#228B22]">
+                  {isOpen ? "[−]" : "[+]"}
+                </span>
+              </button>
+            </div>
+          );
+        })}
         {/* REPORTS — navy */}
         <div className="flex h-[27px] items-center border-b border-[#999999] bg-[#001089] px-[9px]">
           <span className="text-[12px] font-bold tracking-[0.03em] text-white uppercase">
@@ -261,25 +317,13 @@ export function JuanDemoSheet({ onClose }: { onClose: () => void }) {
                 aria-expanded={isOpen}
               >
                 <span className="w-[6px] shrink-0 bg-[#001089]" />
-                <span
-                  className={`relative my-[6px] ml-[6px] block shrink-0 overflow-hidden border border-[#999999] bg-[#f8eac7] ${
-                    isOpen
-                      ? row.aspect === "portrait"
-                        ? "h-[180px] w-[120px]"
-                        : row.aspect === "landscape"
-                          ? "h-[120px] w-[180px]"
-                          : "h-[120px] w-[120px]"
-                      : "h-[48px] w-[48px]"
-                  }`}
-                >
+                <span className="relative my-[6px] ml-[6px] block aspect-[3/2] w-[120px] shrink-0 overflow-hidden border border-[#999999] bg-[#f8eac7]">
                   {row.photo ? (
                     <Image
                       src={row.photo}
                       alt={row.title}
                       fill
-                      sizes={
-                        isOpen ? (row.aspect === "landscape" ? "180px" : "120px") : "48px"
-                      }
+                      sizes="120px"
                       className="object-cover"
                     />
                   ) : null}
@@ -313,66 +357,6 @@ export function JuanDemoSheet({ onClose }: { onClose: () => void }) {
           );
         })}
 
-        {/* CLEANED — green */}
-        <div className="flex h-[27px] items-center border-b border-[#999999] bg-[#228B22] px-[9px]">
-          <span className="text-[12px] font-bold tracking-[0.03em] text-white uppercase">
-            CLEANED · {CLEANED.length}
-          </span>
-        </div>
-        {CLEANED.map((row) => {
-          const isOpen = expanded.has(row.id);
-          return (
-            <div key={row.id}>
-              <button
-                type="button"
-                onClick={() => toggle(row.id)}
-                className="flex w-full items-stretch border-b border-[#999999] bg-white text-left hover:bg-[#f8eac7]"
-                aria-expanded={isOpen}
-              >
-                <span className="w-[6px] shrink-0 bg-[#228B22]" />
-                <span
-                  className={`relative my-[6px] ml-[6px] block shrink-0 overflow-hidden border border-[#999999] bg-[#f8eac7] ${
-                    isOpen ? "h-[120px] w-[120px]" : "h-[48px] w-[48px]"
-                  }`}
-                >
-                  {row.photo ? (
-                    <Image
-                      src={row.photo}
-                      alt={row.title}
-                      fill
-                      sizes={isOpen ? "120px" : "48px"}
-                      className="object-cover"
-                    />
-                  ) : null}
-                </span>
-                <span className="flex flex-1 flex-col px-[9px] py-[6px]">
-                  <span className="block text-[12px] font-bold tracking-[0.03em] text-[#001089] uppercase">
-                    {row.title}
-                  </span>
-                  <span className="block text-[9px] tracking-[0.03em] text-[#999999] uppercase">
-                    {row.category} · {row.neighborhood}
-                  </span>
-                  {isOpen ? (
-                    <>
-                      <span className="mt-[9px] block text-[9px] font-bold tracking-[0.03em] text-[#228B22] uppercase">
-                        {row.date} · ✓ CLEANED
-                      </span>
-                      <span className="mt-[6px] block text-[12px] leading-[18px] text-[#001089]">
-                        {row.status}
-                      </span>
-                    </>
-                  ) : null}
-                </span>
-                <span className="flex shrink-0 items-center justify-center border-l border-[#999999] px-[9px] text-[9px] font-bold tracking-[0.03em] text-[#228B22] uppercase">
-                  +{row.points}
-                </span>
-                <span className="flex w-[36px] shrink-0 items-center justify-center border-l border-[#999999] text-[12px] font-bold text-[#228B22]">
-                  {isOpen ? "[−]" : "[+]"}
-                </span>
-              </button>
-            </div>
-          );
-        })}
       </aside>
     </div>
   );

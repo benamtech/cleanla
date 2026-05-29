@@ -135,6 +135,8 @@ type MapDirection = "up" | "down" | "left" | "right";
 
 const DESKTOP_PAN_STEP_PX = 120;
 const MOBILE_PAN_STEP_PX = 72;
+const PITCH_STEP = 3;
+const BEARING_STEP = 6;
 const CAMERA_DURATION_MS = 120;
 const MIN_PITCH = 0;
 const MAX_PITCH = 75;
@@ -990,6 +992,27 @@ export function CleanLAMap({ mapboxToken }: { mapboxToken: string | null }) {
     mapRef.current?.easeTo({
       center: [nextCenter.lng, nextCenter.lat],
       duration: CAMERA_DURATION_MS,
+    });
+  }, []);
+
+  const adjustCamera = useCallback((direction: MapDirection) => {
+    const map = mapRef.current;
+    if (!map) return;
+    const currentPitch = map.getPitch();
+    const currentBearing = map.getBearing();
+    map.jumpTo({
+      pitch:
+        direction === "up"
+          ? clamp(currentPitch + PITCH_STEP, MIN_PITCH, MAX_PITCH)
+          : direction === "down"
+            ? clamp(currentPitch - PITCH_STEP, MIN_PITCH, MAX_PITCH)
+            : currentPitch,
+      bearing:
+        direction === "left"
+          ? currentBearing - BEARING_STEP
+          : direction === "right"
+            ? currentBearing + BEARING_STEP
+            : currentBearing,
     });
   }, []);
 
